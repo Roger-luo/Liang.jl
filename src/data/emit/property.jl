@@ -64,7 +64,7 @@ function emit_getproperty_fn(info::EmitInfo)
 end
 
 function emit_variant_getproperty(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
-    variant.kind === Named || return :(throw(ArgumentError("cannot access anonymous variant field")))
+    variant.kind === Named || return :($Core.throw(ArgumentError("cannot access anonymous variant field")))
 
     jl = JLIfElse()
     for (field::NamedField, finfo::FieldInfo) in zip(variant.fields, vinfo)

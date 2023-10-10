@@ -1,10 +1,10 @@
 @pass 3 function emit_storage_cons(info::EmitInfo)
     @gensym tag bits ptrs
     quote
-        function $(info.type.storage.name)(tag::UInt8, bits::Tuple, ptrs::Tuple)
+        function $(info.type.storage.name)(tag::UInt8, bits::$Core.Tuple, ptrs::$Core.Tuple)
             $tag = $(xtuple(:tag, (zero(UInt8) for _ in 1:(info.type.storage.size.tag-1))...))
             $bits = $Data.unsafe_padded_reinterpret(NTuple{$(info.type.storage.size.bits), UInt8}, bits)
-            $ptrs = $Data.padded_tuple_any(Val($(info.type.storage.size.ptrs)), ptrs)
+            $ptrs = $Data.padded_tuple_any($Base.Val($(info.type.storage.size.ptrs)), ptrs)
             return $(info.type.storage.name)($tag, $bits, $ptrs)
         end
     end
@@ -30,9 +30,9 @@ function emit_variant_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
     end
     # variant.kind === Named
     quote
-        if !isempty(args) && !isempty(kwargs)
-            throw(ArgumentError("cannot mix positional and keyword arguments"))
-        elseif isempty(args)
+        if $Base.:!($Base.isempty(args)) && $Base.:!($Base.isempty(kwargs))
+            $Core.throw($ArgumentError("cannot mix positional and keyword arguments"))
+        elseif $Base.isempty(args)
             $(emit_kwargs_cons(info, variant, vinfo))
         else
             $(emit_positional_cons(info, variant, vinfo))
@@ -47,8 +47,8 @@ function emit_kwargs_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
         field = variant.fields[kth_field]::NamedField
         get_kw =  if field.default === no_default
             quote
-                haskey(kwargs, $(QuoteNode(field.name))) ||
-                    throw(ArgumentError("missing keyword argument $($(field.name))"))
+                $Base.haskey(kwargs, $(QuoteNode(field.name))) ||
+                    $Core.throw($ArgumentError("missing keyword argument $($(field.name))"))
                 kwargs[$(QuoteNode(field.name))]
             end
         else
@@ -92,7 +92,7 @@ function emit_positional_cons(info::EmitInfo, variant::Variant, vinfo::VariantIn
 
     @gensym bits ptrs
     return quote
-        length(args) == $(length(vinfo)) || throw(ArgumentError(
+        $Base.length(args) == $(length(vinfo)) || $Core.throw($ArgumentError(
             "wrong number of arguments, expect $($(length(vinfo)))")
         )
         $bits = $bits_expr

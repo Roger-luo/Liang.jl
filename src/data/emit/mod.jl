@@ -25,12 +25,14 @@ function pass_m(name, expr, priority::Int=5)
 end
 
 function emit(info::EmitInfo)
-    ret = Expr(:block)
+    ret = quote
+        using Base: ==
+    end
     for pass in EMIT_PASS, fn in pass
         expr = fn(info)
         isnothing(expr) || push!(ret.args, expr)
     end
-    return Expr(:toplevel, Expr(:module, true, info.def.name, ret))
+    return Expr(:toplevel, Expr(:module, false, info.def.name, ret))
 end
 
 """
@@ -50,7 +52,7 @@ function foreach_variant(f, info::EmitInfo, type)
         body[:($type == $(vinfo.tag))] = f(variant, vinfo)
     end
     body.otherwise = quote
-        throw(ArgumentError("invalid variant type: $($type)"))
+        $Core.throw(ArgumentError("invalid variant type: $($type)"))
     end
     return codegen_ast(body)
 end

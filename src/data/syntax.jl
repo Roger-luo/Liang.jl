@@ -13,7 +13,7 @@ Base.show(io::IO, x::SelfType) = print(io, "Self")
 end
 
 struct Field
-    type::Union{Symbol,Expr}
+    type::Union{Symbol,Expr, SelfType}
     type_expr::Union{Symbol,Expr}
 
     function Field(typename::Symbol, type::Union{Symbol,Expr})
@@ -27,7 +27,7 @@ end
 
 struct NamedField
     name::Symbol
-    type::Union{Symbol,Expr}
+    type::Union{Symbol,Expr, SelfType}
     type_expr::Union{Symbol,Expr}
     default # no_default, expr, or literal
     source::Union{Nothing,LineNumberNode}

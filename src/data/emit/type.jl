@@ -9,9 +9,9 @@ end
 @pass 1 function emit_storage(info::EmitInfo)
     return quote
         struct $(info.type.storage.name)
-            tag::NTuple{$(info.type.storage.size.tag), UInt8}
-            bits::NTuple{$(info.type.storage.size.bits), UInt8}
-            ptrs::NTuple{$(info.type.storage.size.ptrs), Any}
+            tag::$Base.NTuple{$(info.type.storage.size.tag), UInt8}
+            bits::$Base.NTuple{$(info.type.storage.size.bits), UInt8}
+            ptrs::$Base.NTuple{$(info.type.storage.size.ptrs), Any}
         end
     end
 end

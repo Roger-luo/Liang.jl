@@ -11,10 +11,10 @@ end
 
 mutable struct FieldInfo
     var::Symbol
-    type::Union{Symbol,Expr}
-    expr::Union{Symbol,Expr}
+    type # eval-ed type with self
+    expr::Union{Symbol,Expr,SelfType}
     is_bitstype::Bool
-    type_guess # eval-ed type
+    type_guess # eval-ed type with self to be Any
     index::Union{Int, UnitRange{Int}, Symbol}
     FieldInfo(var, type, expr, isbitstype, type_guess) =
         new(var, type, expr, isbitstype, type_guess)
@@ -90,7 +90,7 @@ function VariantInfo(def::TypeDef, variant::Variant, tag::Int)
         get_expr = Symbol("##", variant.name, "#get#", kth_field)
         fields[kth_field] = FieldInfo(
             var,
-            f.type_expr,
+            guess_type_expr(def, f.type),
             f.type,
             isbitstype(guess),
             guess,
@@ -145,6 +145,27 @@ function update_index!(info::Dict{Variant, VariantInfo}, size::SizeInfo)
         end
     end
     return info
+end
+
+function guess_type_expr(def::TypeDef, expr)
+    expr isa Type && return expr
+    if expr isa SelfType
+        return :($(def.name).Type)
+    elseif expr isa Symbol
+        if def.name === expr
+            return throw(SyntaxError("use $(def.name).Type for self reference type"))
+        elseif isdefined(def.mod, expr)
+            x = getfield(def.mod, expr)
+            x isa Type || throw(SyntaxError("expect a Type got $(typeof(x)) : $expr"))
+            return x
+        else
+            throw(SyntaxError("unknown type: $expr"; def.source))
+        end
+    elseif Meta.isexpr(expr, :curly)
+        return Expr(:curly, [guess_type_expr(def, tv) for tv in expr.args]...)
+    else
+        throw(SyntaxError("invalid type: $expr"; def.source))
+    end
 end
 
 function guess_type(def::TypeDef, expr)
