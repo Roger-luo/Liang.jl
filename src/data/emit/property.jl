@@ -26,9 +26,16 @@ end
 end
 
 @pass function emit_propertynames(info::EmitInfo)
-    jl = emit_getproperty_fn(info)
-    jl.name = :($Base.propertynames)
-    body = foreach_variant(info, :tag) do variant::Variant, vinfo::VariantInfo
+    return quote
+        function $Base.propertynames(type::$(info.type.name))
+            $(emit_get_data_tag(info))
+            $(emit_variant_fieldnames_body(info))
+        end
+    end
+end
+
+function emit_variant_fieldnames_body(info::EmitInfo)
+    return foreach_variant(info, :tag) do variant::Variant, vinfo::VariantInfo
         variant.kind === Singleton && return :(())
         variant.kind === Anonymous && return xtuple((1:length(variant.fields))...)
 
@@ -37,12 +44,6 @@ end
         end
         return xtuple(names...)
     end
-
-    jl.body = quote
-        $(emit_get_data_tag(info))
-        $body
-    end
-    return codegen_ast(jl)
 end
 
 function emit_get_data_tag(info::EmitInfo)

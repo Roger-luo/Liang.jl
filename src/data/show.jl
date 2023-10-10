@@ -214,3 +214,41 @@ function Base.show(io::IO, mime::MIME"text/plain", info::EmitInfo)
         end
     end
 end
+
+function show_variant(io::IO, data)
+    f = FormatPrinter(io)
+    curr_mod = Base.active_module()
+    data_mod = parentmodule(data_type_module(data))
+    if curr_mod != data_mod
+        f.print(data_mod)
+        f.print(".")
+    end
+    dname = data_type_name(data)
+    vname = variant_name(data)
+    f.print(dname)
+    f.print(".")
+    f.print(vname)
+    return
+end
+
+show_variant(io::IO, ::MIME, data) = show_variant(io, data)
+
+function show_data(io::IO, data)
+    f = FormatPrinter(io)
+    show_variant(io, data)
+    is_singleton(data) && return
+    f.println("(")
+    ff = indent(f, 2);
+    for fieldname in propertynames(data)
+        value = getproperty(data, fieldname)
+        ff.leading()
+        if fieldname isa Symbol
+            f.println(fieldname, "=", value, ",")
+        else
+            f.println(value, ",")
+        end
+    end
+    f.print(")")
+end
+
+show_data(io::IO, ::MIME, data) = show_data(io, data)
