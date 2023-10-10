@@ -1,0 +1,6 @@
+data_type_name(variant_instance_or_type)::Symbol = invalid_method()
+variant_name(variant_instance_or_type)::Symbol = invalid_method()
+variant_type(variant_instance) = invalid_method()
+variant_storage(variant_instance) = invalid_method()
+variant_tag(variant_instance)::UInt8 = invalid_method()
+is_singleton(variant_instance_or_type)::Bool = invalid_method()

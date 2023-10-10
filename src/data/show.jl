@@ -112,3 +112,105 @@ function Base.show(io::IO, mime::MIME"text/plain", def::TypeDef)
     f.println()
     f.print("end"; color=:red)
 end # function Base.show
+
+function Base.show(io::IO, ::MIME"text/plain", info::Storage)
+    f = FormatPrinter(io); f.leading()
+    f.println("Storage "; color=:light_black)
+    f.print("struct "; color=:red)
+    f.print(info.name, '\n'; color=:light_cyan)
+
+    ff = indent(f, 4); ff.leading()
+
+    ff.print("tag"); ff.print("::"; color=:red)
+    ff.println("NTuple{$(info.size.tag), UInt8}"; color=:light_cyan)
+
+    ff.print("bits"); ff.print("::"; color=:red)
+    ff.println("NTuple{$(info.size.bits), UInt8}"; color=:light_cyan)
+
+    ff.print("ptrs"); ff.print("::"; color=:red)
+    ff.print("NTuple{$(info.size.ptrs), Any}"; color=:light_cyan)
+
+    f.println()
+    f.print("end"; color=:red)
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", info::TypeInfo)
+    f = FormatPrinter(io)
+    ff = indent(f)
+
+    f.leading()
+    f.println("# Type"; color=:light_black)
+    f.print("struct "; color=:red)
+    f.print(info.name, '\n'; color=:light_cyan)
+    ff.leading()
+    ff.print("data"); ff.print("::"; color=:red)
+    ff.print(info.storage.name; color=:light_cyan)
+    f.println()
+    f.println("end"; color=:red)
+    f.println()
+
+    f.println("# Variant"; color=:light_black)
+    f.print("struct "; color=:red)
+    f.print(info.variant, "\n"; color=:light_cyan)
+    ff.leading()
+    ff.print("tag"); ff.print("::"; color=:red)
+    ff.print("UInt8"; color=:light_cyan)
+    f.println()
+    f.println("end"; color=:red)
+
+    f.print('\n')
+    f.show(mime, info.storage)
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", info::VariantInfo)
+    f = FormatPrinter(io); f.leading()
+    f.print("[", repr(info.tag), "] "; color=:light_black)
+    f.print(info.def.name)
+    info.def.kind === Singleton && return
+
+    f.print('\n')
+    ff = indent(f, 2); ff.leading()
+    for (idx, finfo::FieldInfo) in enumerate(info)
+        ff.print("[$idx] "; color=:light_black)
+        ff.print(finfo.var); ff.print("::"; color=:red)
+        ff.print(finfo.expr; color=:light_cyan)
+        if finfo.index isa Symbol
+            index = finfo.index::Symbol
+            ff.sep(finfo.expr, index)
+            ff.print(index)
+        elseif finfo.is_bitstype
+            index = finfo.index::UnitRange{Int}
+            ff.sep(finfo.expr, "bits")
+            ff.print("bits[$index]")
+        else
+            index = finfo.index::Int
+            ff.sep(finfo.expr, "ptrs")
+            ff.print("ptrs[$index]")
+        end
+
+        if idx < length(info)
+            ff.println()
+        end
+    end
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", info::EmitInfo)
+    f = FormatPrinter(io)
+    f.print("EmitInfo for ")
+    f.println(info.def.name; color=:light_cyan)
+    f.print("TypeInfo: \n"; color=:light_black)
+    
+    ff = indent(f, 2);
+    ff.show(mime, info.type)
+    ff.println()
+
+    f.println()
+    f.println("Variants: "; color=:light_black)
+    for (idx, (_, vinfo)) in enumerate(info.variants)
+        ff.show(mime, vinfo)
+
+        if idx < length(info.variants)
+            ff.print('\n')
+        end
+    end
+end

@@ -1,3 +1,11 @@
+struct SelfType end
+
+"""
+Syntax placeholder for self type.
+"""
+const Self = SelfType()
+Base.show(io::IO, x::SelfType) = print(io, "Self")
+
 @enum VariantKind begin
     Singleton = 1
     Anonymous = 2
@@ -6,23 +14,35 @@ end
 
 struct Field
     type::Union{Symbol,Expr}
+    type_expr::Union{Symbol,Expr}
 
-    function Field(type::Union{Symbol,Expr})
-        type isa Symbol && return new(type)
+    function Field(typename::Symbol, type::Union{Symbol,Expr})
+        type isa Symbol && return new(replace_with_self(typename, type), type)
         Meta.isexpr(type, :kw) && throw(SyntaxError("field type cannot be a keyword argument"))
-        new(type)
+        type = replace_with_self(typename, type)
+        type_expr = replace_with_self_type(typename, type)
+        new(type, type_expr)
     end
 end
 
 struct NamedField
     name::Symbol
     type::Union{Symbol,Expr}
+    type_expr::Union{Symbol,Expr}
     default # no_default, expr, or literal
     source::Union{Nothing,LineNumberNode}
 end
 
-function NamedField(f::JLKwField)
-    NamedField(f.name, f.type, f.default, f.line)
+function NamedField(typename::Symbol, f::JLKwField)
+    type = replace_with_self(typename, f.type)
+    type_expr = replace_with_self_type(typename, type)
+    NamedField(
+        f.name,
+        type,
+        type_expr,
+        f.default,
+        f.line
+    )
 end
 
 struct Variant
@@ -62,14 +82,14 @@ struct TypeDef
     source::Union{Nothing,LineNumberNode}
 end
 
-function Variant(ex::Union{Symbol, Expr}, source = nothing)
+function Variant(typename::Symbol, ex::Union{Symbol, Expr}, source = nothing)
     if Meta.isexpr(ex, :struct)
         def = JLKwStruct(ex)
         def.ismutable && throw(SyntaxError("mutable structs are not supported"; source))
-        Variant(Named, def.name, def.ismutable, NamedField.(def.fields), source)
+        Variant(Named, def.name, def.ismutable, NamedField.(typename, def.fields), source)
     elseif Meta.isexpr(ex, :call)
         ex.args[1] isa Symbol || throw(SyntaxError("variant name must be a symbol"; source))
-        Variant(Anonymous, ex.args[1], false, Field.(ex.args[2:end]), source)
+        Variant(Anonymous, ex.args[1], false, Field.(typename, ex.args[2:end]), source)
     elseif ex isa Symbol
         Variant(Singleton, ex, false, Field[], source)
     else
@@ -79,11 +99,13 @@ end
 
 function TypeDef(mod::Module, head, body::Expr; source=nothing)
     name, supertype = scan_data_head(head, source)
+    name === :Type && throw(SyntaxError("cannot use reserved name Type for type"; source))
+
     variants = Variant[]
     let source = source
         for each in body.args
             each isa LineNumberNode && (source = each; continue)
-            push!(variants, Variant(each, source))
+            push!(variants, Variant(name, each, source))
         end
     end # let
 
@@ -105,4 +127,26 @@ function scan_data_head(head, source=nothing)
         throw(ArgumentError("type name must be a symbol or curly expression"))
     end
     return name, supertype
+end
+
+function is_self_ref(name::Symbol, expr)
+    expr isa Symbol && expr === name && return true
+    expr isa Symbol && return false
+    Meta.isexpr(expr, :.) || return false
+    expr.args[1] === name || return false
+    expr.args[2] isa QuoteNode || return false
+    expr.args[2].value === :Type && return true
+    return false
+end
+
+function replace_with_self(name::Symbol, expr)
+    is_self_ref(name, expr) && return Self
+    expr isa Expr || return expr
+    return Expr(expr.head, map(x->replace_with_self(name, x), expr.args)...)
+end
+
+function replace_with_self_type(name::Symbol, expr)
+    expr isa SelfType && return :($name.Type)
+    expr isa Expr || return expr
+    return Expr(expr.head, map(x->replace_with_self_type(name, x), expr.args)...)
 end
