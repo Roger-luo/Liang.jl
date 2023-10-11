@@ -48,6 +48,6 @@
         body::Pattern
         vars::Vector{Symbol}
         iterators::Vector{Pattern}
-        guard::Pattern
+        guard::Union{Nothing, Pattern}
     end
 end

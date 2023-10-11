@@ -5,7 +5,11 @@ function Data.show_data(io::IO, x::Pattern.Type)
     elseif isa_variant(x, Pattern.Variable)
         f.print(x.:1)
     elseif isa_variant(x, Pattern.Constant)
-        f.print("\$(", x.:1, ")")
+        if x.:1 isa Union{Symbol, Expr}
+            f.print("\$(", x.:1, ")")
+        else
+            f.print(x.:1)
+        end
     elseif isa_variant(x, Pattern.And)
         f.print("(")
         f.show(x.:1)
@@ -72,15 +76,13 @@ function Data.show_data(io::IO, x::Pattern.Type)
         f.print("[")
         f.show(x.body)
         f.print(" for ")
-        for (idx, var) in enumerate(x.vars)
+        for (idx, (var, iter)) in enumerate(zip(x.vars, x.iterators))
             idx > 1 && f.print(", ")
             f.print(var)
-        end
-        f.print(" in ")
-        for (idx, iter) in enumerate(x.iterators)
-            idx > 1 && f.print(", ")
+            f.print(" in ")
             f.show(iter)
         end
+
         if !isnothing(x.guard)
             f.print(" if ")
             f.show(x.guard)
