@@ -14,8 +14,7 @@ Pattern.Comprehension(
     Pattern.VCat([Pattern.Variable(:a), Pattern.Variable(:b)]),
     [:a, :b],
     [Pattern.Constant(1:10), Pattern.Constant(1:10)],
-    Pattern.Wildcard
+    nothing,
 )
-
 Pattern.VCat([Pattern.Variable(:a), Pattern.Variable(:b)])
 Pattern.Constant(1:10)
