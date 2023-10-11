@@ -50,9 +50,10 @@ struct Variant
     name::Symbol
     is_mutable::Bool
     fields::Union{Vector{Field},Vector{NamedField}}
+    doc
     source::Union{Nothing,LineNumberNode}
 
-    function Variant(kind, name, is_mutable, fields, source)
+    function Variant(kind, name, is_mutable, fields, doc, source)
         if kind == Named
             all(fields) do f
                 f isa NamedField
@@ -70,7 +71,7 @@ struct Variant
         name in fieldnames(DataType) && throw(SyntaxError("cannot use reserved name $name for variant", source))
         name in (:data, :tag) && throw(SyntaxError("cannot use reserved name $name for variant", source))
 
-        new(kind, name, is_mutable, fields, source)
+        new(kind, name, is_mutable, fields, doc, source)
     end
 end
 
@@ -83,15 +84,23 @@ struct TypeDef
 end
 
 function Variant(typename::Symbol, ex::Union{Symbol, Expr}, source = nothing)
+    if Meta.isexpr(ex, :macrocall) && ex.args[1] == GlobalRef(Core, Symbol("@doc"))
+        source = ex.args[2]
+        doc = ex.args[3]
+        ex = ex.args[4]
+    else
+        doc = nothing
+    end
+
     if Meta.isexpr(ex, :struct)
         def = JLKwStruct(ex)
         def.ismutable && throw(SyntaxError("mutable structs are not supported"; source))
-        Variant(Named, def.name, def.ismutable, NamedField.(typename, def.fields), source)
+        Variant(Named, def.name, def.ismutable, NamedField.(typename, def.fields), doc, source)
     elseif Meta.isexpr(ex, :call)
         ex.args[1] isa Symbol || throw(SyntaxError("variant name must be a symbol"; source))
-        Variant(Anonymous, ex.args[1], false, Field.(typename, ex.args[2:end]), source)
+        Variant(Anonymous, ex.args[1], false, Field.(typename, ex.args[2:end]), doc, source)
     elseif ex isa Symbol
-        Variant(Singleton, ex, false, Field[], source)
+        Variant(Singleton, ex, false, Field[], doc, source)
     else
         throw(SyntaxError("variant must be a struct, call, or symbol"; source))
     end

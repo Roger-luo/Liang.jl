@@ -1,8 +1,8 @@
 @pass function emit_binding(info::EmitInfo)
     return expr_map(info.def.variants) do variant::Variant
         vinfo = info.variants[variant]::VariantInfo
-        if variant.kind === Singleton
-            return quote
+        binding = if variant.kind === Singleton
+            quote
                 const $(variant.name) = $(info.type.variant)($(vinfo.tag))()
             end
         else
@@ -10,6 +10,64 @@
                 const $(variant.name) = $(info.type.variant)($(vinfo.tag))
             end
         end # if
+
+        if isnothing(variant.doc)
+            doc = default_variant_doc(info, variant)
+        else
+            doc = variant.doc
+        end
+
+        doc = variant_heading(info, variant) * "\n\n" * doc
+
+        quote
+            $binding
+            $Base.@doc $doc $(variant.name)
+        end
+    end
+end
+
+function variant_heading(info::EmitInfo, variant::Variant)
+    if variant.kind === Singleton
+        return """
+            $(info.def.name).$(variant.name)
+        """
+    elseif variant.kind === Anonymous
+        args = map(variant.fields) do field::Field
+            "::" * string(field.type)
+        end
+        args = join(args, ", ")
+        return """
+            $(info.def.name).$(variant.name)($args)
+        """
+    else # variant.kind === Named
+        args = map(variant.fields) do field::NamedField
+            "::" * string(field.type)
+        end
+        args = join(args, ", ")
+        kwargs = map(variant.fields) do field::NamedField
+            string(field.name) * "::" * string(field.type)
+        end
+        kwargs = join(kwargs, ", ")
+        return """
+            $(info.def.name).$(variant.name)($args)
+            $(info.def.name).$(variant.name)(;$kwargs)
+        """
+    end
+end
+
+function default_variant_doc(info::EmitInfo, variant::Variant)
+    if variant.kind === Singleton
+        return """
+        Singleton variant of `$(info.def.name)`
+        """
+    elseif variant.kind === Anonymous
+        return """
+        Anonymous variant of `$(info.def.name)`
+        """
+    else
+        return """
+        Named variant of `$(info.def.name)`
+        """
     end
 end
 

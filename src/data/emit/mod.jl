@@ -32,7 +32,16 @@ function emit(info::EmitInfo)
         expr = fn(info)
         isnothing(expr) || push!(ret.args, expr)
     end
-    return Expr(:toplevel, Expr(:module, false, info.def.name, ret))
+
+    return Expr(:toplevel,
+        Expr(:module, false, info.def.name, ret),
+        Expr(
+            :macrocall,
+            GlobalRef(Core, Symbol("@__doc__")),
+            info.def.source,
+            info.def.name,    
+        )
+    )
 end
 
 """
