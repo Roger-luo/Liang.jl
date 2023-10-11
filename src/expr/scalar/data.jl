@@ -1,4 +1,7 @@
 # TODO: Add some units here
+"""
+expression for Unit
+"""
 @data Unit begin
     Some
     None
@@ -11,10 +14,20 @@ end
 
 # This is like MLIR IndexType
 # depends on the Platform (32-bit or 64-bit)
+"""
+    Index
+
+This is like MLIR IndexType, with basic support for arithmetic operations.
+Unlike the general scalar expression, no simplification will be run on this expression.
+It supports pattern matching.
+"""
 @data Index begin
     Wildcard
     Match(Symbol)
 
+    """
+    Constant index, e.g. 0, 1, 2, 3, ...
+    """
     Constant(Int)
     Variable(Symbol)
     Add(Index, Index)
@@ -27,6 +40,11 @@ end
     Abs(Index)
 end
 
+"""
+    Num
+
+This is the basic numeric type.
+"""
 @data Num begin
     Real(Float64)
     Imag(Float64)
@@ -35,6 +53,11 @@ end
     Euler # Irrational{e}
 end
 
+"""
+    Scalar
+
+This is the basic scalar type. It supports pattern matching.
+"""
 @data Scalar begin
     # pattern semantics
     Wildcard

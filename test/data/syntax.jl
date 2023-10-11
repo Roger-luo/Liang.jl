@@ -1,6 +1,27 @@
 using ExproniconLite
 using Liang.Data: Data, Emit, TypeDef, EmitInfo
 
+ex = quote
+    """
+    Foo
+    """
+    Foo
+
+    """
+    Bar...
+    """
+    Bar(Int, Float64)
+
+    """
+    Baz
+    """
+    struct Baz
+        x::Int
+        y::Float64
+        z::Vector{MyADT}
+    end
+end
+
 abstract type MySuper end
 def = TypeDef(Main, :(MyADT <: MySuper), quote
     Foo
