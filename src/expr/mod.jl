@@ -3,8 +3,8 @@ Definition & Construction of Expressions
 """
 module Expression
 
-using Liang.Data: @data
+using Liang.Data: Data, @data, isa_variant
 
-include("scalar.jl")
+include("scalar/mod.jl")
 
 end # Expression

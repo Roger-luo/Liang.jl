@@ -11,3 +11,8 @@ variant_nfields(variant_instance)::Int = invalid_method()
 is_singleton(variant_instance_or_type)::Bool = invalid_method()
 variant_fieldname(variant_instance, idx::Int)::Symbol = variant_fieldnames(variant_instance)[idx]
 variant_fieldtype(variant_instance, idx::Int)::Symbol = variant_fieldtypes(variant_instance)[idx]
+
+function isa_variant(instance, variant)
+    is_singleton(instance) && return instance === variant
+    return variant_type(instance) === variant
+end

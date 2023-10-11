@@ -49,7 +49,7 @@ end
 function emit_get_data_tag(info::EmitInfo)
     quote
         # storage does not have type params here
-        data = getfield(type, :data)::$(info.type.storage.name)
+        data = $Core.getfield(type, :data)::$(info.type.storage.name)
         tag = data.tag[1]::UInt8
     end
 end

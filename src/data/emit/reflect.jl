@@ -76,6 +76,15 @@ end
     end
 end
 
+@pass function emit_variant_type(info::EmitInfo)
+    return quote
+        function $Data.variant_type(type::$(info.type.name))
+            $(emit_get_data_tag(info))
+            $(info.type.variant)(tag)
+        end
+    end
+end
+
 @pass function emit_is_singleton_on_instance(info::EmitInfo)
     body = foreach_variant(info, :tag) do variant::Variant, vinfo
         variant.kind == Singleton && return true

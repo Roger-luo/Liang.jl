@@ -219,7 +219,7 @@ function show_variant(io::IO, data)
     f = FormatPrinter(io)
     curr_mod = Base.active_module()
     data_mod = parentmodule(data_type_module(data))
-    if curr_mod != data_mod
+    if curr_mod != data_mod && !Base.isvisible(data_type_name(data), data_mod, curr_mod)
         f.print(data_mod)
         f.print(".")
     end

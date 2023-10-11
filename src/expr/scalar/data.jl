@@ -1,3 +1,4 @@
+# TODO: Add some units here
 @data Unit begin
     Some
     None
@@ -10,20 +11,30 @@ end
 
 @data Num begin
     Real(Float64)
+    Imag(Float64)
     Complex(Float64, Float64)
-    Irrational(Symbol)
+    Pi # Irrational{π}
+    Euler # Irrational{e}
 end
 
 @data Scalar begin
+    # pattern semantics
     Wildcard
-    Literal(Num.Type)
+    Match(Symbol) # Match a variable
 
-    Variable(Symbol)
+    # expression semantics
     Constant(Num.Type)
+    Variable(Symbol)
 
     Neg(Scalar)
     Abs(Scalar)
     Call(Symbol, Vector{Scalar})
+
+    struct Fn
+        name::Symbol
+        args::Vector{Scalar}
+        body::Scalar
+    end
 
     struct Sum
         coeffs::Num.Type
