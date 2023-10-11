@@ -9,5 +9,6 @@ include("scalar/mod.jl")
 include("basis/mod.jl")
 include("state/mod.jl")
 include("op/mod.jl")
+include("tensor/mod.jl")
 
 end # Expression
