@@ -16,3 +16,5 @@ x = Scalar.Sum(
         Scalar.Constant(2.0) => 2.0,
     )
 )
+
+Scalar.Constant(1.5) + Scalar.Variable(:x)

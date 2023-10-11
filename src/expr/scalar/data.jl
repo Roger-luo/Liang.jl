@@ -46,6 +46,8 @@ end
 This is the basic numeric type.
 """
 @data Num begin
+    Zero
+    One
     Real(Float64)
     Imag(Float64)
     Complex(Float64, Float64)

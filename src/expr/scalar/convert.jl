@@ -1,7 +1,14 @@
 Base.convert(::Type{Index.Type}, x::Int) = Index.Constant(x)
 Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(x)
 
-Base.convert(::Type{Num.Type}, x::Real) = Num.Real(x)
+Base.convert(::Type{Num.Type}, x::Real) = if iszero(x)
+    Num.Zero
+elseif isone(x)
+    Num.One
+else
+    Num.Real(x)
+end
+
 Base.convert(::Type{Num.Type}, x::Complex) = if iszero(imag(x))
     Num.Real(real(x))
 elseif iszero(real(x))
@@ -9,6 +16,7 @@ elseif iszero(real(x))
 else
     Num.Complex(real(x), imag(x))
 end
+
 Base.convert(::Type{Num.Type}, x::typeof(MathConstants.e)) = Num.Euler
 Base.convert(::Type{Num.Type}, x::typeof(pi)) = Num.Pi
 
@@ -39,6 +47,10 @@ end
 Base.convert(::Type{Num.Type}, x::Scalar.Type) = onlyif_constant(x->x.:1, x)
 Base.convert(::Type{T}, x::Num.Type) where {T <: Number} = if isa_variant(x, Num.Real)
     return x.:1
+elseif isa_variant(x, Num.Zero)
+    return zero(T)
+elseif isa_variant(x, Num.One)
+    return one(T)
 elseif isa_variant(x, Num.Imag)
     return convert(T, x.:1) * im
 elseif isa_variant(x, Num.Complex)
