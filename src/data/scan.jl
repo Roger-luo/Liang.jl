@@ -12,7 +12,7 @@ end
 mutable struct FieldInfo
     var::Symbol
     type # eval-ed type with self
-    expr::Union{Symbol,Expr,SelfType}
+    expr::Union{Symbol, Expr, Type, SelfType}
     is_bitstype::Bool
     type_guess # eval-ed type with self to be Any
     index::Union{Int, UnitRange{Int}, Symbol}

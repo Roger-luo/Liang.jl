@@ -1,3 +1,6 @@
+Base.convert(::Type{Index.Type}, x::Int) = Index.Constant(x)
+Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(x)
+
 Base.convert(::Type{Num.Type}, x::Real) = Num.Real(x)
 Base.convert(::Type{Num.Type}, x::Complex) = if iszero(imag(x))
     Num.Real(real(x))
@@ -13,6 +16,18 @@ Base.convert(::Type{Scalar.Type}, x::Num.Type) = Scalar.Constant(x)
 Base.convert(::Type{Scalar.Type}, x::Number) = Scalar.Constant(convert(Num.Type, x))
 
 # backwards conversion
+Base.convert(::Type{Int}, x::Index.Type) = if isa_variant(x, Index.Constant)
+    return x.:1
+else
+    error("Expect a constant index, got $x")
+end
+
+Base.convert(::Type{Symbol}, x::Index.Type) = if isa_variant(x, Index.Variable)
+    return x.:1
+else
+    error("Expect a variable index, got $x")
+end
+
 function onlyif_constant(f, x::Scalar.Type)
     if isa_variant(x, Scalar.Constant)
         return f(x)

@@ -9,6 +9,24 @@ end
     Real
 end
 
+# This is like MLIR IndexType
+# depends on the Platform (32-bit or 64-bit)
+@data Index begin
+    Wildcard
+    Match(Symbol)
+
+    Constant(Int)
+    Variable(Symbol)
+    Add(Index, Index)
+    Sub(Index, Index)
+    Mul(Index, Index)
+    Div(Index, Index) # int division, floor
+    Rem(Index, Index) # remainder
+    Pow(Index, Index)
+    Neg(Index)
+    Abs(Index)
+end
+
 @data Num begin
     Real(Float64)
     Imag(Float64)
@@ -29,12 +47,6 @@ end
     Neg(Scalar)
     Abs(Scalar)
     Call(Symbol, Vector{Scalar})
-
-    struct Fn
-        name::Symbol
-        args::Vector{Scalar}
-        body::Scalar
-    end
 
     struct Sum
         coeffs::Num.Type
