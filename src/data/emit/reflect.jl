@@ -1,3 +1,23 @@
+@pass function emit_is_datatype(info::EmitInfo)
+    return quote
+        function $Data.is_datatype(::$Base.Type{$(info.type.name)})
+            return true
+        end
+
+        function $Data.is_datatype(::$Base.Type{$(info.type.variant)})
+            return true
+        end
+
+        function $Data.is_datatype(::$(info.type.name))
+            return true
+        end
+
+        function $Data.is_datatype(::$(info.type.variant))
+            return true
+        end
+    end
+end
+
 @pass function emit_data_type_module(info::EmitInfo)
     return quote
         function $Data.data_type_module(::$Base.Type{$(info.type.name)})

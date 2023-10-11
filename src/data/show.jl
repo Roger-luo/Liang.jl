@@ -227,7 +227,7 @@ function show_variant(io::IO, data)
     vname = variant_name(data)
     f.print(dname)
     f.print(".")
-    f.print(vname)
+    f.print(vname; color=:light_cyan)
     return
 end
 
@@ -237,17 +237,24 @@ function show_data(io::IO, data)
     f = FormatPrinter(io)
     show_variant(io, data)
     is_singleton(data) && return
-    f.println("(")
+    f.print("(\n")
     ff = indent(f, 2);
-    for fieldname in propertynames(data)
+    fnames = propertynames(data)
+    for (idx, fieldname) in enumerate(fnames)
         value = getproperty(data, fieldname)
         ff.leading()
         if fieldname isa Symbol
-            f.println(fieldname, "=", value, ",")
+            ff.print(fieldname, "="; color=:light_black)
+            ff.show(value)
         else
-            f.println(value, ",")
+            ff.show(value)
+        end
+
+        if idx < length(fnames)
+            ff.print(",\n")
         end
     end
+    f.println()
     f.print(")")
 end
 

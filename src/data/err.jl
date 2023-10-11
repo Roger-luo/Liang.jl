@@ -3,6 +3,8 @@ Base.@kwdef struct SyntaxError <: Exception
     source::Union{Nothing,LineNumberNode} = nothing
 end
 
+SyntaxError(msg::String; source = nothing) = SyntaxError(msg, source)
+
 function Base.showerror(io::IO, e::SyntaxError)
     print(io, e.msg)
 end

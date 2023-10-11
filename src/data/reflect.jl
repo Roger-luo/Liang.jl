@@ -1,3 +1,4 @@
+is_datatype(variant_instance_or_type)::Bool = false
 data_type_name(variant_instance_or_type)::Symbol = invalid_method()
 data_type_module(variant_instance_or_type)::Module = invalid_method()
 variant_name(variant_instance_or_type)::Symbol = invalid_method()

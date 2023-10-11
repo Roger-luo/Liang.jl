@@ -90,7 +90,7 @@ function VariantInfo(def::TypeDef, variant::Variant, tag::Int)
         get_expr = Symbol("##", variant.name, "#get#", kth_field)
         fields[kth_field] = FieldInfo(
             var,
-            guess_type_expr(def, f.type),
+            materialize_self(def, f.type),
             f.type,
             isbitstype(guess),
             guess,
@@ -145,65 +145,6 @@ function update_index!(info::Dict{Variant, VariantInfo}, size::SizeInfo)
         end
     end
     return info
-end
-
-function guess_type_expr(def::TypeDef, expr)
-    expr isa Type && return expr
-    if expr isa SelfType
-        return :($(def.name).Type)
-    elseif expr isa Symbol
-        if def.name === expr
-            return throw(SyntaxError("use $(def.name).Type for self reference type"))
-        elseif isdefined(def.mod, expr)
-            x = getfield(def.mod, expr)
-            x isa Type || throw(SyntaxError("expect a Type got $(typeof(x)) : $expr"))
-            return x
-        else
-            throw(SyntaxError("unknown type: $expr"; def.source))
-        end
-    elseif Meta.isexpr(expr, :curly)
-        return Expr(:curly, [guess_type_expr(def, tv) for tv in expr.args]...)
-    else
-        throw(SyntaxError("invalid type: $expr"; def.source))
-    end
-end
-
-function guess_type(def::TypeDef, expr)
-    expr isa Type && return expr
-
-    if expr isa SelfType
-        return Any # always box self reference
-    elseif expr isa Symbol
-        if def.name === expr
-            return throw(SyntaxError("use $(def.name).Type for self reference type"))
-        elseif isdefined(def.mod, expr)
-            x = getfield(def.mod, expr)
-            x isa Type || throw(SyntaxError("expect a Type got $(typeof(x)) : $expr"))
-            return x
-        else
-            throw(SyntaxError("unknown type: $expr"; def.source))
-        end
-    elseif Meta.isexpr(expr, :curly)
-        name = expr.args[1]
-        typevars = expr.args[2:end]
-        type = guess_type(def, name)
-        type isa Type || throw(SyntaxError("invalid type: $expr"; def.source))
-
-        vars, unknowns = [], Int[]
-        for tv in typevars
-            tv = guess_type(def, tv)
-            (tv isa Union{Symbol, Expr}) && push!(unknowns, length(vars) + 1) 
-            push!(vars, tv)
-        end
-
-        if isempty(unknowns)
-            return type{vars...}
-        else
-            return expr
-        end
-    else
-        throw(SyntaxError("invalid type: $expr"; def.source))
-    end
 end
 
 function typevars_to_expr(def::TypeDef)
