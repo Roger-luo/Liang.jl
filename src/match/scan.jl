@@ -3,6 +3,7 @@ struct EmitInfo
     value::Any
     patterns::Vector{Pattern.Type}
     exprs::Vector{Any}
+    value_holder::Symbol
     final_label::Symbol
     return_var::Symbol
     source
@@ -31,7 +32,14 @@ function EmitInfo(mod::Module, value, body, source = nothing)
         throw(SyntaxError("invalid pattern table: $body"; source))
     end
 
-    return EmitInfo(mod, value, patterns, exprs, gensym("final"), gensym("return"), source)
+    return EmitInfo(
+        mod, value, patterns,
+        exprs,
+        gensym("value"),
+        gensym("final"),
+        gensym("return"),
+        source
+    )
 end
 
 function expr2pattern(expr)

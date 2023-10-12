@@ -1,4 +1,4 @@
-using Liang.Match: EmitInfo, Pattern, expr2pattern
+using Liang.Match: Match, EmitInfo, Pattern, expr2pattern
 using Liang.Expression: Scalar
 
 expr2pattern(:(1:10))
@@ -53,3 +53,5 @@ info = EmitInfo(Main, :x, quote
     (a, b) && c => a + b
     [x, y, 2, 3] => x
 end)
+
+Match.emit(info)
