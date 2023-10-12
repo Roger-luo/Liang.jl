@@ -1,3 +1,39 @@
+struct EmitInfo
+    mod::Module
+    value::Any
+    patterns::Vector{Pattern.Type}
+    exprs::Vector{Any}
+    final_label::Symbol
+    return_var::Symbol
+    source
+end
+
+function EmitInfo(mod::Module, value, body, source = nothing)
+    # single pattern
+    if Meta.isexpr(body, :call) && body.args[1] === :(=>)
+        patterns = [expr2pattern(body.args[2])]
+        exprs = [body.args[3]]
+    elseif Meta.isexpr(body, :block)
+        line_info = source
+        patterns = Pattern.Type[]
+        exprs = Any[]
+        for stmt in body.args
+            if stmt isa LineNumberNode
+                line_info = stmt
+            elseif Meta.isexpr(stmt, :call) && stmt.args[1] === :(=>)
+                push!(patterns, expr2pattern(stmt.args[2]))
+                push!(exprs, stmt.args[3])
+            else
+                throw(SyntaxError("invalid pattern table: $body"; source=line_info))
+            end
+        end
+    else
+        throw(SyntaxError("invalid pattern table: $body"; source))
+    end
+
+    return EmitInfo(mod, value, patterns, exprs, gensym("final"), gensym("return"), source)
+end
+
 function expr2pattern(expr)
     expr === :_ && return Pattern.Wildcard
     expr isa Symbol && return Pattern.Variable(expr)

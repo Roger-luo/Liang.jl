@@ -1,4 +1,4 @@
-struct FormatPrinter{IO_t, Indent, Leading, Print, PrintLn, Unquoted, Show, Sep}
+struct FormatPrinter{IO_t, Indent, Leading, Print, PrintLn, Unquoted, Show, ShowStr, Sep}
     io::IO_t
     indent::Indent
     leading::Leading
@@ -6,6 +6,7 @@ struct FormatPrinter{IO_t, Indent, Leading, Print, PrintLn, Unquoted, Show, Sep}
     println::PrintLn
     unquoted::Unquoted
     show::Show
+    show_str::ShowStr
     sep::Sep
 end
 
@@ -20,6 +21,8 @@ function FormatPrinter(io::IO)
     print_unquoted(xs...; kw...) = print(Base.sprint(Base.show_unquoted, xs...); kw...)
     show(mime, x) = Base.show(io, mime, x)
     show(x) = Base.show(io, x)
+    show_str(mime, x; kw...) = Base.sprint(Base.show, mime, x; kw...)
+    show_str(x; kw...) = Base.sprint(Base.show, x; kw...)
 
     function sep(left, right, trim::Int = 20)
         _, width = displaysize(io)
@@ -34,7 +37,7 @@ function FormatPrinter(io::IO)
         indent, leading,
         print, println,
         print_unquoted,
-        show, sep
+        show, show_str, sep
     )
 end
 
