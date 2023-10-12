@@ -1,28 +1,26 @@
+const JLType = Union{Symbol, Expr, DataType, UnionAll}
+
 @data Pattern begin
     Wildcard
     Variable(Symbol)
-    Constant(Any)
+    Quote(Any)
 
     And(Pattern, Pattern)
     Or(Pattern, Pattern)
+    Kw(Symbol, Pattern)
+
+    struct Ref
+        head # must be some constant object
+        args::Vector{Pattern}
+    end
 
     struct Call
-        head::Pattern
+        head # must be constant object
         args::Vector{Pattern}
         kwargs::Dict{Symbol, Pattern}
     end
 
-    struct Dot
-        head::Pattern
-        name::Pattern
-    end
-
     struct Tuple
-        xs::Vector{Pattern}
-    end
-
-    struct NamedTuple
-        names::Vector{Symbol}
         xs::Vector{Pattern}
     end
 
@@ -30,11 +28,40 @@
         xs::Vector{Pattern}
     end
 
+    struct Row
+        xs::Vector{Pattern}
+    end
+
+    struct NRow
+        n::Int
+        xs::Vector{Pattern}
+    end
+
     struct VCat
         xs::Vector{Pattern}
     end
 
+    struct HCat
+        xs::Vector{Pattern}
+    end
+
     struct NCat
+        n::Int
+        xs::Vector{Pattern}
+    end
+
+    struct TypedVCat
+        type::JLType
+        xs::Vector{Pattern}
+    end
+
+    struct TypedHCat
+        type::JLType
+        xs::Vector{Pattern}
+    end
+
+    struct TypedNCat
+        type::JLType
         n::Int
         xs::Vector{Pattern}
     end
@@ -44,10 +71,19 @@
         body::Pattern
     end
 
+    struct TypeAnnotate
+        body::Pattern
+        type::JLType
+    end
+
     struct Comprehension
+        body::Pattern # generator
+    end
+
+    struct Generator
         body::Pattern
         vars::Vector{Symbol}
         iterators::Vector{Pattern}
-        guard::Union{Nothing, Pattern}
+        filter::Union{Nothing, Pattern}
     end
 end

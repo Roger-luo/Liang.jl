@@ -10,3 +10,10 @@ function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
         Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
     end
 end
+
+# function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
+#     @match (lhs, rhs) begin
+#         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(Number(x) * Number(y))
+#         (Scalar.Constant(x), Scalar.Variable(y)) => Scalar.Prod(x, Dict(y => 1))
+#     end
+# end
