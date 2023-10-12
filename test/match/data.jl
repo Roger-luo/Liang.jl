@@ -42,3 +42,7 @@ expr2pattern(:(
         9 0;2 3;;;
     ]
 ))
+
+expr2pattern(:((a, b) && c))
+expr2pattern(:((a, b) || c))
+expr2pattern(:(::Int))

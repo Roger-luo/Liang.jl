@@ -6,5 +6,6 @@ include("data.jl")
 include("show.jl")
 include("scan.jl")
 include("macro.jl")
+include("emit/mod.jl")
 
 end # Match

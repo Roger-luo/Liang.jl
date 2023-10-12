@@ -4,6 +4,8 @@ function expr2pattern(expr)
     expr isa Expr || return Pattern.Quote(expr)
 
     head = expr.head
+    head === :(&&) && return and2pattern(expr)
+    head === :(||) && return or2pattern(expr)
     head === :ref && return ref2pattern(expr)
     head === :call && return call2pattern(expr)
     head === :. && return dot2pattern(expr)
@@ -24,6 +26,14 @@ function expr2pattern(expr)
     head === :generator && return generator2pattern(expr)
 
     error("unsupported expression: $expr")
+end
+
+function and2pattern(expr)
+    return Pattern.And(expr2pattern(expr.args[1]), expr2pattern(expr.args[2]))
+end
+
+function or2pattern(expr)
+    return Pattern.Or(expr2pattern(expr.args[1]), expr2pattern(expr.args[2]))
 end
 
 function generator2pattern(expr)
@@ -112,7 +122,11 @@ function kw2pattern(expr)
 end
 
 function type2pattern(expr)
-    return Pattern.TypeAnnotate(expr2pattern(expr.args[1]), expr.args[2])
+    if length(expr.args) == 1
+        return Pattern.TypeAnnotate(Pattern.Wildcard, expr.args[1])
+    else
+        return Pattern.TypeAnnotate(expr2pattern(expr.args[1]), expr.args[2])
+    end
 end
 
 function dot2pattern(expr)
