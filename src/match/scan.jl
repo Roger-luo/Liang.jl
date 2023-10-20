@@ -209,9 +209,3 @@ function call2pattern(expr)
         kwargs,
     )
 end
-
-function guess_module(mod::Module, expr)
-    Meta.isexpr(expr, :.) || return mod
-    submod = guess_module(mod, expr.args[1])
-    return guess_module(submod, expr.args[2].value)
-end

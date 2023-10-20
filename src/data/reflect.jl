@@ -2,6 +2,7 @@ is_datatype(variant_instance_or_type)::Bool = false
 data_type_name(variant_instance_or_type)::Symbol = invalid_method()
 data_type_module(variant_instance_or_type)::Module = invalid_method()
 variant_name(variant_instance_or_type)::Symbol = invalid_method()
+variant_kind(variant_instance_or_type)::VariantKind = invalid_method()
 variant_type(variant_instance) = invalid_method()
 variant_storage(variant_instance) = invalid_method()
 variant_tag(variant_instance)::UInt8 = invalid_method()

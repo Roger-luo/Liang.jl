@@ -1,6 +1,7 @@
 module Match
 
-using Liang.Data: Data, @data, isa_variant, SyntaxError
+using ExproniconLite: expr_map
+using Liang.Data: Data, @data, isa_variant, SyntaxError, guess_type
 
 include("data.jl")
 include("scan.jl")

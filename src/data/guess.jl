@@ -17,6 +17,19 @@ function materialize_self(mod::Module, expr, self; source=nothing)
     end
 end
 
+function guess_module(mod::Module, expr)
+    Meta.isexpr(expr, :.) || return mod
+    if expr isa Symbol
+        isdefined(mod, expr) || throw(SyntaxError("unknown module: $expr"))
+        return getfield(mod, expr)
+    elseif Meta.isexpr(expr.args[1], :.)
+        submod = guess_module(mod, expr.args[1])
+        return guess_module(submod, expr.args[2].value)
+    else
+        throw(SyntaxError("invalid module: $expr"))
+    end
+end
+
 function guess_type(mod::Module, expr; source=nothing)
     expr isa Type && return expr
     expr isa SelfType && return Any # always box self reference
@@ -45,10 +58,10 @@ function guess_type(mod::Module, expr; source=nothing)
             return expr
         end
     elseif Meta.isexpr(expr, :.)
-        submod = guess_type(mod, expr.args[1])
+        submod = guess_module(mod, expr.args[1])
         return guess_type(submod, expr.args[2].value)
     else
-        throw(SyntaxError("invalid type: $expr"; source))
+        return expr
     end
 end
 

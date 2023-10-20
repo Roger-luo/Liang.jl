@@ -76,6 +76,24 @@ end
     end
 end
 
+@pass function emit_variant_kind(info::EmitInfo)
+    body = foreach_variant(info, :tag) do variant::Variant, vinfo::VariantInfo
+        return QuoteNode(variant.kind)
+    end
+
+    return quote
+        function $Data.variant_kind(type::$(info.type.name))
+            $(emit_get_data_tag(info))
+            $body
+        end
+
+        function $Data.variant_kind(variant_type::$(info.type.variant))
+            tag = variant_type.tag
+            $body
+        end
+    end
+end
+
 @pass function emit_variant_type(info::EmitInfo)
     return quote
         function $Data.variant_type(type::$(info.type.name))

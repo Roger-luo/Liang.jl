@@ -28,6 +28,16 @@ const JLType = Union{Symbol, Expr, DataType, UnionAll}
         xs::Vector{Pattern}
     end
 
+    # <splat>...
+    struct Splat
+        body::Pattern
+    end
+
+    struct TypeAnnotate
+        body::Pattern
+        type::JLType
+    end
+
     struct Row
         xs::Vector{Pattern}
     end
@@ -64,16 +74,6 @@ const JLType = Union{Symbol, Expr, DataType, UnionAll}
         type::JLType
         n::Int
         xs::Vector{Pattern}
-    end
-
-    # <splat>...
-    struct Splat
-        body::Pattern
-    end
-
-    struct TypeAnnotate
-        body::Pattern
-        type::JLType
     end
 
     struct Comprehension
