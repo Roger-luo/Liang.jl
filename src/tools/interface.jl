@@ -1,7 +1,7 @@
 module Interface
 
 using ExproniconLite: JLFunction, name_only, no_default
-using DocStringExtensions: DocStringExtensions, Abbreviation
+using DocStringExtensions: DocStringExtensions, Abbreviation, SIGNATURES
 
 const INTERFACE_STUB = Symbol("#INTERFACE_STUB#")
 
@@ -35,6 +35,13 @@ function Base.show(io::IO, im::InterfaceMethod)
     isnothing(im.return_type) || print(io, " -> ", im.return_type)
 end
 
+"""
+    @interface <function definition>
+
+Mark a method definition as interface. This will help
+the toolchain generating docstring and other things. The
+interface method is usually the most generic one that errors.
+"""
 macro interface(fn)
     return esc(interface_m(__module__, fn))
 end
@@ -100,6 +107,14 @@ end
 
 # DocStringExtensions plugin
 struct InterfaceSignature <: Abbreviation end
+
+"""
+    const INTERFACE = InterfaceSignature()
+
+Similar to `SIGNATURES` but has more precise method
+information obtained directly from the [`@interface`](@ref)
+macro.
+"""
 const INTERFACE = InterfaceSignature()
 
 function DocStringExtensions.format(::InterfaceSignature, buf, doc)
@@ -118,6 +133,13 @@ function DocStringExtensions.format(::InterfaceSignature, buf, doc)
 end
 
 struct InterfaceList <: Abbreviation end
+
+"""
+    const INTERFACE_LIST = InterfaceList()
+
+List all the interface methods of a module. It shows
+nothing if the binded object is not a module.
+"""
 const INTERFACE_LIST = InterfaceList()
 
 function DocStringExtensions.format(::InterfaceList, buf, doc)
