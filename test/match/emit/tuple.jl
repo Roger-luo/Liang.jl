@@ -1,5 +1,5 @@
 using Liang.Data.Prelude
-using Liang.Match: expr2pattern, EmitInfo, PatternInfo
+using Liang.Match: Match, expr2pattern, EmitInfo, PatternInfo
 
 pat = expr2pattern(:((x, xs::Int...)))
 variant_type(pat.xs[2])
@@ -10,6 +10,8 @@ info = EmitInfo(Main, :x, quote
     (x, xs..., y) => xs
     (x, xs..., 1) => xs
     (x, xs..., y, z) => xs
+    (x, xs::Int..., y, z) => xs
+    (x, (y, z)...) => (y, z)
 end)
 
 pinfo = PatternInfo(info)
@@ -21,4 +23,16 @@ pinfo.scope
 
 pinfo = PatternInfo(info)
 Match.decons(pinfo, info.patterns[3])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[4])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[5])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[6])(:x)
 pinfo.scope

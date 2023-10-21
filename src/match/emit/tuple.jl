@@ -16,7 +16,6 @@ function basic_tuple(info::PatternInfo, pat::Pattern.Type, type)
     end
 end
 
-
 function splat_tuple(info::PatternInfo, pat::Pattern.Type)
     # NOTE: we use splat as the terminator of our loop
     return function tuple(value)
@@ -25,17 +24,33 @@ function splat_tuple(info::PatternInfo, pat::Pattern.Type)
         for (idx, p) in enumerate(pat.xs)
             splat_idx = idx
             isa_variant(p, Pattern.Splat) && break
+            push!(stmts, decons(info, p)(:($value[$idx])))
         end
 
         # match splat
         p = pat.xs[splat_idx]
-        if splat_idx == length(pat.xs) # splat is last
-            stmt = decons(info, p.body)(:($value[$splat_idx:end]))
-            push!(stmts, stmt)
+        @gensym placeholder
+        stmt = if splat_idx == length(pat.xs) # splat is last
+            quote
+                $placeholder = $value[$splat_idx:end]
+                true
+            end
         else
             nleft = length(pat.xs) - splat_idx
-            stmt = decons(info, p.body)(:($value[$splat_idx:end-$nleft]))
-            push!(stmts, stmt)
+            quote
+                $placeholder = $value[$splat_idx:end-$nleft]
+                true
+            end
+        end
+        push!(stmts, stmt)
+        if isa_variant(p.body, Pattern.TypeAnnotate)
+            @gensym N
+            push!(stmts, quote
+                $placeholder isa NTuple{$N, $(p.body.type)} where $N
+            end)
+            push!(stmts, decons(info, p.body.body)(placeholder))
+        else
+            push!(stmts, decons(info, p.body)(placeholder))
         end
 
         for (idx, p) in enumerate(reverse(pat.xs))
