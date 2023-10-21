@@ -37,10 +37,12 @@ function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)
 end
 
 include("decons.jl")
+include("collect.jl")
 include("leafs.jl")
 include("logic.jl")
 include("call.jl")
 include("tuple.jl")
+include("vect.jl")
 
 function decons_type_annotate(info::PatternInfo, pat::Pattern.Type)
     return function annotate(value)
