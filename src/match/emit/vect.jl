@@ -14,7 +14,7 @@ function decons_ref(info::PatternInfo, pat::Pattern.Type)
 end
 
 function decons_untyped_vect(info::PatternInfo, pat::Pattern.Type)
-    coll = CollectionDecons(info, pat, pat.args) do _
+    coll = CollectionDecons(info, pat, pat.xs) do _
         :($Base.Vector)
     end
     set_view_type_check!(coll) do view, eltype
