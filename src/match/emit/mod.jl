@@ -1,10 +1,11 @@
 function emit(info::EmitInfo)
-    matches = expr_map(info.patterns, info.exprs) do pat, expr
-        cond, assigns = emit_decons(info, pat)
+    matches = expr_map(info.cases, info.exprs) do case, expr
+        pinfo = PatternInfo(info)
+        cond = decons(pinfo, case)(info.value_holder)
 
         quote
-            if $cond
-                $(info.return_var) = let $(assigns...)
+            if $cond && $(check_duplicated_variables(pinfo))
+                $(info.return_var) = let $(bind_match_values(pinfo)...)
                     $expr
                 end
                 @goto $(info.final_label)
@@ -15,6 +16,7 @@ function emit(info::EmitInfo)
     quote
         $(info.value_holder) = $(info.value)
         $matches
+        error("matching non-exhaustic")
         @label $(info.final_label)
         $(info.return_var)
     end
@@ -34,6 +36,23 @@ PatternInfo(info::EmitInfo) = PatternInfo(info, Dict{Symbol, Set{Symbol}}())
 function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)
     push!(get!(Set{Symbol}, info.scope, k), v)
     return info
+end
+
+function check_duplicated_variables(info::PatternInfo)
+    stmts = []
+    for (var, values) in info.scope
+        length(values) > 1 || continue
+        # NOTE: let's just not support 1.8-
+        val_expr = xtuple(values...)
+        push!(stmts, :($Base.allequal($val_expr)))
+    end
+    return foldl(and_expr, stmts, init=true)
+end
+
+function bind_match_values(info::PatternInfo)
+    return map(collect(keys(info.scope))) do k
+        :($k = $(first(info.scope[k])))
+    end
 end
 
 include("decons.jl")

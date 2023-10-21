@@ -1,6 +1,6 @@
 module Match
 
-using ExproniconLite: expr_map
+using ExproniconLite: expr_map, xtuple
 using Liang.Data: Data, @data, isa_variant, SyntaxError, guess_type
 
 include("data.jl")

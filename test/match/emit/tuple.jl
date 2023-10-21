@@ -1,6 +1,10 @@
 using Liang.Data.Prelude
 using Liang.Match: Match, expr2pattern, EmitInfo, PatternInfo
 
+Match.@match (1, 2) begin
+    (x, y) => x
+end
+
 pat = expr2pattern(:((x, xs::Int...)))
 variant_type(pat.xs[2])
 
