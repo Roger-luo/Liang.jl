@@ -1,18 +1,18 @@
 @pass function emit_is_datatype(info::EmitInfo)
     return quote
-        function $Data.is_datatype(::$Base.Type{$(info.type.name)})
+        function $Reflection.is_datatype(::$Base.Type{$(info.type.name)})
             return true
         end
 
-        function $Data.is_datatype(::$Base.Type{$(info.type.variant)})
+        function $Reflection.is_datatype(::$Base.Type{$(info.type.variant)})
             return true
         end
 
-        function $Data.is_datatype(::$(info.type.name))
+        function $Reflection.is_datatype(::$(info.type.name))
             return true
         end
 
-        function $Data.is_datatype(::$(info.type.variant))
+        function $Reflection.is_datatype(::$(info.type.variant))
             return true
         end
     end
@@ -20,19 +20,19 @@ end
 
 @pass function emit_data_type_module(info::EmitInfo)
     return quote
-        function $Data.data_type_module(::$Base.Type{$(info.type.name)})
+        function $Reflection.data_type_module(::$Base.Type{$(info.type.name)})
             return $(info.def.name)
         end
 
-        function $Data.data_type_module(::$Base.Type{$(info.type.variant)})
+        function $Reflection.data_type_module(::$Base.Type{$(info.type.variant)})
             return $(info.def.name)
         end
 
-        function $Data.data_type_module(::$(info.type.name))
+        function $Reflection.data_type_module(::$(info.type.name))
             return $(info.def.name)
         end
 
-        function $Data.data_type_module(::$(info.type.variant))
+        function $Reflection.data_type_module(::$(info.type.variant))
             return $(info.def.name)
         end
     end
@@ -40,19 +40,19 @@ end
 
 @pass function emit_data_type_name(info::EmitInfo)
     return quote
-        function $Data.data_type_name(::$Base.Type{$(info.type.name)})
+        function $Reflection.data_type_name(::$Base.Type{$(info.type.name)})
             return $(QuoteNode(info.def.name))
         end
 
-        function $Data.data_type_name(::$Base.Type{$(info.type.variant)})
+        function $Reflection.data_type_name(::$Base.Type{$(info.type.variant)})
             return $(QuoteNode(info.def.name))
         end
 
-        function $Data.data_type_name(::$(info.type.name))
+        function $Reflection.data_type_name(::$(info.type.name))
             return $(QuoteNode(info.def.name))
         end
 
-        function $Data.data_type_name(::$(info.type.variant))
+        function $Reflection.data_type_name(::$(info.type.variant))
             return $(QuoteNode(info.def.name))
         end
     end
@@ -64,12 +64,12 @@ end
     end
 
     return quote
-        function $Data.variant_name(type::$(info.type.name))
+        function $Reflection.variant_name(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
 
-        function $Data.variant_name(variant_type::$(info.type.variant))
+        function $Reflection.variant_name(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end
@@ -82,12 +82,12 @@ end
     end
 
     return quote
-        function $Data.variant_kind(type::$(info.type.name))
+        function $Reflection.variant_kind(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
 
-        function $Data.variant_kind(variant_type::$(info.type.variant))
+        function $Reflection.variant_kind(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end
@@ -96,7 +96,7 @@ end
 
 @pass function emit_variant_type(info::EmitInfo)
     return quote
-        function $Data.variant_type(type::$(info.type.name))
+        function $Reflection.variant_type(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $(info.type.variant)(tag)
         end
@@ -109,7 +109,7 @@ end
         return false
     end
     return quote
-        function $Data.is_singleton(type::$(info.type.name))
+        function $Reflection.is_singleton(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
@@ -122,7 +122,7 @@ end
         return false
     end
     return quote
-        function $Data.is_singleton(variant_type::$(info.type.variant))
+        function $Reflection.is_singleton(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end
@@ -138,12 +138,12 @@ end
 @pass function emit_variant_fieldnames(info::EmitInfo)
     body = emit_variant_fieldnames_body(info)
     return quote
-        function $Data.variant_fieldnames(type::$(info.type.name))
+        function $Reflection.variant_fieldnames(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
 
-        function $Data.variant_fieldnames(variant_type::$(info.type.variant))
+        function $Reflection.variant_fieldnames(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end
@@ -161,12 +161,12 @@ end
     end
 
     return quote
-        function $Data.variant_fieldtypes(type::$(info.type.name))
+        function $Reflection.variant_fieldtypes(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
 
-        function $Data.variant_fieldtypes(variant_type::$(info.type.variant))
+        function $Reflection.variant_fieldtypes(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end
@@ -180,12 +180,12 @@ end
     end
 
     return quote
-        function $Data.variant_nfields(type::$(info.type.name))
+        function $Reflection.variant_nfields(type::$(info.type.name))
             $(emit_get_data_tag(info))
             $body
         end
 
-        function $Data.variant_nfields(variant_type::$(info.type.variant))
+        function $Reflection.variant_nfields(variant_type::$(info.type.variant))
             tag = variant_type.tag
             $body
         end

@@ -1,4 +1,4 @@
-using Liang.Match: Match, EmitInfo, Pattern, expr2pattern
+using Liang.Match: Match, EmitInfo, Pattern, expr2pattern, PatternInfo
 using Liang.Expression: Scalar
 
 expr2pattern(:(1:10))
@@ -47,11 +47,31 @@ expr2pattern(:((a, b) && c))
 expr2pattern(:((a, b) || c))
 expr2pattern(:(::Int))
 
+struct Foo
+    x::Int
+    y::Int
+end
 
 info = EmitInfo(Main, :x, quote
     (a, b) => a + b
     (a, b) && c => a + b
-    [x, y, 2, 3] => x
+    Int[1, y] => y
+    Pattern.Variable(a) => a
+    Foo(a, b) => (a, b)
 end)
 
-Match.emit(info)
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[1])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[3])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[4])(:x)
+pinfo.scope
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.patterns[5])(:x)
+pinfo.scope

@@ -1,7 +1,7 @@
 module Emit
 
 using ExproniconLite: JLStruct, JLFunction, JLIfElse, xtuple, expr_map, codegen_ast
-using Liang.Data: Data, Variant, VariantInfo, TypeDef, EmitInfo, FieldInfo,
+using Liang.Data: Data, Reflection, Variant, VariantInfo, TypeDef, EmitInfo, FieldInfo,
     Singleton, Anonymous, Named, NamedField, Field, no_default, SelfType
 
 const EMIT_PASS = [[] for _ in 1:10] # priority => [pass]
