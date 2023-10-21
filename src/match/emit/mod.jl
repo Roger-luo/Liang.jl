@@ -42,12 +42,7 @@ include("logic.jl")
 include("call.jl")
 include("tuple.jl")
 
-function decons_splat(info::EmitInfo, pat::Pattern.Type)
-    return function splat(value)
-    end
-end
-
-function decons_type_annotate(info::EmitInfo, pat::Pattern.Type)
+function decons_type_annotate(info::PatternInfo, pat::Pattern.Type)
     return function annotate(value)
         and_expr(
             :($value isa $(pat.type)),
