@@ -1,7 +1,7 @@
 struct EmitInfo
     mod::Module
     value::Any
-    patterns::Vector{Pattern.Type}
+    cases::Vector{Pattern.Type}
     exprs::Vector{Any}
     value_holder::Symbol
     final_label::Symbol
@@ -12,17 +12,17 @@ end
 function EmitInfo(mod::Module, value, body, source = nothing)
     # single pattern
     if Meta.isexpr(body, :call) && body.args[1] === :(=>)
-        patterns = [expr2pattern(body.args[2])]
+        cases = [expr2pattern(body.args[2])]
         exprs = [body.args[3]]
     elseif Meta.isexpr(body, :block)
         line_info = source
-        patterns = Pattern.Type[]
+        cases = Pattern.Type[]
         exprs = Any[]
         for stmt in body.args
             if stmt isa LineNumberNode
                 line_info = stmt
             elseif Meta.isexpr(stmt, :call) && stmt.args[1] === :(=>)
-                push!(patterns, expr2pattern(stmt.args[2]))
+                push!(cases, expr2pattern(stmt.args[2]))
                 push!(exprs, stmt.args[3])
             else
                 throw(SyntaxError("invalid pattern table: $body"; source=line_info))
@@ -33,7 +33,7 @@ function EmitInfo(mod::Module, value, body, source = nothing)
     end
 
     return EmitInfo(
-        mod, value, patterns,
+        mod, value, cases,
         exprs,
         gensym("value"),
         gensym("final"),
