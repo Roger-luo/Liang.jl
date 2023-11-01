@@ -27,7 +27,7 @@ function decons_call(info::PatternInfo, pat::Pattern.Type)
         end
         kwargs_conds = mapfoldl(and_expr, pat.kwargs, init=true) do kw
             key, val = kw
-            decons(info, val)(:($Base.getproperty($value, $key)))
+            decons(info, val)(:($Base.getproperty($value, $(QuoteNode(key)))))
         end
     else
         Base.fieldcount(head) >= nfields || throw(SyntaxError("too many fields to match: $pat"))

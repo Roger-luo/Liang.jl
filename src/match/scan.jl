@@ -48,6 +48,7 @@ function expr2pattern(expr)
     expr isa Expr || return Pattern.Quote(expr)
 
     head = expr.head
+    head === :$ && return quote2pattern(expr)
     head === :(&&) && return and2pattern(expr)
     head === :(||) && return or2pattern(expr)
     head === :ref && return ref2pattern(expr)
@@ -69,7 +70,11 @@ function expr2pattern(expr)
     head === :comprehension && return comprehension2pattern(expr)
     head === :generator && return generator2pattern(expr)
 
-    error("unsupported expression: $expr")
+    error("unsupported expression: $(expr)")
+end
+
+function quote2pattern(expr)
+    return Pattern.Quote(expr.args[1])
 end
 
 function and2pattern(expr)

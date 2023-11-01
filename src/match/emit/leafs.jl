@@ -20,9 +20,7 @@ end
 
 function decons_quote(info::PatternInfo, pat::Pattern.Type)
     return function _quote(value)
-        return quote
-            $value == $(pat.:1)
-        end
+        return xcall(PartialEq, :eq, value, pat.:1)
     end
 end
 
