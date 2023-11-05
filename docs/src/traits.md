@@ -41,3 +41,7 @@ end
 
 and in terms of dispatch, developers should just check if their input object implements
 the trait interface by calling it (Julia does not do static checking anyway)!
+
+## Traits and Interfaces
+
+A set of interfaces defined within a module is a trait.
