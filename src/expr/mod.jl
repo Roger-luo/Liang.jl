@@ -6,6 +6,7 @@ module Expression
 using Liang.Data: Data
 using Liang.Data.Prelude
 using Liang.Match: @match
+using Liang.Derive: @derive
 
 include("scalar/mod.jl")
 include("basis/mod.jl")

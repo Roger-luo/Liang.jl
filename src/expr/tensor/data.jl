@@ -19,7 +19,7 @@ The tensor language for describing general tensor networks.
 
     struct Variable
         name::Symbol
-        dims::Vector{Index}
+        dims::Vector{Index.Type}
     end
 
     struct Device
@@ -29,7 +29,7 @@ The tensor language for describing general tensor networks.
 
     struct Reshape
         tensor::Tensor
-        dims::Vector{Index}
+        dims::Vector{Index.Type}
     end
 
     # bundle a few legs into one
@@ -45,14 +45,14 @@ The tensor language for describing general tensor networks.
     struct Slice
         tensor::Tensor
         # old => new leg dims
-        dims::Vector{Vector{Index}}
+        dims::Vector{Vector{Index.Type}}
         # new => old id
         legs::Vector{Int}
     end
 
     struct PermuteDims
         tensor::Tensor
-        perm::Vector{Index}
+        perm::Vector{Index.Type}
     end
 
     struct Conjugate

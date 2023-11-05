@@ -19,7 +19,3 @@ function Base.:(==)(lhs::Num.Type, rhs::Number)
         Num.Euler => rhs == ℯ
     end
 end
-
-function Base.:(==)(lhs::Number, rhs::Num.Type)
-    rhs == lhs
-end

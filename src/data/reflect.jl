@@ -4,14 +4,14 @@ $INTERFACE_LIST
 module Reflection
 
 using Liang.Tools.Interface: @interface, INTERFACE, INTERFACE_LIST
-using ..Data: VariantKind
+using ..Data: VariantKind, invalid_method
 
 """
 $INTERFACE
 
 Check if given object is a data type or data type instance.
 """
-@interface is_datatype(variant_instance_or_type)::Bool = false
+@interface is_data_type(variant_instance_or_type)::Bool = false
 
 """
 $INTERFACE
@@ -26,6 +26,13 @@ $INTERFACE
 Get the module of a data type or data type instance.
 """
 @interface data_type_module(variant_instance_or_type)::Module = invalid_method()
+
+"""
+$INTERFACE
+
+Return a Tuple of all variant objects of given data type.
+"""
+@interface variants(type)::Tuple = invalid_method()
 
 """
 $INTERFACE
@@ -107,9 +114,23 @@ Get the `idx`-th field type of given variant type.
 """
 $INTERFACE
 
+Get the field of given variant instance by index knowing the variant type.
+"""
+@interface variant_getfield(variant_instance, ::Val, idx::Int) = invalid_method()
+
+"""
+$INTERFACE
+
+Get the field of given variant instance by name knowing the variant type.
+"""
+@interface variant_getfield(variant_instance, ::Val, name::Symbol) = invalid_method()
+
+"""
+$INTERFACE
+
 Check if given object is a variant instance of given variant type.
 """
-@interface function isa_variant(instance, variant)
+Base.@constprop :aggressive @interface function isa_variant(instance, variant)
     is_singleton(instance) && return instance === variant
     return variant_type(instance) === variant
 end

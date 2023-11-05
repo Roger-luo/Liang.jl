@@ -4,7 +4,7 @@
             $Data.show_variant(io, x)
         end
 
-        function $Base.show(io::IO, mime::$Base.MIME"text/plain", x::$(info.type.variant))
+        function $Base.show(io::IO, mime::$(MIME"text/plain"), x::$(info.type.variant))
             $Data.show_variant(io, mime, x)
         end
     end
@@ -16,7 +16,7 @@ end
             $Data.show_data(io, x)
         end
 
-        function $Base.show(io::IO, mime::$Base.MIME"text/plain", x::$(info.type.name))
+        function $Base.show(io::IO, mime::$(MIME"text/plain"), x::$(info.type.name))
             $Data.show_data(io, mime, x)
         end
     end

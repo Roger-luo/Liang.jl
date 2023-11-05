@@ -99,7 +99,10 @@ end
 
 function type_only(expr)
     expr isa Expr || return Any
-    Meta.isexpr(expr, :(::)) && return expr.args[2]
+    if Meta.isexpr(expr, :(::))
+        length(expr.args) == 2 && return expr.args[2]
+        return expr.args[1]
+    end
     Meta.isexpr(expr, :kw) && return type_only(expr.args[1])
     Meta.isexpr(expr, :(=)) && return type_only(expr.args[1])
     error("invalid expression: $expr")

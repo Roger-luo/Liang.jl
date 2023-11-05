@@ -44,4 +44,23 @@ the trait interface by calling it (Julia does not do static checking anyway)!
 
 ## Traits and Interfaces
 
-A set of interfaces defined within a module is a trait.
+A set of interfaces defined within a module is a trait. The module
+should contain a set of holy-trait types that is used for dispatching. For example,
+
+```julia
+module PartialEq
+
+abstract type Trait end
+struct Full <: Trait end # all the interface is implemented
+struct Some <: Trait end # some of the interface is implemented
+struct None <: Trait end # none of the interface is implemented
+
+@generated function Trait(self::Type)
+    # checks if self is overloaded on all the interface
+end
+
+eq(lhs, rhs) = error("not implemented")
+ne(lhs, rhs) = !eq(lhs, rhs)
+
+end
+```

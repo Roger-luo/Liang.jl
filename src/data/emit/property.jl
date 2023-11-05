@@ -34,6 +34,16 @@ end
     end
 end
 
+@pass function emit_variant_getfield_num(info::EmitInfo)
+    return expr_map(info.variants) do (variant, vinfo)
+        return quote
+            function $Reflection.variant_getfield(type::$(info.type.name), ::$Base.Val{$(vinfo.tag)}, f::Int)
+                $(emit_variant_getproperty_num(info, variant, vinfo))
+            end
+        end
+    end
+end
+
 function emit_variant_fieldnames_body(info::EmitInfo)
     return foreach_variant(info, :tag) do variant::Variant, vinfo::VariantInfo
         variant.kind === Singleton && return :(())
@@ -69,7 +79,7 @@ function emit_variant_getproperty(info::EmitInfo, variant::Variant, vinfo::Varia
     jl = JLIfElse()
     for (field::NamedField, finfo::FieldInfo) in zip(variant.fields, vinfo)
         field_name = QuoteNode(field.name)
-        jl[:(f === $field_name)] = emit_variant_getfield(info, finfo)
+        jl[:(f === $field_name)] = emit_variant_getfield_from_storage(info, finfo)
     end
     jl.otherwise = quote
         return $Core.throw($Base.ArgumentError(
@@ -82,7 +92,7 @@ end
 function emit_variant_getproperty_num(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
     jl = JLIfElse()
     for (idx, finfo::FieldInfo) in enumerate(vinfo)
-        jl[:(f === $idx)] = emit_variant_getfield(info, finfo)
+        jl[:(f === $idx)] = emit_variant_getfield_from_storage(info, finfo)
     end
     jl.otherwise = quote
         return $Core.throw($Base.ArgumentError(
@@ -93,7 +103,7 @@ function emit_variant_getproperty_num(info::EmitInfo, variant::Variant, vinfo::V
     codegen_ast(jl)
 end
 
-function emit_variant_getfield(::EmitInfo, finfo::FieldInfo)
+function emit_variant_getfield_from_storage(::EmitInfo, finfo::FieldInfo)
     finfo.is_bitstype && return quote
         return $Data.unsafe_padded_reinterpret(
             $(finfo.type), data.bits[$(finfo.index)]

@@ -21,4 +21,5 @@ def = TypeDef(Main, :Pattern, quote
 end)
 
 info = EmitInfo(def)
+Emit.emit_variant_getfield_num(info)
 ex = Emit.emit_cons(info)

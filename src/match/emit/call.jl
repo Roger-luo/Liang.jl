@@ -17,7 +17,7 @@ function decons_call(info::PatternInfo, pat::Pattern.Type)
     @gensym value
     nfields = length(pat.args) + length(pat.kwargs)
     head = Base.eval(info.emit.mod, pat.head)
-    if Data.is_datatype(head) # check if our pattern is correct
+    if Data.is_data_type(head) # check if our pattern is correct
         Data.variant_nfields(head) >= nfields || throw(SyntaxError("invalid pattern: $pat"))
         Data.variant_kind(head) == Data.Anonymous && length(pat.kwargs) > 0 && throw(SyntaxError("invalid pattern: $pat"))
 

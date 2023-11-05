@@ -7,10 +7,14 @@ expression for Unit
     None
 end
 
+@derive Unit[PartialEq, Hash]
+
 @data Domain begin
     Complex
     Real
 end
+
+@derive Domain[PartialEq, Hash]
 
 # This is like MLIR IndexType
 # depends on the Platform (32-bit or 64-bit)
@@ -40,6 +44,8 @@ It supports pattern matching.
     Abs(Index)
 end
 
+@derive Index[PartialEq, Hash]
+
 """
     Num
 
@@ -54,6 +60,8 @@ This is the basic numeric type.
     Pi # Irrational{π}
     Euler # Irrational{e}
 end
+
+@derive Num[PartialEq, Hash]
 
 """
     Scalar
@@ -99,3 +107,5 @@ This is the basic scalar type. It supports pattern matching.
         unit::Unit.Type
     end
 end
+
+@derive Scalar[PartialEq, Hash]
