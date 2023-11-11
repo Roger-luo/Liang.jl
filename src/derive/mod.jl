@@ -5,5 +5,7 @@ using ..Data.Prelude
 using ..Data: Reflection
 
 include("macro.jl")
+include("eq.jl")
+include("hash.jl")
 
 end # Derive
