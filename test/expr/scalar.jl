@@ -1,5 +1,5 @@
 using Liang.Data
-using Liang.Expression: Scalar
+using Liang.Expression: Scalar, Num
 x = Num.Real(1.0)
 convert(Real, Num.Real(1.0))
 
@@ -49,8 +49,10 @@ foo(x)
 @descend foo(x)
 
 x = Num.Real(1.0)
+hash(x, UInt64(0x01))
 @code_warntype hash(x, UInt64(0x01))
 
+Num.Real(1.0) == Num.Real(1.0)
 @code_warntype Num.Real(1.0) == Num.Real(1.0)
 x = Scalar.Constant(1.5)
 y = Scalar.Constant(1.5)

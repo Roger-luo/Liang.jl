@@ -27,12 +27,10 @@ function derive_impl(::Val{:PartialEq}, mod::Module, type::Module)
     for variant_type in variants(type.Type)
         cond = Expr(:&&)
         for name in variant_fieldnames(variant_type)
-            push!(
-                cond.args,
-                :($Base.:(==)(
-                    $Base.getproperty(lhs, $name), $Base.getproperty(rhs, $name)
-                ))
-            )
+            lhs_val = xcall(Reflection, :variant_getfield, :lhs, Val(variant_type.tag), QuoteNode(name))
+            rhs_val = xcall(Reflection, :variant_getfield, :rhs, Val(variant_type.tag), QuoteNode(name))
+            eq_expr = xcall(Base, :(==), lhs_val, rhs_val)
+            push!(cond.args, eq_expr)
         end
         jl[:(vtype == $variant_type)] = quote
             return $cond
@@ -56,7 +54,8 @@ function derive_impl(::Val{:Hash}, mod::Module, type::Module)
     for variant_type in variants(type.Type)
         body = :h
         for name in variant_fieldnames(variant_type)
-            body = :(hash($Base.getproperty(x, $name), $body))
+            val = xcall(Reflection, :variant_getfield, :x, Val(variant_type.tag), QuoteNode(name))
+            body = :(hash($val, $body))
         end
         jl[:(vtype == $variant_type)] = quote
             return $body
