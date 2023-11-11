@@ -1,4 +1,28 @@
 @data PrimitiveOp begin
+    # these constants
+    # are just predefined for convenience
+    X
+    Y
+    Z
+    S
+    H
+    T
+    SWAP
+    CNOT
+    CZ
+    CPHASE(Scalar.Type)
+    ISWAP
+    SQISWAP
+    SQRTSWAP
+    SQRTISWAP
+    XX(Scalar.Type)
+    YY(Scalar.Type)
+    ZZ(Scalar.Type)
+    RX(Scalar.Type)
+    RY(Scalar.Type)
+    RZ(Scalar.Type)
+    PHASE(Scalar.Type)
+
     Pauli(Vector{UInt8})
 
     struct Perm

@@ -1,5 +1,5 @@
 Base.convert(::Type{Index.Type}, x::Int) = Index.Constant(x)
-Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(x)
+Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(name=x)
 
 Base.convert(::Type{Num.Type}, x::Real) = if iszero(x)
     Num.Zero
@@ -31,7 +31,7 @@ else
 end
 
 Base.convert(::Type{Symbol}, x::Index.Type) = if isa_variant(x, Index.Variable)
-    return x.:1
+    return x.name
 else
     error("Expect a variable index, got $x")
 end
