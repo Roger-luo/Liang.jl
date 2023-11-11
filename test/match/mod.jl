@@ -23,16 +23,15 @@ rhs = 1
     _ => true
 end
 
-@macroexpand @match x begin
-    Scalar.Sum(coeffs, terms=$(
-        Dict(
-            Scalar.Constant(1.0) => 1.0,
-            Scalar.Constant(2.0) => 2.0,
-        )
-    )) => coeffs
+function foo(x)
+    @match x begin
+        Scalar.Sum(coeffs, terms) => terms
+    end
 end
 
 PartialEq.eq(x.terms, Dict(
     Scalar.Constant(1.0) => Num.One,
     Scalar.Constant(2.0) => Num.Real(2.0),
 ))
+
+@code_warntype foo(x)

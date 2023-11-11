@@ -23,13 +23,15 @@ function decons_call(info::PatternInfo, pat::Pattern.Type)
 
         type_assert = :($Data.isa_variant($value, $head))
         args_conds = mapfoldl(and_expr, enumerate(pat.args), init=true) do (idx, x)
-            decons(info, x)(:($Base.getproperty($value, $idx)))
+            call_ex = xcall(Reflection, :variant_getfield, value, Val(head.tag), idx)
+            decons(info, x)(call_ex)
         end
         kwargs_conds = mapfoldl(and_expr, pat.kwargs, init=true) do kw
             key, val = kw
-            decons(info, val)(:($Base.getproperty($value, $(QuoteNode(key)))))
+            call_ex = xcall(Reflection, :variant_getfield, value, Val(head.tag), QuoteNode(key))
+            decons(info, val)(call_ex)
         end
-    else
+    elseif isconcretetype(head)
         Base.fieldcount(head) >= nfields || throw(SyntaxError("too many fields to match: $pat"))
 
         type_assert = :($value isa $head)
@@ -40,6 +42,8 @@ function decons_call(info::PatternInfo, pat::Pattern.Type)
             key, val = kw
             decons(info, val)(:($Core.getfield($value, $key)))
         end
+    else
+        throw(SyntaxError("invalid pattern: $pat, expect @data type or concrete type"))
     end
 
     return function call(x)

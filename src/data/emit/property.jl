@@ -34,10 +34,22 @@ end
     end
 end
 
+@pass function emit_variant_getfield(info::EmitInfo)
+    return expr_map(info.variants) do (variant, vinfo)
+        return quote
+            function $Reflection.variant_getfield(type::$(info.type.name), ::$Base.Val{$(vinfo.tag)}, f::Symbol)
+                data = $Core.getfield(type, :data)::$(info.type.storage.name)
+                $(emit_variant_getproperty(info, variant, vinfo))
+            end
+        end
+    end
+end
+
 @pass function emit_variant_getfield_num(info::EmitInfo)
     return expr_map(info.variants) do (variant, vinfo)
         return quote
             function $Reflection.variant_getfield(type::$(info.type.name), ::$Base.Val{$(vinfo.tag)}, f::Int)
+                data = $Core.getfield(type, :data)::$(info.type.storage.name)
                 $(emit_variant_getproperty_num(info, variant, vinfo))
             end
         end
