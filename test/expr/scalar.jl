@@ -1,7 +1,8 @@
 using Liang.Data
-using Liang.Expression: Scalar, Num, Index
+using Liang.Expression: Scalar, Num, Index, @scalar_str, @index_str, @routine_str
 
-
+scalar"x" * (scalar"%1" * 2.5 + 1)
+routine"foo"(scalar"x", scalar"x" + 1)
 
 x = Num.Real(1.0)
 convert(Real, Num.Real(1.0))

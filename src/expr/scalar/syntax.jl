@@ -103,3 +103,33 @@ Base.:(^)(lhs::Int, rhs::Index.Type) = Index.Constant(lhs) ^ rhs
 Base.rem(lhs::Index.Type, rhs::Index.Type) = Index.Rem(lhs, rhs)
 Base.rem(lhs::Index.Type, rhs::Int) = lhs % Index.Constant(rhs)
 Base.rem(lhs::Int, rhs::Index.Type) = Index.Constant(lhs) % rhs
+
+
+function parse_var(f, s::AbstractString)
+    if (m = match(r"%([0-9]+)", s); !isnothing(m))
+        id = parse(Int64, m.captures[1])
+        id > 0 || error("invalid SSA id: $id ≤ 0")
+        return f(;name=Symbol(s), id)
+    else
+        return f(name=Symbol(s))
+    end
+end
+
+# variable syntax
+macro scalar_str(s::AbstractString)
+    return parse_var(Scalar.Variable, s)
+end
+
+macro index_str(s::AbstractString)
+    return parse_var(Index.Variable, s)
+end
+
+struct RoutineStub
+    name::Symbol
+end
+
+(stub::RoutineStub)(args::Scalar.Type...) = Scalar.RoutineCall(stub.name, collect(args))
+
+macro routine_str(s::AbstractString)
+    return RoutineStub(Symbol(s))
+end

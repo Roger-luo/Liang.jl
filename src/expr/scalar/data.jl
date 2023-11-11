@@ -33,7 +33,11 @@ It supports pattern matching.
     Constant index, e.g. 0, 1, 2, 3, ...
     """
     Constant(Int)
-    Variable(Symbol)
+
+    struct Variable
+        name::Symbol
+        id::UInt64 = 0# SSA id
+    end
     Add(Index, Index)
     Sub(Index, Index)
     Mul(Index, Index)
