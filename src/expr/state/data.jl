@@ -16,3 +16,5 @@
         basis::Basis
     end
 end
+
+@derive State[PartialEq, Hash]

@@ -3,6 +3,8 @@
     GPU(Int)
 end
 
+@derive Device[PartialEq, Hash]
+
 """
 The tensor language for describing general tensor networks.
 """
@@ -72,3 +74,5 @@ The tensor language for describing general tensor networks.
         indices2::Vector{Int}
     end
 end
+
+@derive Tensor[PartialEq, Hash]

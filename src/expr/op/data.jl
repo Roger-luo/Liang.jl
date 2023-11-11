@@ -10,6 +10,8 @@
     Matrix(Matrix{ComplexF64})
 end
 
+@derive PrimitiveOp[PartialEq, Hash]
+
 @data Op begin
     Wildcard
     Match(Symbol) # Match a variable
@@ -80,3 +82,5 @@ end
         basis::Basis
     end
 end
+
+@derive Op[PartialEq, Hash]
