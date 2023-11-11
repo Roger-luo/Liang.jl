@@ -53,7 +53,7 @@ function emit_kwargs_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
             end
         else
             quote
-                get(kwargs, $(QuoteNode(field.name)), $(field.default))
+                $Base.get(kwargs, $(QuoteNode(field.name)), $(field.default))
             end
         end
 

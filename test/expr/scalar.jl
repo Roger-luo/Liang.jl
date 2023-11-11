@@ -1,5 +1,8 @@
 using Liang.Data
-using Liang.Expression: Scalar, Num
+using Liang.Expression: Scalar, Num, Index
+
+
+
 x = Num.Real(1.0)
 convert(Real, Num.Real(1.0))
 
@@ -18,7 +21,7 @@ x = Scalar.Sum(
 )
 
 Scalar.Constant(1.5) + Scalar.Variable(:x)
-
+Scalar.Variable(:x) + Scalar.Variable(:y)
 
 using Liang.Expression: Scalar, Num
 using Liang.Data.Prelude
@@ -66,3 +69,5 @@ variant_tag(x) == variant_tag(y)
 for name in variant_fieldnames(x)
     getproperty(x, name) == getproperty(y, name)
 end
+
+@code_warntype Index.Wildcard * 3 / Index.Variable(:a)

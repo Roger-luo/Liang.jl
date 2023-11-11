@@ -75,20 +75,27 @@ This is the basic scalar type. It supports pattern matching.
 
     # expression semantics
     Constant(Num.Type)
-    Variable(Symbol)
 
+    struct Variable
+        name::Symbol
+        id::UInt64 = 0# SSA id
+    end
+
+    # some first-class functions
     Neg(Scalar)
     Abs(Scalar)
-    Call(Symbol, Vector{Scalar})
+    Exp(Scalar)
+    Log(Scalar)
+    Sqrt(Scalar)
 
     struct Sum
         coeffs::Num.Type
-        terms::Dict{Scalar, Num.Type}
+        terms::Dict{Scalar,Num.Type}
     end
 
     struct Prod
         coeffs::Num.Type
-        terms::Dict{Scalar, Num.Type}
+        terms::Dict{Scalar,Num.Type}
     end
 
     struct Pow
@@ -99,6 +106,15 @@ This is the basic scalar type. It supports pattern matching.
     struct Div
         num::Scalar
         den::Scalar
+    end
+
+    JuliaCall(Module, Symbol, Vector{Scalar})
+    RoutineCall(Symbol, Vector{Scalar})
+
+    struct Routine
+        name::Symbol
+        args::Vector{Scalar} # Variable only
+        body::Scalar
     end
 
     struct Annotate
