@@ -16,16 +16,9 @@ end
 function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x + y)
-    end
-
-    if isa_variant(lhs, Scalar.Constant) && isa_variant(rhs, Scalar.Constant)
-        Scalar.Constant(Number(lhs.:1) + Number(rhs.:1))
-    elseif isa_variant(rhs, Scalar.Constant)
-        Scalar.Sum(rhs, Dict(lhs => 1))
-    elseif isa_variant(lhs, Scalar.Constant)
-        Scalar.Sum(lhs, Dict(rhs => 1))
-    else
-        Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
+        (_, Scalar.Constant(_)) => Scalar.Sum(rhs, Dict(lhs => 1))
+        (Scalar.Constant(_), _) => Scalar.Sum(lhs, Dict(rhs => 1))
+        _ => Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
     end
 end
 

@@ -15,7 +15,7 @@ function derive_impl(::Val{:PartialEq}, mod::Module, type::Module)
     jl.otherwise = quote
         return false
     end
-    # NOTE: maybe we should unroll the loop here?
+
     return quote
         Base.@constprop :aggressive function $Base.:(==)(lhs::$type.Type, rhs::$type.Type)
             variant_tag(lhs) == variant_tag(rhs) || return false

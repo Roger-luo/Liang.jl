@@ -14,6 +14,8 @@
     # TODO: generic subspace
 end
 
+@derive Space[PartialEq, Hash]
+
 struct Basis
     op # Op
     space::Space.Type
