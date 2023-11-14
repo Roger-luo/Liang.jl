@@ -85,12 +85,12 @@ function emit_interface_stub(mod::Module, jl::JLFunction)
         []
     else
         map(jl.kwargs) do expr
-        if Meta.isexpr(expr, :kw) || Meta.isexpr(expr, :(=))
-            QuoteNode(expr.args[2])
-        else
-            no_default
+            if Meta.isexpr(expr, :kw) || Meta.isexpr(expr, :(=))
+                QuoteNode(expr.args[2])
+            else
+                no_default
+            end
         end
-    end
     end
     return quote
         $Interface.InterfaceMethod(;
