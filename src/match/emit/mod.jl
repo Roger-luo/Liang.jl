@@ -28,10 +28,10 @@ end
 
 struct PatternInfo
     emit::EmitInfo
-    scope::Dict{Symbol, Set{Symbol}}
+    scope::Dict{Symbol,Set{Symbol}}
 end
 
-PatternInfo(info::EmitInfo) = PatternInfo(info, Dict{Symbol, Set{Symbol}}())
+PatternInfo(info::EmitInfo) = PatternInfo(info, Dict{Symbol,Set{Symbol}}())
 
 function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)
     push!(get!(Set{Symbol}, info.scope, k), v)
@@ -46,7 +46,7 @@ function check_duplicated_variables(info::PatternInfo)
         val_expr = xtuple(values...)
         push!(stmts, :($Base.allequal($val_expr)))
     end
-    return foldl(and_expr, stmts, init=true)
+    return foldl(and_expr, stmts; init=true)
 end
 
 function bind_match_values(info::PatternInfo)
@@ -65,9 +65,6 @@ include("vect.jl")
 
 function decons_type_annotate(info::PatternInfo, pat::Pattern.Type)
     return function annotate(value)
-        and_expr(
-            :($value isa $(pat.type)),
-            decons(info, pat.body)(value)
-        )
+        return and_expr(:($value isa $(pat.type)), decons(info, pat.body)(value))
     end
 end

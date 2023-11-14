@@ -20,19 +20,27 @@ end
 
 @pass function emit_data_type_module(info::EmitInfo)
     return quote
-        $Base.@constprop :aggressive function $Reflection.data_type_module(::$Base.Type{$(info.type.name)})
+        $Base.@constprop :aggressive function $Reflection.data_type_module(
+            ::$Base.Type{$(info.type.name)}
+        )
             return $(info.def.name)
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_module(::$Base.Type{$(info.type.variant)})
+        $Base.@constprop :aggressive function $Reflection.data_type_module(
+            ::$Base.Type{$(info.type.variant)}
+        )
             return $(info.def.name)
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_module(::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.data_type_module(
+            ::$(info.type.name)
+        )
             return $(info.def.name)
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_module(::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.data_type_module(
+            ::$(info.type.variant)
+        )
             return $(info.def.name)
         end
     end
@@ -40,19 +48,27 @@ end
 
 @pass function emit_data_type_name(info::EmitInfo)
     return quote
-        $Base.@constprop :aggressive function $Reflection.data_type_name(::$Base.Type{$(info.type.name)})
+        $Base.@constprop :aggressive function $Reflection.data_type_name(
+            ::$Base.Type{$(info.type.name)}
+        )
             return $(QuoteNode(info.def.name))
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_name(::$Base.Type{$(info.type.variant)})
+        $Base.@constprop :aggressive function $Reflection.data_type_name(
+            ::$Base.Type{$(info.type.variant)}
+        )
             return $(QuoteNode(info.def.name))
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_name(::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.data_type_name(
+            ::$(info.type.name)
+        )
             return $(QuoteNode(info.def.name))
         end
 
-        $Base.@constprop :aggressive function $Reflection.data_type_name(::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.data_type_name(
+            ::$(info.type.variant)
+        )
             return $(QuoteNode(info.def.name))
         end
     end
@@ -64,14 +80,18 @@ end
     end
 
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_name(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_name(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_name(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_name(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
@@ -88,7 +108,9 @@ end
             return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variants(::$Base.Type{$(info.type.name)})
+        $Base.@constprop :aggressive function $Reflection.variants(
+            ::$Base.Type{$(info.type.name)}
+        )
             return $body
         end
     end
@@ -100,23 +122,29 @@ end
     end
 
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_kind(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_kind(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_kind(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_kind(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
 
 @pass function emit_variant_type(info::EmitInfo)
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_type(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_type(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $(info.type.variant)(tag)
+            return $(info.type.variant)(tag)
         end
     end
 end
@@ -126,14 +154,18 @@ end
         return vinfo.tag
     end
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_tag(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_tag(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_tag(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_tag(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
@@ -144,9 +176,11 @@ end
         return false
     end
     return quote
-        $Base.@constprop :aggressive function $Reflection.is_singleton(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.is_singleton(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
     end
 end
@@ -157,9 +191,11 @@ end
         return false
     end
     return quote
-        $Base.@constprop :aggressive function $Reflection.is_singleton(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.is_singleton(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
@@ -173,14 +209,18 @@ end
 @pass function emit_variant_fieldnames(info::EmitInfo)
     body = emit_variant_fieldnames_body(info)
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_fieldnames(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_fieldnames(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_fieldnames(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_fieldnames(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
@@ -196,14 +236,18 @@ end
     end
 
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_fieldtypes(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_fieldtypes(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_fieldtypes(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_fieldtypes(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end
@@ -215,14 +259,18 @@ end
     end
 
     return quote
-        $Base.@constprop :aggressive function $Reflection.variant_nfields(type::$(info.type.name))
+        $Base.@constprop :aggressive function $Reflection.variant_nfields(
+            type::$(info.type.name)
+        )
             $(emit_get_data_tag(info))
-            $body
+            return $body
         end
 
-        $Base.@constprop :aggressive function $Reflection.variant_nfields(variant_type::$(info.type.variant))
+        $Base.@constprop :aggressive function $Reflection.variant_nfields(
+            variant_type::$(info.type.variant)
+        )
             tag = variant_type.tag
-            $body
+            return $body
         end
     end
 end

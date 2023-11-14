@@ -9,8 +9,8 @@
     Kron(State, State)
 
     # e.g alpha * |0> + beta * |1>
-    Sum(Dict{State, Scalar.Type})
-    
+    Sum(Dict{State,Scalar.Type})
+
     struct Annotate
         expr::State
         basis::Basis

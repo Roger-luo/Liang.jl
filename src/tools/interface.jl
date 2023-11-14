@@ -32,7 +32,7 @@ function Base.show(io::IO, im::InterfaceMethod)
         end
     end
     print(io, ")")
-    isnothing(im.return_type) || print(io, " -> ", im.return_type)
+    return isnothing(im.return_type) || print(io, " -> ", im.return_type)
 end
 
 """
@@ -52,7 +52,11 @@ function interface_m(mod::Module, fn)
         $(emit_interface_stub_storage(mod))
         $Core.@__doc__ $(fn)
         $Base.push!(
-            $Base.get!($Base.Set{$Interface.InterfaceMethod}, $INTERFACE_STUB, $(QuoteNode(jl.name))),
+            $Base.get!(
+                $Base.Set{$Interface.InterfaceMethod},
+                $INTERFACE_STUB,
+                $(QuoteNode(jl.name)),
+            ),
             $(emit_interface_stub(mod, jl)),
         )
         $(emit_exports(mod, jl))
@@ -60,7 +64,7 @@ function interface_m(mod::Module, fn)
 end
 
 function emit_exports(mod::Module, jl::JLFunction)
-    mod === Main && return
+    mod === Main && return nothing
     return quote
         export $(jl.name)
     end
@@ -71,28 +75,32 @@ function emit_interface_stub_storage(mod::Module)
     if !isdefined(mod, INTERFACE_STUB)
         return :(const $INTERFACE_STUB = $type())
     end
-    return
+    return nothing
 end
 
 function emit_interface_stub(mod::Module, jl::JLFunction)
     kwargs_names = isnothing(jl.kwargs) ? [] : QuoteNode.(name_only.(jl.kwargs))
     kwargs_types = isnothing(jl.kwargs) ? [] : type_only.(jl.kwargs)
-    kwargs_defaults = isnothing(jl.kwargs) ? [] : map(jl.kwargs) do expr
+    kwargs_defaults = if isnothing(jl.kwargs)
+        []
+    else
+        map(jl.kwargs) do expr
         if Meta.isexpr(expr, :kw) || Meta.isexpr(expr, :(=))
             QuoteNode(expr.args[2])
         else
             no_default
         end
     end
+    end
     return quote
-        $Interface.InterfaceMethod(
+        $Interface.InterfaceMethod(;
             name=$(QuoteNode(jl.name)),
             arg_names=[$(QuoteNode.(name_only.(jl.args))...)],
             arg_types=[$(type_only.(jl.args)...)],
             kwargs_names=[$(kwargs_names...)],
             kwargs_types=[$(kwargs_types...)],
             kwargs_defaults=[$(kwargs_defaults...)],
-            return_type=$(jl.rettype)
+            return_type=$(jl.rettype),
         )
     end
 end
@@ -105,7 +113,7 @@ function type_only(expr)
     end
     Meta.isexpr(expr, :kw) && return type_only(expr.args[1])
     Meta.isexpr(expr, :(=)) && return type_only(expr.args[1])
-    error("invalid expression: $expr")
+    return error("invalid expression: $expr")
 end
 
 # DocStringExtensions plugin
@@ -125,14 +133,14 @@ function DocStringExtensions.format(::InterfaceSignature, buf, doc)
     object = Docs.resolve(binding)
     mod = parentmodule(object)
     if !isdefined(mod, INTERFACE_STUB)
-        return
+        return nothing
     end
     stub = getfield(mod, INTERFACE_STUB)
-    haskey(stub, nameof(object)) || return
+    haskey(stub, nameof(object)) || return nothing
     # TODO: make this more preciese, don't pick
     # the first interface method, but pick the real one
     # based on the binding signature.
-    print(buf, "    ", first(stub[nameof(object)]))
+    return print(buf, "    ", first(stub[nameof(object)]))
 end
 
 struct InterfaceList <: Abbreviation end
@@ -148,9 +156,9 @@ const INTERFACE_LIST = InterfaceList()
 function DocStringExtensions.format(::InterfaceList, buf, doc)
     binding = doc.data[:binding]
     mod = Docs.resolve(binding)
-    mod isa Module || return # NOTE: or error?
+    mod isa Module || return nothing # NOTE: or error?
 
-    isdefined(mod, INTERFACE_STUB) || return
+    isdefined(mod, INTERFACE_STUB) || return nothing
     stub = getfield(mod, INTERFACE_STUB)
     println(buf, "### Interfaces\n\n")
     for (name, methods) in stub

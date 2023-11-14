@@ -1,4 +1,6 @@
-materialize_self(def::TypeDef, expr) = materialize_self(def.mod, expr, :($(def.name).Type); def.source)
+function materialize_self(def::TypeDef, expr)
+    return materialize_self(def.mod, expr, :($(def.name).Type); def.source)
+end
 
 function materialize_self(mod::Module, expr, self; source=nothing)
     expr isa Type && return expr
@@ -48,7 +50,7 @@ function guess_type(mod::Module, expr; source=nothing)
         vars, unknowns = [], Int[]
         for tv in typevars
             tv = guess_type(mod, tv)
-            (tv isa Union{Symbol, Expr}) && push!(unknowns, length(vars) + 1) 
+            (tv isa Union{Symbol,Expr}) && push!(unknowns, length(vars) + 1)
             push!(vars, tv)
         end
 

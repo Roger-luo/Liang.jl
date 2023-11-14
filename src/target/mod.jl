@@ -1,5 +1,4 @@
 """
 Code generation targets.
 """
-module Target
-end # Target
+module Target end # Target

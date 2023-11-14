@@ -19,13 +19,11 @@ expr2pattern(:([
     y
     z
 ]))
-expr2pattern(:(
-    [
-        1 2;3 4;;;
-        x 6;7 8;;;
-        9 0;2 3;;;
-    ]
-))
+expr2pattern(:([
+    1 2; 3 4;;;
+    x 6; 7 8;;;
+    9 0; 2 3
+]))
 
 expr2pattern(:(Float64[1, x, 3]))
 expr2pattern(:(Float64[1 x 3]))
@@ -35,13 +33,11 @@ expr2pattern(:(Float64[
     y
     z
 ]))
-expr2pattern(:(
-    Float64[
-        1 2;3 4;;;
-        x 6;7 8;;;
-        9 0;2 3;;;
-    ]
-))
+expr2pattern(:(Float64[
+    1 2; 3 4;;;
+    x 6; 7 8;;;
+    9 0; 2 3
+]))
 
 expr2pattern(:((a, b) && c))
 expr2pattern(:((a, b) || c))
@@ -52,13 +48,17 @@ struct Foo
     y::Int
 end
 
-info = EmitInfo(Main, :x, quote
-    (a, b) => a + b
-    (a, b) && c => a + b
-    Int[1, y] => y
-    Pattern.Variable(a) => a
-    Foo(a, b) => (a, b)
-end)
+info = EmitInfo(
+    Main,
+    :x,
+    quote
+        (a, b) => a + b
+        (a, b) && c => a + b
+        Int[1, y] => y
+        Pattern.Variable(a) => a
+        Foo(a, b) => (a, b)
+    end,
+)
 
 pinfo = PatternInfo(info)
 Match.decons(pinfo, info.patterns[1])(:x)

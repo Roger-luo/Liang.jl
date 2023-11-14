@@ -21,5 +21,5 @@ function inner_decons(info::PatternInfo, pat::Pattern.Type)
     isa_variant(pat, Pattern.Splat) && return decons_splat(info, pat)
     isa_variant(pat, Pattern.TypeAnnotate) && return decons_type_annotate(info, pat)
 
-    error("invalid pattern: $pat")
+    return error("invalid pattern: $pat")
 end

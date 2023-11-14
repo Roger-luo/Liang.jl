@@ -20,7 +20,7 @@ function Base.show(io::IO, ::MIME"text/plain", x::EmitInfo)
     ff.print("final_label: ")
     ff.println(x.final_label; color=:light_cyan)
     ff.print("return_var: ")
-    ff.print(x.return_var; color=:light_cyan)
+    return ff.print(x.return_var; color=:light_cyan)
 end
 
 function Data.show_data(io::IO, x::Pattern.Type)
@@ -30,7 +30,7 @@ function Data.show_data(io::IO, x::Pattern.Type)
     elseif isa_variant(x, Pattern.Variable)
         f.print(x.:1; color=:blue)
     elseif isa_variant(x, Pattern.Quote)
-        if x.:1 isa Union{Symbol, Expr}
+        if x.:1 isa Union{Symbol,Expr}
             f.print("\$(", x.:1, ")")
         else
             f.print(x.:1)
@@ -65,7 +65,7 @@ function Data.show_data(io::IO, x::Pattern.Type)
                 idx > 1 && f.print(":")
                 f.show(each)
             end
-        # some common infix operators
+            # some common infix operators
         elseif x.head in (:(+), :(-), :(*), :(/), :(\))
             f.show(x.args[1])
             f.print(" ", x.head, " ")
@@ -168,7 +168,7 @@ function show_vcat(f::Data.FormatPrinter, x::Pattern.Type)
         idx > 1 && f.print("; ")
         f.show(arg)
     end
-    f.print("]")
+    return f.print("]")
 end
 
 function show_hcat(f::Data.FormatPrinter, x::Pattern.Type)
@@ -177,7 +177,7 @@ function show_hcat(f::Data.FormatPrinter, x::Pattern.Type)
         idx > 1 && f.print(" ")
         f.show(arg)
     end
-    f.print("]")
+    return f.print("]")
 end
 
 function show_ncat(f::Data.FormatPrinter, x::Pattern.Type)
@@ -186,5 +186,5 @@ function show_ncat(f::Data.FormatPrinter, x::Pattern.Type)
         idx > 1 && f.print(";"^x.n)
         f.show(arg)
     end
-    f.print("]")
+    return f.print("]")
 end

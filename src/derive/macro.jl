@@ -7,7 +7,7 @@ Automatically derive traits for a concrete type. The following traits are suppor
 - `Hash`
 """
 macro derive(expr)
-    esc(derive_m(__module__, expr))
+    return esc(derive_m(__module__, expr))
 end
 
 function derive_m(mod::Module, expr)

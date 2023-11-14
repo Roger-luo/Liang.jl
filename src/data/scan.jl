@@ -12,12 +12,13 @@ end
 mutable struct FieldInfo
     var::Symbol
     type # eval-ed type with self
-    expr::Union{Symbol, Expr, Type, SelfType}
+    expr::Union{Symbol,Expr,Type,SelfType}
     is_bitstype::Bool
     type_guess # eval-ed type with self to be Any
-    index::Union{Int, UnitRange{Int}, Symbol}
-    FieldInfo(var, type, expr, isbitstype, type_guess) =
-        new(var, type, expr, isbitstype, type_guess)
+    index::Union{Int,UnitRange{Int},Symbol}
+    function FieldInfo(var, type, expr, isbitstype, type_guess)
+        return new(var, type, expr, isbitstype, type_guess)
+    end
 end
 
 struct VariantInfo
@@ -28,7 +29,7 @@ end
 
 Base.eltype(::Type{VariantInfo}) = FieldInfo
 Base.length(info::VariantInfo) = length(info.fields)
-function Base.iterate(info::VariantInfo, st::Int = 1)
+function Base.iterate(info::VariantInfo, st::Int=1)
     st > length(info) && return nothing
     return (info.fields[st], st + 1)
 end
@@ -42,11 +43,11 @@ end
 struct EmitInfo
     def::TypeDef
     type::TypeInfo
-    variants::Dict{Variant, VariantInfo}
+    variants::Dict{Variant,VariantInfo}
 end
 
 function EmitInfo(def::TypeDef)
-    info = Dict{Variant, VariantInfo}()
+    info = Dict{Variant,VariantInfo}()
     for (idx, variant) in enumerate(def.variants)
         info[variant] = VariantInfo(def, variant, idx - 1)
     end
@@ -61,26 +62,24 @@ function Storage(def::TypeDef, size::SizeInfo)
     return Storage(name, size)
 end
 
-function TypeInfo(def::TypeDef, info::Dict{Variant, VariantInfo})
+function TypeInfo(def::TypeDef, info::Dict{Variant,VariantInfo})
     size = SizeInfo(def, info)
     storage = Storage(def, size)
     return TypeInfo(:Type, Symbol("#", def.name, "#Variant"), storage)
 end
 
-function SizeInfo(def::TypeDef, info::Dict{Variant, VariantInfo})
-    bits = count_bytes(isbitstype, f->sizeof(f.type_guess), info)
-    ptrs = count_bytes(!isbitstype, f->1, info)
+function SizeInfo(def::TypeDef, info::Dict{Variant,VariantInfo})
+    bits = count_bytes(isbitstype, f -> sizeof(f.type_guess), info)
+    ptrs = count_bytes(!isbitstype, f -> 1, info)
     tag = paded_tag_nbits(bits, ptrs)
     return SizeInfo(tag, bits, ptrs)
 end
 
 function VariantInfo(def::TypeDef, variant::Variant, tag::Int)
     fields = Vector{FieldInfo}(undef, length(variant.fields))
-    variant.kind === Singleton && return VariantInfo(
-        variant, tag, fields
-    )
+    variant.kind === Singleton && return VariantInfo(variant, tag, fields)
 
-    for (kth_field::Int, f::Union{Field, NamedField}) in enumerate(variant.fields)
+    for (kth_field::Int, f::Union{Field,NamedField}) in enumerate(variant.fields)
         guess = guess_type(def, f.type)
         var = if f isa NamedField
             Symbol("##", variant.name, "#", f.name, "#", kth_field)
@@ -89,11 +88,7 @@ function VariantInfo(def::TypeDef, variant::Variant, tag::Int)
         end
         get_expr = Symbol("##", variant.name, "#get#", kth_field)
         fields[kth_field] = FieldInfo(
-            var,
-            materialize_self(def, f.type),
-            f.type,
-            isbitstype(guess),
-            guess,
+            var, materialize_self(def, f.type), f.type, isbitstype(guess), guess
         )
     end
     return VariantInfo(variant, tag, fields)
@@ -112,31 +107,34 @@ function paded_tag_nbits(bits_byte::Int, ptrs_byte::Int)
     end
 end
 
-function count_bytes(::typeof(isbitstype), map, info::Dict{Variant, VariantInfo})
+function count_bytes(::typeof(isbitstype), map, info::Dict{Variant,VariantInfo})
     maximum(values(info); init=0) do info::VariantInfo
-        values = Iterators.filter(f->f.is_bitstype, info.fields)
+        values = Iterators.filter(f -> f.is_bitstype, info.fields)
         mapfoldl(+, values; init=0) do f::FieldInfo
             map(f)
         end
     end
 end
 
-function count_bytes(::ComposedFunction{typeof(!), typeof(isbitstype)}, map, info::Dict{Variant, VariantInfo})
+function count_bytes(
+    ::ComposedFunction{typeof(!),typeof(isbitstype)}, map, info::Dict{Variant,VariantInfo}
+)
     maximum(values(info); init=0) do info::VariantInfo
-        values = Iterators.filter(f->!f.is_bitstype, info.fields)
+        values = Iterators.filter(f -> !f.is_bitstype, info.fields)
         mapfoldl(+, values; init=0) do f::FieldInfo
             map(f)
         end
     end
 end
 
-function update_index!(info::Dict{Variant, VariantInfo}, size::SizeInfo)
+function update_index!(info::Dict{Variant,VariantInfo}, size::SizeInfo)
     for (_, vinfo::VariantInfo) in info
-        start = 0; ptr = 1
+        start = 0
+        ptr = 1
         for f::FieldInfo in vinfo
             if f.is_bitstype
-                stop = start+sizeof(f.type_guess)
-                f.index = start+1:stop
+                stop = start + sizeof(f.type_guess)
+                f.index = (start + 1):stop
                 start = stop
             else
                 f.index = ptr

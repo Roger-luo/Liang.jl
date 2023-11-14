@@ -25,9 +25,8 @@ function CollectionDecons(
     end
     splat_count > 1 && error("multiple splats in pattern $pat")
     min_length = splat_idx == 0 ? length(children) : length(children) - 1
-    CollectionDecons(
-        info, type(splat_idx), pattern, children, splat_idx, min_length, [],
-        always_true
+    return CollectionDecons(
+        info, type(splat_idx), pattern, children, splat_idx, min_length, [], always_true
     )
 end
 
@@ -50,13 +49,13 @@ function coll_decons_splat!(coll::CollectionDecons, value)
     @gensym placeholder
     stmt = if coll.splat_idx == length(coll.children) # splat is last
         quote
-            $placeholder = $Base.@views($value[$(coll.splat_idx):end])
+            $placeholder = $Base.@views($value[($(coll.splat_idx)):end])
             true
         end
     else
         nleft = length(coll.children) - coll.splat_idx
         quote
-            $placeholder = $Base.@views($value[$(coll.splat_idx):end-$nleft])
+            $placeholder = $Base.@views($value[($(coll.splat_idx)):(end - $nleft)])
             true
         end
     end
@@ -67,19 +66,14 @@ function coll_decons_splat!(coll::CollectionDecons, value)
     return coll
 end
 
-
 function coll_decons_from_splat!(coll::CollectionDecons, value)
-    coll.splat_idx == 0 && return
+    coll.splat_idx == 0 && return nothing
     for (idx, p) in enumerate(Iterators.reverse(coll.children))
         isa_variant(p, Pattern.Splat) && break
         stmt = if idx == 1
-            decons(coll.info, p)(
-                :($Base.@inbounds($value[end]))
-            )
+            decons(coll.info, p)(:($Base.@inbounds($value[end])))
         else
-            decons(coll.info, p)(
-                :($Base.@inbounds($value[end-$(idx - 1)]))
-            )
+            decons(coll.info, p)(:($Base.@inbounds($value[end - $(idx - 1)])))
         end
         push!(coll.stmts, stmt)
     end
@@ -88,15 +82,8 @@ end
 
 function finish_decons(coll::CollectionDecons, value)
     cmp = coll.splat_idx == 0 ? :(==) : :(>=)
-    size_check = Expr(
-        :call, cmp,
-        :($Base.length($value)),
-        coll.min_length,
-    )
-    return foldl(
-        and_expr, coll.stmts,
-        init=:($value isa $(coll.type) && $size_check),
-    )
+    size_check = Expr(:call, cmp, :($Base.length($value)), coll.min_length)
+    return foldl(and_expr, coll.stmts; init=:($value isa $(coll.type) && $size_check))
 end
 
 function (coll::CollectionDecons)(value)

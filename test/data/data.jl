@@ -12,13 +12,17 @@ end
 
 xs = Pattern.Tuple([Pattern.Wildcard])
 
-def = TypeDef(Main, :Pattern, quote
-    Wildcard
+def = TypeDef(
+    Main,
+    :Pattern,
+    quote
+        Wildcard
 
-    struct Tuple
-        xs::Vector{Pattern}
-    end
-end)
+        struct Tuple
+            xs::Vector{Pattern}
+        end
+    end,
+)
 
 info = EmitInfo(def)
 Emit.emit_variant_getfield_num(info)

@@ -1,2 +1,1 @@
-module TestData
-end # TestData
+module TestData end # TestData

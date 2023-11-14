@@ -1,5 +1,4 @@
 """
 The rewrite engine.
 """
-module Rewrite
-end # Rewrite
+module Rewrite end # Rewrite

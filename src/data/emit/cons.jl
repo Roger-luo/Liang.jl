@@ -2,8 +2,12 @@
     @gensym tag bits ptrs
     quote
         function $(info.type.storage.name)(tag::UInt8, bits::$Core.Tuple, ptrs::$Core.Tuple)
-            $tag = $(xtuple(:tag, (zero(UInt8) for _ in 1:(info.type.storage.size.tag-1))...))
-            $bits = $Data.unsafe_padded_reinterpret(NTuple{$(info.type.storage.size.bits), UInt8}, bits)
+            $tag = $(xtuple(
+                :tag, (zero(UInt8) for _ in 1:(info.type.storage.size.tag - 1))...
+            ))
+            $bits = $Data.unsafe_padded_reinterpret(
+                NTuple{$(info.type.storage.size.bits),UInt8}, bits
+            )
             $ptrs = $Data.padded_tuple_any($Base.Val($(info.type.storage.size.ptrs)), ptrs)
             return $(info.type.storage.name)($tag, $bits, $ptrs)
         end
@@ -13,7 +17,7 @@ end
 @pass 4 function emit_cons(info::EmitInfo)
     quote
         function (type::$(info.type.variant))(args...; kwargs...)
-            $(emit_cons_body(info))
+            return $(emit_cons_body(info))
         end
     end
 end
@@ -45,10 +49,11 @@ function emit_kwargs_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
     body = expr_map(enumerate(vinfo)) do (kth_field, finfo)
         @gensym kw val
         field = variant.fields[kth_field]::NamedField
-        get_kw =  if field.default === no_default
+        get_kw = if field.default === no_default
             quote
-                $Base.haskey(kwargs, $(QuoteNode(field.name))) ||
-                    $Core.throw($ArgumentError("missing keyword argument $($(field.name))"))
+                $Base.haskey(kwargs, $(QuoteNode(field.name))) || $Core.throw(
+                    $ArgumentError("missing keyword argument $($(field.name))")
+                )
                 kwargs[$(QuoteNode(field.name))]
             end
         else
@@ -80,20 +85,16 @@ function emit_positional_cons(info::EmitInfo, variant::Variant, vinfo::VariantIn
     bits_expr, ptrs_expr = Expr(:tuple), Expr(:tuple)
     for (kth_field, finfo::FieldInfo) in enumerate(vinfo)
         finfo.is_bitstype &&
-        push!(bits_expr.args, :(
-            $Base.convert($(finfo.type), args[$kth_field])
-        ))
+            push!(bits_expr.args, :($Base.convert($(finfo.type), args[$kth_field])))
 
         !finfo.is_bitstype &&
-        push!(ptrs_expr.args, :(
-            $Base.convert($(finfo.type), args[$kth_field])
-        ))
+            push!(ptrs_expr.args, :($Base.convert($(finfo.type), args[$kth_field])))
     end
 
     @gensym bits ptrs
     return quote
-        $Base.length(args) == $(length(vinfo)) || $Core.throw($ArgumentError(
-            "wrong number of arguments, expect $($(length(vinfo)))")
+        $Base.length(args) == $(length(vinfo)) || $Core.throw(
+            $ArgumentError("wrong number of arguments, expect $($(length(vinfo)))")
         )
         $bits = $bits_expr
         $ptrs = $ptrs_expr

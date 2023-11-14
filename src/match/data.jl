@@ -1,4 +1,4 @@
-const JLType = Union{Symbol, Expr, DataType, UnionAll}
+const JLType = Union{Symbol,Expr,DataType,UnionAll}
 
 @data Pattern begin
     Wildcard
@@ -17,7 +17,7 @@ const JLType = Union{Symbol, Expr, DataType, UnionAll}
     struct Call
         head # must be constant object
         args::Vector{Pattern}
-        kwargs::Dict{Symbol, Pattern}
+        kwargs::Dict{Symbol,Pattern}
     end
 
     struct Tuple
@@ -84,6 +84,6 @@ const JLType = Union{Symbol, Expr, DataType, UnionAll}
         body::Pattern
         vars::Vector{Symbol}
         iterators::Vector{Pattern}
-        filter::Union{Nothing, Pattern}
+        filter::Union{Nothing,Pattern}
     end
 end

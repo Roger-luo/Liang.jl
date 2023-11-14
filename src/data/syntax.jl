@@ -13,22 +13,23 @@ Base.show(io::IO, x::SelfType) = print(io, "Self")
 end
 
 struct Field
-    type::Union{Symbol, Expr, Type, SelfType}
-    type_expr::Union{Symbol,Expr, Type}
+    type::Union{Symbol,Expr,Type,SelfType}
+    type_expr::Union{Symbol,Expr,Type}
 
     function Field(typename::Symbol, type::Union{Symbol,Expr})
         type isa Symbol && return new(replace_with_self(typename, type), type)
-        Meta.isexpr(type, :kw) && throw(SyntaxError("field type cannot be a keyword argument"))
+        Meta.isexpr(type, :kw) &&
+            throw(SyntaxError("field type cannot be a keyword argument"))
         type = replace_with_self(typename, type)
         type_expr = replace_with_self_type(typename, type)
-        new(type, type_expr)
+        return new(type, type_expr)
     end
 end
 
 struct NamedField
     name::Symbol
-    type::Union{Symbol, Expr, Type, SelfType}
-    type_expr::Union{Symbol, Expr, Type}
+    type::Union{Symbol,Expr,Type,SelfType}
+    type_expr::Union{Symbol,Expr,Type}
     default # no_default, expr, or literal
     source::Union{Nothing,LineNumberNode}
 end
@@ -36,13 +37,7 @@ end
 function NamedField(typename::Symbol, f::JLKwField)
     type = replace_with_self(typename, f.type)
     type_expr = replace_with_self_type(typename, type)
-    NamedField(
-        f.name,
-        type,
-        type_expr,
-        f.default,
-        f.line
-    )
+    return NamedField(f.name, type, type_expr, f.default, f.line)
 end
 
 struct Variant
@@ -63,15 +58,19 @@ struct Variant
                 f isa Field
             end || throw(ArgumentError("fields must be a Vector{NamedField}"))
         elseif kind == Singleton
-            isnothing(fields) || isempty(fields) || throw(ArgumentError("fields must be nothing or empty"))
+            isnothing(fields) ||
+                isempty(fields) ||
+                throw(ArgumentError("fields must be nothing or empty"))
         else
             throw(ArgumentError("kind must be Named, Anonymous, or Singleton"))
         end
 
-        name in fieldnames(DataType) && throw(SyntaxError("cannot use reserved name $name for variant", source))
-        name in (:data, :tag) && throw(SyntaxError("cannot use reserved name $name for variant", source))
+        name in fieldnames(DataType) &&
+            throw(SyntaxError("cannot use reserved name $name for variant", source))
+        name in (:data, :tag) &&
+            throw(SyntaxError("cannot use reserved name $name for variant", source))
 
-        new(kind, name, is_mutable, fields, doc, source)
+        return new(kind, name, is_mutable, fields, doc, source)
     end
 end
 
@@ -83,7 +82,7 @@ struct TypeDef
     source::Union{Nothing,LineNumberNode}
 end
 
-function Variant(typename::Symbol, ex::Union{Symbol, Expr}, source = nothing)
+function Variant(typename::Symbol, ex::Union{Symbol,Expr}, source=nothing)
     if Meta.isexpr(ex, :macrocall) && ex.args[1] == GlobalRef(Core, Symbol("@doc"))
         source = ex.args[2]
         doc = ex.args[3]
@@ -95,7 +94,9 @@ function Variant(typename::Symbol, ex::Union{Symbol, Expr}, source = nothing)
     if Meta.isexpr(ex, :struct)
         def = JLKwStruct(ex)
         def.ismutable && throw(SyntaxError("mutable structs are not supported"; source))
-        Variant(Named, def.name, def.ismutable, NamedField.(typename, def.fields), doc, source)
+        Variant(
+            Named, def.name, def.ismutable, NamedField.(typename, def.fields), doc, source
+        )
     elseif Meta.isexpr(ex, :call)
         ex.args[1] isa Symbol || throw(SyntaxError("variant name must be a symbol"; source))
         Variant(Anonymous, ex.args[1], false, Field.(typename, ex.args[2:end]), doc, source)
@@ -118,8 +119,10 @@ function TypeDef(mod::Module, head, body::Expr; source=nothing)
         end
     end # let
 
-    length(variants) > 0 || throw(SyntaxError("type $name must have at least one variant"; source))
-    length(variants) > 256 && throw(SyntaxError("too many variants in type $name, 256 maximum"; source))
+    length(variants) > 0 ||
+        throw(SyntaxError("type $name must have at least one variant"; source))
+    length(variants) > 256 &&
+        throw(SyntaxError("too many variants in type $name, 256 maximum"; source))
     return TypeDef(mod, name, supertype, variants, source)
 end
 
@@ -128,7 +131,11 @@ function scan_data_head(head, source=nothing)
         name, _ = scan_data_head(head.args[1])
         supertype = head.args[2]
     elseif Meta.isexpr(head, :curly)
-        throw(ArgumentError("type parameters are not allowed, we do not support generic ADTs yet"))
+        throw(
+            ArgumentError(
+                "type parameters are not allowed, we do not support generic ADTs yet"
+            ),
+        )
     elseif head isa Symbol
         name = head
         supertype = nothing
@@ -151,11 +158,11 @@ end
 function replace_with_self(name::Symbol, expr)
     is_self_ref(name, expr) && return Self
     expr isa Expr || return expr
-    return Expr(expr.head, map(x->replace_with_self(name, x), expr.args)...)
+    return Expr(expr.head, map(x -> replace_with_self(name, x), expr.args)...)
 end
 
 function replace_with_self_type(name::Symbol, expr)
     expr isa SelfType && return :($name.Type)
     expr isa Expr || return expr
-    return Expr(expr.head, map(x->replace_with_self_type(name, x), expr.args)...)
+    return Expr(expr.head, map(x -> replace_with_self_type(name, x), expr.args)...)
 end

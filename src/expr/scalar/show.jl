@@ -19,5 +19,5 @@ function Data.show_data(io::IO, x::Num.Type)
     elseif isa_variant(x, Num.Complex)
         f.print(x.:1, "+", x.:2, "*im")
     end
-    f.print(")")
+    return f.print(")")
 end

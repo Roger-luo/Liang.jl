@@ -71,7 +71,6 @@ function default_variant_doc(info::EmitInfo, variant::Variant)
     end
 end
 
-
 # @pass function emit_type_getproperty(info::EmitInfo)
 #     body = JLIfElse()
 #     for variant::Variant in info.def.variants

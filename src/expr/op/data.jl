@@ -46,7 +46,7 @@ end
 
     struct Add
         coeffs::Scalar.Type # Identity
-        terms::Dict{Op, Scalar.Type}
+        terms::Dict{Op,Scalar.Type}
     end
 
     Mul(Op, Op)
@@ -108,6 +108,5 @@ end
 end
 
 @derive Op[PartialEq, Hash]
-
 
 Base.convert(::Type{Op.Type}, op::PrimitiveOp.Type) = Op.Constant(op)

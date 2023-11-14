@@ -102,14 +102,16 @@ $INTERFACE
 
 Get the `idx`-th field name of given variant type.
 """
-@interface variant_fieldname(variant_instance, idx::Int)::Symbol = variant_fieldnames(variant_instance)[idx]
+@interface variant_fieldname(variant_instance, idx::Int)::Symbol =
+    variant_fieldnames(variant_instance)[idx]
 
 """
 $INTERFACE
 
 Get the `idx`-th field type of given variant type.
 """
-@interface variant_fieldtype(variant_instance, idx::Int)::Symbol = variant_fieldtypes(variant_instance)[idx]
+@interface variant_fieldtype(variant_instance, idx::Int)::Symbol =
+    variant_fieldtypes(variant_instance)[idx]
 
 """
 $INTERFACE

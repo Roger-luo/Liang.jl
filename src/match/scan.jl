@@ -9,7 +9,7 @@ struct EmitInfo
     source
 end
 
-function EmitInfo(mod::Module, value, body, source = nothing)
+function EmitInfo(mod::Module, value, body, source=nothing)
     # single pattern
     if Meta.isexpr(body, :call) && body.args[1] === :(=>)
         cases = [expr2pattern(body.args[2])]
@@ -33,12 +33,7 @@ function EmitInfo(mod::Module, value, body, source = nothing)
     end
 
     return EmitInfo(
-        mod, value, cases,
-        exprs,
-        gensym("value"),
-        gensym("final"),
-        gensym("return"),
-        source
+        mod, value, cases, exprs, gensym("value"), gensym("final"), gensym("return"), source
     )
 end
 
@@ -70,7 +65,7 @@ function expr2pattern(expr)
     head === :comprehension && return comprehension2pattern(expr)
     head === :generator && return generator2pattern(expr)
 
-    error("unsupported expression: $(expr)")
+    return error("unsupported expression: $(expr)")
 end
 
 function quote2pattern(expr)
@@ -105,7 +100,7 @@ function generator2pattern(expr)
 end
 
 function ref2pattern(expr)
-    Pattern.Ref(expr.args[1], expr2pattern.(expr.args[2:end]))
+    return Pattern.Ref(expr.args[1], expr2pattern.(expr.args[2:end]))
 end
 
 function comprehension2pattern(expr)
@@ -121,7 +116,7 @@ function ncat2pattern(expr)
 end
 
 function hcat2pattern(expr)
-    Pattern.HCat(expr2pattern.(expr.args))
+    return Pattern.HCat(expr2pattern.(expr.args))
 end
 
 function vcat2pattern(expr)
@@ -151,7 +146,7 @@ function typed_vcat2pattern(expr)
 end
 
 function row2pattern(expr)
-    Pattern.Row(expr2pattern.(expr.args))
+    return Pattern.Row(expr2pattern.(expr.args))
 end
 
 function nrow2pattern(expr)
@@ -179,16 +174,16 @@ function type2pattern(expr)
 end
 
 function dot2pattern(expr)
-# NOTE: let's assume all dot expression
-# refers to some existing module/struct object
-# so they gets eval-ed later in the generated
-# code
+    # NOTE: let's assume all dot expression
+    # refers to some existing module/struct object
+    # so they gets eval-ed later in the generated
+    # code
     return Pattern.Quote(expr)
 end
 
 function call2pattern(expr)
     args = Pattern.Type[]
-    kwargs = Dict{Symbol, Pattern.Type}()
+    kwargs = Dict{Symbol,Pattern.Type}()
     if Meta.isexpr(expr.args[2], :parameters)
         for each in expr.args[2].args
             key, val = each.args
@@ -208,9 +203,5 @@ function call2pattern(expr)
     end
 
     # NOTE: might need to eval this?
-    return Pattern.Call(
-        expr.args[1],
-        args,
-        kwargs,
-    )
+    return Pattern.Call(expr.args[1], args, kwargs)
 end

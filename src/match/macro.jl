@@ -1,5 +1,5 @@
 macro match(expr, body)
-    esc(match_m(__module__, __source__, expr, body))
+    return esc(match_m(__module__, __source__, expr, body))
 end
 
 function match_m(mod::Module, source, expr, body)

@@ -40,7 +40,6 @@ function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
     end
 end
 
-
 Base.:(*)(lhs::Scalar.Type, rhs::Number) = lhs * Scalar.Constant(rhs)
 Base.:(*)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
 
@@ -66,8 +65,8 @@ function Base.:(\)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Div(rhs, lhs)
 end
 
-Base.:(^)(lhs::Scalar.Type, rhs::Number) = lhs ^ Scalar.Constant(rhs)
-Base.:(^)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) ^ rhs
+Base.:(^)(lhs::Scalar.Type, rhs::Number) = lhs^Scalar.Constant(rhs)
+Base.:(^)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
 function Base.:(^)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Pow(lhs, rhs)
 end
@@ -76,7 +75,6 @@ Base.abs(x::Scalar.Type) = Scalar.Abs(x)
 Base.exp(x::Scalar.Type) = Scalar.Exp(x)
 Base.log(x::Scalar.Type) = Scalar.Log(x)
 Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
-
 
 # Index
 Base.abs(x::Index.Type) = Index.Abs(x)
@@ -98,20 +96,19 @@ Base.:(\)(lhs::Index.Type, rhs::Index.Type) = Index.Div(rhs, lhs)
 Base.:(\)(lhs::Index.Type, rhs::Int) = lhs \ Index.Constant(rhs)
 Base.:(\)(lhs::Int, rhs::Index.Type) = Index.Constant(lhs) \ rhs
 Base.:(^)(lhs::Index.Type, rhs::Index.Type) = Index.Pow(lhs, rhs)
-Base.:(^)(lhs::Index.Type, rhs::Int) = lhs ^ Index.Constant(rhs)
-Base.:(^)(lhs::Int, rhs::Index.Type) = Index.Constant(lhs) ^ rhs
+Base.:(^)(lhs::Index.Type, rhs::Int) = lhs^Index.Constant(rhs)
+Base.:(^)(lhs::Int, rhs::Index.Type) = Index.Constant(lhs)^rhs
 Base.rem(lhs::Index.Type, rhs::Index.Type) = Index.Rem(lhs, rhs)
 Base.rem(lhs::Index.Type, rhs::Int) = lhs % Index.Constant(rhs)
 Base.rem(lhs::Int, rhs::Index.Type) = Index.Constant(lhs) % rhs
-
 
 function parse_var(f, s::AbstractString)
     if (m = match(r"%([0-9]+)", s); !isnothing(m))
         id = parse(Int64, m.captures[1])
         id > 0 || error("invalid SSA id: $id ≤ 0")
-        return f(;name=Symbol(s), id)
+        return f(; name=Symbol(s), id)
     else
-        return f(name=Symbol(s))
+        return f(; name=Symbol(s))
     end
 end
 

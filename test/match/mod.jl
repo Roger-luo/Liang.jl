@@ -3,15 +3,10 @@ using Liang.Expression: Scalar, Num
 using Liang.Traits: PartialEq
 using ExproniconLite
 
-
 @derive Scalar[PartialEq]
 
-x = Scalar.Sum(
-    coeffs=1.0,
-    terms=Dict(
-        Scalar.Constant(1.0) => 1.0,
-        Scalar.Constant(2.0) => 2.0,
-    )
+x = Scalar.Sum(;
+    coeffs=1.0, terms=Dict(Scalar.Constant(1.0) => 1.0, Scalar.Constant(2.0) => 2.0)
 )
 
 lhs = Num.One
@@ -29,9 +24,8 @@ function foo(x)
     end
 end
 
-PartialEq.eq(x.terms, Dict(
-    Scalar.Constant(1.0) => Num.One,
-    Scalar.Constant(2.0) => Num.Real(2.0),
-))
+PartialEq.eq(
+    x.terms, Dict(Scalar.Constant(1.0) => Num.One, Scalar.Constant(2.0) => Num.Real(2.0))
+)
 
 @code_warntype foo(x)

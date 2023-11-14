@@ -25,18 +25,20 @@ function eq end
         match, = Core.Compiler.findsup(tt, table)
         mt = match.method
 
-        stub = Core.GeneratedFunctionStub(identity, Core.svec(:methodinstance, :lhs, :rhs), Core.svec())
+        stub = Core.GeneratedFunctionStub(
+            identity, Core.svec(:methodinstance, :lhs, :rhs), Core.svec()
+        )
         if mt.sig.parameters[2] === Any && mt.sig.parameters[3] === Any
             ret = :(not_implemented_error())
         else
             ret = :($Base.:(==)(lhs, rhs))
         end
-        stub(world, source, ret)
+        return stub(world, source, ret)
     end
 
     @eval function eq(lhs, rhs)
         $(Expr(:meta, :generated, generate_eq))
-        $(Expr(:meta, :generated_only))
+        return $(Expr(:meta, :generated_only))
     end
 else # previous versions
     @generated function eq(lhs, rhs)

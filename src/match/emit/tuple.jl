@@ -8,7 +8,7 @@ function decons_tuple(info::PatternInfo, pat::Pattern.Type)
     end
     set_view_type_check!(coll) do view, eltype
         @gensym N
-        :($view isa $Base.NTuple{$N, $eltype} where $N)
+        :($view isa $Base.NTuple{$N,$eltype} where {$N})
     end
     return coll
 end

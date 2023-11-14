@@ -19,26 +19,31 @@ function decons_call(info::PatternInfo, pat::Pattern.Type)
     head = Base.eval(info.emit.mod, pat.head)
     if Data.is_data_type(head) # check if our pattern is correct
         Data.variant_nfields(head) >= nfields || throw(SyntaxError("invalid pattern: $pat"))
-        Data.variant_kind(head) == Data.Anonymous && length(pat.kwargs) > 0 && throw(SyntaxError("invalid pattern: $pat"))
+        Data.variant_kind(head) == Data.Anonymous &&
+            length(pat.kwargs) > 0 &&
+            throw(SyntaxError("invalid pattern: $pat"))
 
         type_assert = :($Data.isa_variant($value, $head))
-        args_conds = mapfoldl(and_expr, enumerate(pat.args), init=true) do (idx, x)
+        args_conds = mapfoldl(and_expr, enumerate(pat.args); init=true) do (idx, x)
             call_ex = xcall(Reflection, :variant_getfield, value, Val(head.tag), idx)
             decons(info, x)(call_ex)
         end
-        kwargs_conds = mapfoldl(and_expr, pat.kwargs, init=true) do kw
+        kwargs_conds = mapfoldl(and_expr, pat.kwargs; init=true) do kw
             key, val = kw
-            call_ex = xcall(Reflection, :variant_getfield, value, Val(head.tag), QuoteNode(key))
+            call_ex = xcall(
+                Reflection, :variant_getfield, value, Val(head.tag), QuoteNode(key)
+            )
             decons(info, val)(call_ex)
         end
     elseif isconcretetype(head)
-        Base.fieldcount(head) >= nfields || throw(SyntaxError("too many fields to match: $pat"))
+        Base.fieldcount(head) >= nfields ||
+            throw(SyntaxError("too many fields to match: $pat"))
 
         type_assert = :($value isa $head)
-        args_conds = mapfoldl(and_expr, enumerate(pat.args), init=true) do (idx, x)
+        args_conds = mapfoldl(and_expr, enumerate(pat.args); init=true) do (idx, x)
             decons(info, x)(:($Core.getfield($value, $idx)))
         end
-        kwargs_conds = mapfoldl(and_expr, pat.kwargs, init=true) do kw
+        kwargs_conds = mapfoldl(and_expr, pat.kwargs; init=true) do kw
             key, val = kw
             decons(info, val)(:($Core.getfield($value, $key)))
         end

@@ -25,7 +25,7 @@ function decons_quote(info::PatternInfo, pat::Pattern.Type)
 end
 
 function decons_splat(view_type_check, info::PatternInfo, pat::Pattern.Type)
-    function splat(value)
+    return function splat(value)
         if isa_variant(pat.body, Pattern.TypeAnnotate)
             type_check = view_type_check(value, pat.body.type)
             and_expr(type_check, decons(info, pat.body.body)(value))

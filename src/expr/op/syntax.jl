@@ -1,39 +1,39 @@
 function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
     # NOTE: unlike the scalar case, we don't calculate
     # constant in case it's too slow.
-    return Op.Add(0, Dict(lhs=>1, rhs => 1))
+    return Op.Add(0, Dict(lhs => 1, rhs => 1))
 end
 
-function Base.:(+)(lhs::Op.Type, rhs::Union{Number, Scalar.Type})
-    return Op.Add(rhs, Dict(lhs=>1))
+function Base.:(+)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+    return Op.Add(rhs, Dict(lhs => 1))
 end
 
-function Base.:(+)(lhs::Union{Number, Scalar.Type}, rhs::Op.Type)
-    return Op.Add(lhs, Dict(rhs=>1))
+function Base.:(+)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+    return Op.Add(lhs, Dict(rhs => 1))
 end
 
 function Base.:(-)(lhs::Op.Type, rhs::Op.Type)
-    return Op.Add(0, Dict(lhs=>1, rhs => -1))
+    return Op.Add(0, Dict(lhs => 1, rhs => -1))
 end
 
-function Base.:(-)(lhs::Op.Type, rhs::Union{Number, Scalar.Type})
-    return Op.Add(-rhs, Dict(lhs=>1))
+function Base.:(-)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+    return Op.Add(-rhs, Dict(lhs => 1))
 end
 
-function Base.:(-)(lhs::Union{Number, Scalar.Type}, rhs::Op.Type)
-    return Op.Add(lhs, Dict(rhs=>-1))
+function Base.:(-)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+    return Op.Add(lhs, Dict(rhs => -1))
 end
 
 function Base.:(*)(lhs::Op.Type, rhs::Op.Type)
     return Op.Mul(lhs, rhs)
 end
 
-function Base.:(*)(lhs::Op.Type, rhs::Union{Number, Scalar.Type})
-    return Op.Add(0, Dict(lhs=>rhs))
+function Base.:(*)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+    return Op.Add(0, Dict(lhs => rhs))
 end
 
-function Base.:(*)(lhs::Union{Number, Scalar.Type}, rhs::Op.Type)
-    return Op.Add(0, Dict(rhs=>lhs))
+function Base.:(*)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+    return Op.Add(0, Dict(rhs => lhs))
 end
 
 function Base.:(/)(lhs::Op.Type, rhs::Op.Type)
@@ -88,7 +88,7 @@ function Base.adjoint(op::Op.Type)
     return Op.Adjoint(op)
 end
 
-function Base.getindex(op::Op.Type, subscripts::Union{Int, Symbol, Index.Type}...)
+function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
     return Op.Subscript(op, collect(Index.Type, subscripts))
 end
 
