@@ -1,6 +1,24 @@
 @data PrimitiveOp begin
+    Pauli(Vector{UInt8})
+
+    struct Perm
+        nsites::Int
+        perm::Vector{UInt8}
+        weights::Vector{Scalar.Type}
+    end
+
+    Matrix(Matrix{ComplexF64})
+end
+
+@derive PrimitiveOp[PartialEq, Hash]
+
+@data Op begin
+    Wildcard
+    Match(Symbol) # Match a variable
+
     # these constants
     # are just predefined for convenience
+    I # Identity
     X
     Y
     Z
@@ -23,24 +41,6 @@
     RZ(Scalar.Type)
     PHASE(Scalar.Type)
 
-    Pauli(Vector{UInt8})
-
-    struct Perm
-        nsites::Int
-        perm::Vector{UInt8}
-        weights::Vector{Scalar.Type}
-    end
-
-    Matrix(Matrix{ComplexF64})
-end
-
-@derive PrimitiveOp[PartialEq, Hash]
-
-@data Op begin
-    Wildcard
-    Match(Symbol) # Match a variable
-
-    I # Identity
     Constant(PrimitiveOp.Type)
     Variable(Symbol)
 
@@ -108,3 +108,6 @@ end
 end
 
 @derive Op[PartialEq, Hash]
+
+
+Base.convert(::Type{Op.Type}, op::PrimitiveOp.Type) = Op.Constant(op)
