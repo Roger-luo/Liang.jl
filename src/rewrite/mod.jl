@@ -1,4 +1,11 @@
 """
 The rewrite engine.
 """
-module Rewrite end # Rewrite
+module Rewrite
+
+using DocStringExtensions
+
+include("rule.jl")
+include("greedy.jl")
+
+end # Rewrite
