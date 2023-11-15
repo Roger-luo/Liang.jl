@@ -244,7 +244,12 @@ end
 
 show_variant(io::IO, ::MIME, data) = show_variant(io, data)
 
-function show_data(io::IO, data)
+"""
+$SIGNATURES
+
+Print the data type in a standard pretty format.
+"""
+function pprint(io::IO, data)
     f = FormatPrinter(io)
     show_variant(io, data)
     is_singleton(data) && return nothing
@@ -269,4 +274,17 @@ function show_data(io::IO, data)
     return f.print(")")
 end
 
+"""
+$SIGNATURES
+
+This is the API for overloading custom pretty printing of data types.
+It falls back to `pprint` if no method is defined.
+"""
+show_data(io::IO, data) = pprint(io, data)
+
+"""
+$SIGNATURES
+
+Multi-line and multi-MIME version of `show_data`.
+"""
 show_data(io::IO, ::MIME, data) = show_data(io, data)
