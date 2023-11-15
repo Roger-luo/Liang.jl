@@ -1,4 +1,5 @@
 include("data.jl")
 include("convert.jl")
-include("show.jl")
 include("syntax.jl")
+include("basic.jl")
+include("show/mod.jl")
