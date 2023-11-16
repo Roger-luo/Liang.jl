@@ -186,7 +186,11 @@ function call2pattern(expr)
     kwargs = Dict{Symbol,Pattern.Type}()
     if Meta.isexpr(expr.args[2], :parameters)
         for each in expr.args[2].args
-            key, val = each.args
+            if each isa Symbol
+                key, val = (each, each)
+            else
+                key, val = each.args
+            end
             kwargs[key] = expr2pattern(val)
         end
     else

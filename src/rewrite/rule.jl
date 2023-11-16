@@ -28,5 +28,5 @@ $SIGNATURES
 
 Rewrite `expr` with `rule`.
 """
-function (rule::Rule{E, E})(expr::E) where E
+function (rule::Rule{E})(expr::E) where E
 end
