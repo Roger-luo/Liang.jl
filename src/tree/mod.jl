@@ -1,5 +1,3 @@
-using Liang.Tools.Interface: INTERFACE_LIST
-
 """
 A set of interface for tree.
 
@@ -8,14 +6,21 @@ $INTERFACE_LIST
 module Tree
 
 using Liang: not_implemented_error
-using Liang.Tools.Interface: @interface, INTERFACE
+using Liang.Tools.Interface: @interface, INTERFACE, INTERFACE_LIST
 
 """
 $INTERFACE
 
 Return the children of a node.
 """
-@interface children(node) = []
+@interface children(node) = ()
+
+"""
+$INTERFACE
+
+Substitute a (non-leaf) node with given children.
+"""
+@interface substitute(node, children::Tuple) = not_implemented_error()
 
 """
 $INTERFACE
@@ -44,13 +49,6 @@ $INTERFACE
 Return the precedence of an infix node/operator.
 """
 @interface precedence(node)::Int = 0
-
-"""
-$INTERFACE
-
-Substitute a (non-leaf) node with given children.
-"""
-@interface substitute(node, children::Tuple) = not_implemented_error()
 
 include("inline.jl")
 

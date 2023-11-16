@@ -5,6 +5,7 @@ Automatically derive traits for a concrete type. The following traits are suppor
 
 - `PartialEq`
 - `Hash`
+- `Tree`
 """
 macro derive(expr)
     return esc(derive_m(__module__, expr))

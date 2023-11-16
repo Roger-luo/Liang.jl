@@ -115,6 +115,10 @@ This is the basic scalar type. It supports pattern matching.
     JuliaCall(Module, Symbol, Vector{Scalar})
     RoutineCall(Symbol, Vector{Scalar})
 
+    # derivative
+    Partial(Scalar, Scalar)
+    Derivative(Scalar, Scalar)
+
     struct Annotate
         expr::Scalar
         domain::Domain.Type
@@ -122,4 +126,4 @@ This is the basic scalar type. It supports pattern matching.
     end
 end
 
-@derive Scalar[PartialEq, Hash]
+@derive Scalar[PartialEq, Hash, Tree]

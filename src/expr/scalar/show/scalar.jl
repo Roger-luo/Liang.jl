@@ -38,12 +38,6 @@ function inline_print(io::IO, data::Scalar.Type)
         Scalar.JuliaCall(mod, name, args) => call("$mod.$name", args)
         Scalar.RoutineCall(name, args) => call(name, args)
 
-        Scalar.Routine(name, args, body) => begin
-            call(name, args)
-            print(io, " = ")
-            inline_print(io, body)
-        end
-
         Scalar.Annotate(expr, domain, unit) => begin
             inline_print(io, expr)
             print(io, "::")

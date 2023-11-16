@@ -229,8 +229,8 @@ end
     body = foreach_variant(info, :tag) do variant::Variant, vinfo::VariantInfo
         variant.kind === Singleton && return :(())
 
-        names = map(variant.fields) do f::Union{NamedField,Field}
-            f.type_expr
+        names = map(vinfo) do f::FieldInfo
+            f.type
         end
         return xtuple(names...)
     end
