@@ -18,7 +18,7 @@ function inner_decons(info::PatternInfo, pat::Pattern.Type)
     isa_variant(pat, Pattern.Call) && return decons_call(info, pat)
     isa_variant(pat, Pattern.Tuple) && return decons_tuple(info, pat)
     isa_variant(pat, Pattern.Vector) && return decons_untyped_vect(info, pat)
-    isa_variant(pat, Pattern.Splat) && return decons_splat(info, pat)
+    isa_variant(pat, Pattern.Splat) && return decons_splat(always_true, info, pat)
     isa_variant(pat, Pattern.TypeAnnotate) && return decons_type_annotate(info, pat)
 
     return error("invalid pattern: $pat")

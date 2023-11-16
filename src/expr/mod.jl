@@ -3,6 +3,7 @@ Definition & Construction of Expressions
 """
 module Expression
 
+using Liang.Tree: Tree
 using Liang.Data: Data
 using Liang.Data.Prelude
 using Liang.Match: @match

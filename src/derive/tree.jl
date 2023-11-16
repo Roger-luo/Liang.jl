@@ -17,16 +17,21 @@ function tree_derive_substitute(mod::Module, type::Module)
         else
             children = []
             for (idx, field_type) in enumerate(variant_fieldtypes(variant_type))
+                field_value = xcall(
+                    Reflection,
+                    :variant_getfield,
+                    :node,
+                    Val(variant_type.tag),
+                    idx
+                )
                 if field_type == type.Type # children, use replacement
-                    push!(children, :(children[$(length(children)+1)]))
+                    @gensym value
+                    push!(children, quote
+                        $value = $field_value
+                        $Base.get(replace, $value, $value)
+                    end)
                 else # not children, use original
-                    push!(children, xcall(
-                        Reflection,
-                        :variant_getfield,
-                        :node,
-                        Val(variant_type.tag),
-                        idx
-                    ))
+                    push!(children, field_value)
                 end
             end
             jl[:(vtype == $variant_type)] = quote
@@ -36,7 +41,7 @@ function tree_derive_substitute(mod::Module, type::Module)
     end
 
     return quote
-        function $Tree.substitute(node::$type.Type, children::Tuple)
+        function $Tree.substitute(node::$type.Type, replace::Dict{$type.Type, $type.Type})
             vtype = $variant_type(node)
             return $(codegen_ast(jl))
         end
@@ -61,7 +66,7 @@ function tree_derive_children(mod::Module, type::Module)
             )
         end
         jl[:(vtype == $variant_type)] = quote
-            return $(xtuple(children...))
+            return [$(children...)]
         end
     end
     jl.otherwise = quote

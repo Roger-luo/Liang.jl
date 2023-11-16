@@ -48,7 +48,7 @@ It supports pattern matching.
     Abs(Index)
 end
 
-@derive Index[PartialEq, Hash]
+@derive Index[PartialEq, Hash, Tree]
 
 """
     Num
@@ -126,4 +126,4 @@ This is the basic scalar type. It supports pattern matching.
     end
 end
 
-@derive Scalar[PartialEq, Hash, Tree]
+@derive Scalar[PartialEq, Hash]

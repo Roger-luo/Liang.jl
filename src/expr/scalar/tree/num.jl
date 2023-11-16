@@ -1,4 +1,4 @@
-function inline_print(io::IO, x::Num.Type)
+function Tree.inline_print(io::IO, x::Num.Type)
     @match x begin
         Num.Zero => print(io, "0")
         Num.One => print(io, "1")

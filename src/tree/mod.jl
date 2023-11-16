@@ -20,7 +20,7 @@ $INTERFACE
 
 Substitute a (non-leaf) node with given children.
 """
-@interface substitute(node, children::Tuple) = not_implemented_error()
+@interface substitute(node, replace::Dict) = not_implemented_error()
 
 """
 $INTERFACE
@@ -35,6 +35,22 @@ $INTERFACE
 Print the node
 """
 @interface print_node(io::IO, node) = not_implemented_error()
+
+"""
+$INTERFACE
+
+Check if a node use custom print. Useful for dynamic
+dispatch, e.g a variant in data type.
+"""
+@interface use_custom_print(node) = false
+
+"""
+$INTERFACE
+
+API for overloading custom tree printing behavior.
+Useful for dynamic dispatch, e.g a variant in data type.
+"""
+@interface custom_inline_print(io::IO, node) = not_implemented_error()
 
 """
 $INTERFACE

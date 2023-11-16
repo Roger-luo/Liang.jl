@@ -1,4 +1,6 @@
 function inline_print(io::IO, node)
+    use_custom_print(node) && return custom_inline_print(io, node)
+
     subnodes = children(node)
     parent_pred = get(io, :precedence, 0)
     node_pred = precedence(node)
