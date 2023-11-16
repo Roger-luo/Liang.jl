@@ -7,7 +7,7 @@ function inline_print(io::IO, node)
     if is_infix(node) # must be binary op
         @assert length(subnodes) == 2
         left, right = subnodes
-        sub_io = IOContext(io, :precedence=>node_pred)
+        sub_io = IOContext(io, :precedence => node_pred)
         node_pred < parent_pred && print(io, "(")
         inline_print(sub_io, left)
         print_node(io, node)
@@ -26,5 +26,5 @@ function inline_print(io::IO, node)
         end
         print(io, ")")
     end
-    return
+    return nothing
 end

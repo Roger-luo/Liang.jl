@@ -17,7 +17,7 @@ function Tree.children(node::Scalar.Type)
     end
 end
 
-function Tree.substitute(node::Scalar.Type, replace::Dict{Scalar.Type, Scalar.Type})
+function Tree.substitute(node::Scalar.Type, replace::Dict{Scalar.Type,Scalar.Type})
     @match node begin
         Scalar.Neg(x) => Scalar.Neg(get(replace, x, x))
         Scalar.Abs(x) => Scalar.Abs(get(replace, x, x))
@@ -25,35 +25,28 @@ function Tree.substitute(node::Scalar.Type, replace::Dict{Scalar.Type, Scalar.Ty
         Scalar.Log(x) => Scalar.Log(get(replace, x, x))
         Scalar.Sqrt(x) => Scalar.Sqrt(get(replace, x, x))
         Scalar.Sum(coeffs, terms) => Scalar.Sum(coeffs, substitute_ac_set(terms, children))
-        Scalar.Prod(coeffs, terms) => Scalar.Prod(coeffs, substitute_ac_set(terms, children))
-        Scalar.Pow(base, exp) => Scalar.Pow(
-            get(replace, base, base),
-            get(replace, exp, exp),
-        )
-        Scalar.Div(num, den) => Scalar.Div(
-            get(replace, num, num),
-            get(replace, den, den),
-        )
-        Scalar.JuliaCall(mod, name, args) => Scalar.JuliaCall(mod, name, substitute_list(args, replace))
-        Scalar.RoutineCall(name, args) => Scalar.RoutineCall(name, substitute_list(args, replace))
-        Scalar.Partial(expr, var) => Scalar.Partial(
-            get(replace, expr, expr),
-            get(replace, var, var),
-        )
-        Scalar.Derivative(expr, var) => Scalar.Derivative(
-            get(replace, expr, expr),
-            get(replace, var, var),
-        )
-        Scalar.Annotate(expr, domain, unit) => Scalar.Annotate(
-            get(replace, expr, expr),
-            domain,
-            unit,
-        )
+        Scalar.Prod(coeffs, terms) =>
+            Scalar.Prod(coeffs, substitute_ac_set(terms, children))
+        Scalar.Pow(base, exp) =>
+            Scalar.Pow(get(replace, base, base), get(replace, exp, exp))
+        Scalar.Div(num, den) => Scalar.Div(get(replace, num, num), get(replace, den, den))
+        Scalar.JuliaCall(mod, name, args) =>
+            Scalar.JuliaCall(mod, name, substitute_list(args, replace))
+        Scalar.RoutineCall(name, args) =>
+            Scalar.RoutineCall(name, substitute_list(args, replace))
+        Scalar.Partial(expr, var) =>
+            Scalar.Partial(get(replace, expr, expr), get(replace, var, var))
+        Scalar.Derivative(expr, var) =>
+            Scalar.Derivative(get(replace, expr, expr), get(replace, var, var))
+        Scalar.Annotate(expr, domain, unit) =>
+            Scalar.Annotate(get(replace, expr, expr), domain, unit)
     end
 end
 
-function substitute_ac_set(terms::Dict{Scalar.Type, Num.Type}, children::Dict{Scalar.Type, Scalar.Type})
-    new_terms = Dict{Scalar.Type, Num.Type}()
+function substitute_ac_set(
+    terms::Dict{Scalar.Type,Num.Type}, children::Dict{Scalar.Type,Scalar.Type}
+)
+    new_terms = Dict{Scalar.Type,Num.Type}()
     for (key, val) in terms
         if haskey(children, key)
             new_terms[children[key]] = val
@@ -64,7 +57,7 @@ function substitute_ac_set(terms::Dict{Scalar.Type, Num.Type}, children::Dict{Sc
     return new_terms
 end
 
-function substitute_list(args::Vector{Scalar.Type}, replace::Dict{Scalar.Type, Scalar.Type})
+function substitute_list(args::Vector{Scalar.Type}, replace::Dict{Scalar.Type,Scalar.Type})
     new_args = Scalar.Type[]
     sizehint!(new_args, length(args))
     for arg in args
@@ -108,7 +101,7 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Prod(coeffs, terms) => print(io, "*")
         Scalar.Pow(base, exp) => print(io, "^")
         Scalar.Div(num, den) => print(io, "/")
-        
+
         Scalar.JuliaCall(mod, name, args) => print(io, "$mod.$name")
         Scalar.RoutineCall(name, args) => print(io, name)
 
@@ -128,7 +121,9 @@ function Tree.is_infix(node::Scalar.Type)
 end
 
 function Tree.use_custom_print(node::Scalar.Type)
-    return isa_variant(node, Scalar.Sum) || isa_variant(node, Scalar.Prod) || isa_variant(node, Scalar.Annotate)
+    return isa_variant(node, Scalar.Sum) ||
+           isa_variant(node, Scalar.Prod) ||
+           isa_variant(node, Scalar.Annotate)
 end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)
@@ -177,7 +172,7 @@ function print_sum(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
             print(io, "+")
         end
     end
-    return
+    return nothing
 end
 
 function print_prod(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
@@ -210,5 +205,5 @@ function print_prod(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
             print(io, "*")
         end
     end
-    return
+    return nothing
 end

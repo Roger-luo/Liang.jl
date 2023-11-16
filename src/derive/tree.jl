@@ -18,18 +18,17 @@ function tree_derive_substitute(mod::Module, type::Module)
             children = []
             for (idx, field_type) in enumerate(variant_fieldtypes(variant_type))
                 field_value = xcall(
-                    Reflection,
-                    :variant_getfield,
-                    :node,
-                    Val(variant_type.tag),
-                    idx
+                    Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
                 )
                 if field_type == type.Type # children, use replacement
                     @gensym value
-                    push!(children, quote
-                        $value = $field_value
-                        $Base.get(replace, $value, $value)
-                    end)
+                    push!(
+                        children,
+                        quote
+                            $value = $field_value
+                            $Base.get(replace, $value, $value)
+                        end,
+                    )
                 else # not children, use original
                     push!(children, field_value)
                 end
@@ -41,7 +40,7 @@ function tree_derive_substitute(mod::Module, type::Module)
     end
 
     return quote
-        function $Tree.substitute(node::$type.Type, replace::Dict{$type.Type, $type.Type})
+        function $Tree.substitute(node::$type.Type, replace::Dict{$type.Type,$type.Type})
             vtype = $variant_type(node)
             return $(codegen_ast(jl))
         end
@@ -56,13 +55,7 @@ function tree_derive_children(mod::Module, type::Module)
             field_type == type.Type || continue
             push!(
                 children,
-                xcall(
-                    Reflection,
-                    :variant_getfield,
-                    :node,
-                    Val(variant_type.tag),
-                    idx
-                ),
+                xcall(Reflection, :variant_getfield, :node, Val(variant_type.tag), idx),
             )
         end
         jl[:(vtype == $variant_type)] = quote

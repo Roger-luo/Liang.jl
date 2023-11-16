@@ -26,7 +26,7 @@ function Tree.print_node(io::IO, node::Index.Type)
     @match node begin
         Index.Wildcard => print(io, "_")
         Index.Constant(x) => print(io, x)
-        Index.Variable(;name) => print(io, name)
+        Index.Variable(; name) => print(io, name)
         Index.Add(lhs, rhs) => print(io, "+")
         Index.Sub(lhs, rhs) => print(io, "-")
         Index.Mul(lhs, rhs) => print(io, "*")
