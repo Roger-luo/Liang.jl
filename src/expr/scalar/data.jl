@@ -115,12 +115,6 @@ This is the basic scalar type. It supports pattern matching.
     JuliaCall(Module, Symbol, Vector{Scalar})
     RoutineCall(Symbol, Vector{Scalar})
 
-    struct Routine
-        name::Symbol
-        args::Vector{Scalar} # Variable only
-        body::Scalar
-    end
-
     struct Annotate
         expr::Scalar
         domain::Domain.Type

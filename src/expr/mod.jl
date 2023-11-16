@@ -9,6 +9,13 @@ using Liang.Match: @match
 using Liang.Derive: @derive
 using LinearAlgebra: LinearAlgebra
 
+struct Routine{E}
+    name::Symbol
+    # Variable of the same type E
+    args::Vector{Symbol}
+    body::E
+end
+
 include("scalar/mod.jl")
 include("basis/mod.jl")
 include("state/mod.jl")
