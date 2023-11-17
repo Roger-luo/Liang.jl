@@ -19,9 +19,7 @@ function inline_print(io::IO, node)
         print_node(io, node)
         print(io, "(")
         for (idx, subnode) in enumerate(subnodes)
-            if idx > 1
-                print(io, ", ")
-            end
+            idx > 1 && print(io, ", ")
             inline_print(io, subnode)
         end
         print(io, ")")
