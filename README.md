@@ -2,6 +2,10 @@
 
 The universal emulator
 
+**Disclaimer** This is in a very early stage of development. The package is not expected
+to be used by anyone other than the author. I make it public only to make a few things clear
+legally due to some personal changes in the near future.
+
 ## Installation
 
 <p>
