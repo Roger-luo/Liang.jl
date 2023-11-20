@@ -13,7 +13,7 @@ $INTERFACE
 
 Return the children of a node.
 """
-@interface children(node) = ()
+@interface children(node::T)::Vector{T} where {T} = T[]
 
 """
 $INTERFACE
@@ -21,6 +21,19 @@ $INTERFACE
 Substitute a (non-leaf) node with given children.
 """
 @interface substitute(node, replace::Dict) = not_implemented_error()
+
+"""
+$INTERFACE
+
+Map a function to the children of a node, and return the
+new node with the mapped children.
+
+!!! note
+    This usually provides better performance than calling
+    [`substitute`](@ref) with a dictionary, since it avoids
+    unnecessary copying of the node.
+"""
+@interface map_children(f, node) = not_implemented_error()
 
 """
 $INTERFACE
