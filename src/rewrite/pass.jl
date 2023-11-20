@@ -1,9 +1,9 @@
-struct PassThrough{F}
-    f::F
+struct PassThrough{R}
+    map::R
 end
 
 function (p::PassThrough)(node)
-    ret = p.f(node)
+    ret = p.map(node)
     isnothing(ret) && return node
     return ret
 end
