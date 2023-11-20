@@ -32,6 +32,7 @@ This package is inspired by the following projects:
 - QuTiP & QuanutmOptics: helped us understand better the use cases of the package.
 - Symbolics: the rewrite engine and the symbolic data structure are largely inspired by Symbolics and my conversation with Yingbo Ma.
 - OMEinsum: the tensor network contraction engine is largely inspired by OMEinsum's contraction tree.
+- MLStyle: the underlying algebra data type and pattern match support is largely inspired by MLStyle.
 
 ## License
 
