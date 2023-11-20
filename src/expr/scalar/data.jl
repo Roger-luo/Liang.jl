@@ -65,7 +65,7 @@ This is the basic numeric type.
     Euler # Irrational{e}
 end
 
-@derive Num[PartialEq, Hash]
+@derive Num[PartialEq, Hash, Tree]
 
 """
     Scalar

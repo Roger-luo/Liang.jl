@@ -244,6 +244,8 @@ end
 
 show_variant(io::IO, ::MIME, data) = show_variant(io, data)
 
+pprint(data) = pprint(stdout, data)
+
 """
 $SIGNATURES
 

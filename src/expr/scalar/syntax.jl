@@ -18,6 +18,8 @@ Base.:(-)(x::Scalar.Type) = Scalar.Neg(x)
 # some overloads for the syntax of scalar expressions
 Base.:(+)(lhs::Scalar.Type, rhs::Number) = lhs + Scalar.Constant(rhs)
 Base.:(+)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
+Base.:(+)(lhs::Scalar.Type, rhs::Num.Type) = lhs + Scalar.Constant(rhs)
+Base.:(+)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
 
 function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
@@ -30,6 +32,8 @@ end
 
 Base.:(-)(lhs::Scalar.Type, rhs::Number) = lhs - Scalar.Constant(rhs)
 Base.:(-)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
+Base.:(-)(lhs::Scalar.Type, rhs::Num.Type) = lhs - Scalar.Constant(rhs)
+Base.:(-)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
 
 function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
@@ -42,18 +46,22 @@ end
 
 Base.:(*)(lhs::Scalar.Type, rhs::Number) = lhs * Scalar.Constant(rhs)
 Base.:(*)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
+Base.:(*)(lhs::Scalar.Type, rhs::Num.Type) = lhs * Scalar.Constant(rhs)
+Base.:(*)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
 
 function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x * y)
         (_, Scalar.Constant(_)) => Scalar.Prod(rhs, Dict(lhs => 1))
         (Scalar.Constant(_), _) => Scalar.Prod(lhs, Dict(rhs => 1))
-        _ => Scalar.Prod(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
+        _ => Scalar.Prod(Scalar.Constant(1), Dict(lhs => 1, rhs => 1))
     end
 end
 
 Base.:(/)(lhs::Scalar.Type, rhs::Number) = lhs / Scalar.Constant(rhs)
 Base.:(/)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
+Base.:(/)(lhs::Scalar.Type, rhs::Num.Type) = lhs / Scalar.Constant(rhs)
+Base.:(/)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
 
 function Base.:(/)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Div(lhs, rhs)
@@ -61,12 +69,16 @@ end
 
 Base.:(\)(lhs::Scalar.Type, rhs::Number) = lhs \ Scalar.Constant(rhs)
 Base.:(\)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
+Base.:(\)(lhs::Scalar.Type, rhs::Num.Type) = lhs \ Scalar.Constant(rhs)
+Base.:(\)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
 function Base.:(\)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Div(rhs, lhs)
 end
 
 Base.:(^)(lhs::Scalar.Type, rhs::Number) = lhs^Scalar.Constant(rhs)
 Base.:(^)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
+Base.:(^)(lhs::Scalar.Type, rhs::Num.Type) = lhs^Scalar.Constant(rhs)
+Base.:(^)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
 function Base.:(^)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Pow(lhs, rhs)
 end

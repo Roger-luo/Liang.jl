@@ -1,3 +1,5 @@
+inline_print(node) = inline_print(stdout, node)
+
 function inline_print(io::IO, node)
     use_custom_print(node) && return custom_inline_print(io, node)
 

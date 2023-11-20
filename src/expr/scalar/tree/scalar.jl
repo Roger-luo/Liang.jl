@@ -17,6 +17,25 @@ function Tree.children(node::Scalar.Type)
     end
 end
 
+function Tree.n_children(node::Scalar.Type)
+    @match node begin
+        Scalar.Neg(x) => 1
+        Scalar.Abs(x) => 1
+        Scalar.Exp(x) => 1
+        Scalar.Log(x) => 1
+        Scalar.Sqrt(x) => 1
+        Scalar.Sum(coeffs, terms) => length(terms)
+        Scalar.Prod(coeffs, terms) => length(terms)
+        Scalar.Pow(base, exp) => 2
+        Scalar.Div(num, den) => 2
+        Scalar.JuliaCall(mod, name, args) => length(args)
+        Scalar.RoutineCall(name, args) => length(args)
+        Scalar.Partial(expr, var) => 2
+        Scalar.Derivative(expr, var) => 2
+        _ => 0
+    end
+end
+
 function Tree.map_children(f, node::Scalar.Type)
     @match node begin
         Scalar.Neg(x) => Scalar.Neg(f(x))

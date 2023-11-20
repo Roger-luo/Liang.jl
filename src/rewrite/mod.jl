@@ -7,7 +7,6 @@ using DocStringExtensions
 using Liang.Data.Prelude
 using Liang.Tree
 
-include("rule.jl")
 include("pass.jl")
 include("fixpoint.jl")
 include("walk.jl")

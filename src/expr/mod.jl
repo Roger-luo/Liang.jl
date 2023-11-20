@@ -8,8 +8,10 @@ using Liang.Data: Data
 using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Derive: @derive
+using Liang.Rewrite: Fixpoint, Chain, Pre
 using LinearAlgebra: LinearAlgebra
 using Transducers: Map, tcollect
+using DocStringExtensions
 
 struct Routine{E}
     name::Symbol
@@ -24,5 +26,6 @@ include("state/mod.jl")
 include("region/mod.jl")
 include("op/mod.jl")
 include("tensor/mod.jl")
+include("prelude.jl")
 
 end # Expression
