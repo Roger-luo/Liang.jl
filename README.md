@@ -24,6 +24,15 @@ Liang is a &nbsp;
 pkg> add Liang
 ```
 
+## Acknowledgement
+
+This package is inspired by the following projects:
+
+- Yao & QuSpin: the major starting point of this package.
+- QuTiP & QuanutmOptics: helped us understand better the use cases of the package.
+- Symbolics: the rewrite engine and the symbolic data structure are largely inspired by Symbolics and my conversation with Yingbo Ma.
+- OMEinsum: the tensor network contraction engine is largely inspired by OMEinsum's contraction tree.
+
 ## License
 
 MIT License
