@@ -9,6 +9,7 @@ using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Derive: @derive
 using LinearAlgebra: LinearAlgebra
+using Transducers: Map, tcollect
 
 struct Routine{E}
     name::Symbol

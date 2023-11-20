@@ -1,10 +1,20 @@
 module Interface
 
 using ExproniconLite: JLFunction, name_only, no_default
-using DocStringExtensions: DocStringExtensions, Abbreviation, SIGNATURES
+using DocStringExtensions: DocStringExtensions, Abbreviation, SIGNATURES, TYPEDEF
 
 const INTERFACE_STUB = Symbol("#INTERFACE_STUB#")
 
+"""
+$TYPEDEF
+
+The signature information of an interface method.
+
+!!! note
+    This is only used for printing for now. Thus we do not store
+    the actual type signature at the moment. We should think about
+    how to store the type signature and use this info in the future.
+"""
 Base.@kwdef struct InterfaceMethod
     name::Symbol
     arg_names::Vector{Symbol}
@@ -12,6 +22,7 @@ Base.@kwdef struct InterfaceMethod
     kwargs_names::Vector{Symbol}
     kwargs_types::Vector{Any}
     kwargs_defaults::Vector{Any}
+    where_params::Vector{Any}
     return_type
 end
 
@@ -32,7 +43,17 @@ function Base.show(io::IO, im::InterfaceMethod)
         end
     end
     print(io, ")")
-    return isnothing(im.return_type) || print(io, " -> ", im.return_type)
+
+    if !isempty(im.where_params)
+        print(io, " where {")
+        for (i, param) in enumerate(im.where_params)
+            print(io, param)
+            i < length(im.where_params) && print(io, ", ")
+        end
+        print(io, "}")
+    end
+
+    isnothing(im.return_type) || print(io, " -> ", im.return_type)
 end
 
 """
@@ -92,17 +113,18 @@ function emit_interface_stub(mod::Module, jl::JLFunction)
             end
         end
     end
-    return quote
-        $Interface.InterfaceMethod(;
-            name=$(QuoteNode(jl.name)),
-            arg_names=[$(QuoteNode.(name_only.(jl.args))...)],
-            arg_types=[$(type_only.(jl.args)...)],
-            kwargs_names=[$(kwargs_names...)],
-            kwargs_types=[$(kwargs_types...)],
-            kwargs_defaults=[$(kwargs_defaults...)],
-            return_type=$(jl.rettype),
-        )
-    end
+
+    interface_mt = InterfaceMethod(;
+        name=jl.name,
+        arg_names=name_only.(jl.args),
+        arg_types=type_only.(jl.args),
+        kwargs_names=kwargs_names,
+        kwargs_types=kwargs_types,
+        kwargs_defaults=kwargs_defaults,
+        where_params=isnothing(jl.whereparams) ? [] : jl.whereparams,
+        return_type=jl.rettype,
+    )
+    return interface_mt
 end
 
 function type_only(expr)

@@ -17,57 +17,42 @@ function Tree.children(node::Scalar.Type)
     end
 end
 
-function Tree.substitute(node::Scalar.Type, replace::Dict{Scalar.Type,Scalar.Type})
+function Tree.map_children(f, node::Scalar.Type)
     @match node begin
-        Scalar.Neg(x) => Scalar.Neg(get(replace, x, x))
-        Scalar.Abs(x) => Scalar.Abs(get(replace, x, x))
-        Scalar.Exp(x) => Scalar.Exp(get(replace, x, x))
-        Scalar.Log(x) => Scalar.Log(get(replace, x, x))
-        Scalar.Sqrt(x) => Scalar.Sqrt(get(replace, x, x))
-        Scalar.Sum(coeffs, terms) => Scalar.Sum(coeffs, substitute_ac_set(terms, children))
-        Scalar.Prod(coeffs, terms) =>
-            Scalar.Prod(coeffs, substitute_ac_set(terms, children))
-        Scalar.Pow(base, exp) =>
-            Scalar.Pow(get(replace, base, base), get(replace, exp, exp))
-        Scalar.Div(num, den) => Scalar.Div(get(replace, num, num), get(replace, den, den))
-        Scalar.JuliaCall(mod, name, args) =>
-            Scalar.JuliaCall(mod, name, substitute_list(args, replace))
-        Scalar.RoutineCall(name, args) =>
-            Scalar.RoutineCall(name, substitute_list(args, replace))
-        Scalar.Partial(expr, var) =>
-            Scalar.Partial(get(replace, expr, expr), get(replace, var, var))
-        Scalar.Derivative(expr, var) =>
-            Scalar.Derivative(get(replace, expr, expr), get(replace, var, var))
-        Scalar.Annotate(expr, domain, unit) =>
-            Scalar.Annotate(get(replace, expr, expr), domain, unit)
+        Scalar.Neg(x) => Scalar.Neg(f(x))
+        Scalar.Abs(x) => Scalar.Abs(f(x))
+        Scalar.Exp(x) => Scalar.Exp(f(x))
+        Scalar.Log(x) => Scalar.Log(f(x))
+        Scalar.Sqrt(x) => Scalar.Sqrt(f(x))
+        Scalar.Sum(coeffs, terms) => Scalar.Sum(coeffs, Tree.map_ac_set(f, +, terms))
+        Scalar.Prod(coeffs, terms) => Scalar.Prod(coeffs, Tree.map_ac_set(f, *, terms))
+        Scalar.Pow(base, exp) => Scalar.Pow(f(base), f(exp))
+        Scalar.Div(num, den) => Scalar.Div(f(num), f(den))
+        Scalar.JuliaCall(mod, name, args) => Scalar.JuliaCall(mod, name, map(f, args))
+        Scalar.RoutineCall(name, args) => Scalar.RoutineCall(name, map(f, args))
+        Scalar.Partial(expr, var) => Scalar.Partial(f(expr), f(var))
+        Scalar.Derivative(expr, var) => Scalar.Derivative(f(expr), f(var))
+        Scalar.Annotate(expr, domain, unit) => Scalar.Annotate(f(expr), domain, unit)
     end
 end
 
-function substitute_ac_set(
-    terms::Dict{Scalar.Type,Num.Type}, children::Dict{Scalar.Type,Scalar.Type}
-)
-    new_terms = Dict{Scalar.Type,Num.Type}()
-    for (key, val) in terms
-        if haskey(children, key)
-            new_terms[children[key]] = val
-        else
-            new_terms[key] = val
-        end
+function Tree.threaded_map_children(f, node::Scalar.Type)
+    @match node begin
+        Scalar.Neg(x) => Scalar.Neg(f(x))
+        Scalar.Abs(x) => Scalar.Abs(f(x))
+        Scalar.Exp(x) => Scalar.Exp(f(x))
+        Scalar.Log(x) => Scalar.Log(f(x))
+        Scalar.Sqrt(x) => Scalar.Sqrt(f(x))
+        Scalar.Sum(coeffs, terms) => Scalar.Sum(coeffs, Tree.threaded_map_ac_set(f, +, terms))
+        Scalar.Prod(coeffs, terms) => Scalar.Prod(coeffs, Tree.threaded_map_ac_set(f, *, terms))
+        Scalar.Pow(base, exp) => Scalar.Pow(f(base), f(exp))
+        Scalar.Div(num, den) => Scalar.Div(f(num), f(den))
+        Scalar.JuliaCall(mod, name, args) => Scalar.JuliaCall(mod, name, tcollect(args |> Map(f)))
+        Scalar.RoutineCall(name, args) => Scalar.RoutineCall(name, tcollect(args |> Map(f)))
+        Scalar.Partial(expr, var) => Scalar.Partial(f(expr), f(var))
+        Scalar.Derivative(expr, var) => Scalar.Derivative(f(expr), f(var))
+        Scalar.Annotate(expr, domain, unit) => Scalar.Annotate(f(expr), domain, unit)
     end
-    return new_terms
-end
-
-function substitute_list(args::Vector{Scalar.Type}, replace::Dict{Scalar.Type,Scalar.Type})
-    new_args = Scalar.Type[]
-    sizehint!(new_args, length(args))
-    for arg in args
-        if haskey(replace, arg)
-            push!(new_args, replace[arg])
-        else
-            push!(new_args, arg)
-        end
-    end
-    return new_args
 end
 
 function Tree.is_leaf(node::Scalar.Type)
