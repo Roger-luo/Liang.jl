@@ -22,6 +22,22 @@ end
     X
     Y
     Z
+
+    """
+    Spin Pauli operator `Sx` with `d`-dimensional spin.
+    """
+    Sx
+
+    """
+    Spin Pauli operator `Sy` with `d`-dimensional spin.
+    """
+    Sy
+
+    """
+    Spin Pauli operator `Sz` with `d`-dimensional spin.
+    """
+    Sz
+
     S
     H
     T

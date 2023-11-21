@@ -109,14 +109,6 @@ function Tree.print_node(io::IO, node::Op.Type)
     @match node begin
         Op.Wildcard => print(io, "_")
         Op.Match(name) => print(io, "\$", name)
-        Op.I => print(io, "I")
-        Op.X => print(io, "X")
-        Op.Y => print(io, "Y")
-        Op.Z => print(io, "Z")
-        Op.S => print(io, "S")
-        Op.H => print(io, "H")
-        Op.T => print(io, "T")
-        Op.SWAP => print(io, "SWAP")
         Op.Annotate(op, basis) => printstyled(io, " %", basis)
 
         Op.Constant(value) => print(io, value)
@@ -128,8 +120,14 @@ function Tree.print_node(io::IO, node::Op.Type)
 
         Op.Mul(lhs, rhs) => print(io, "*")
         Op.Kron(lhs, rhs) => print(io, "⊗")
-        Op.Pow(base, exp) => print(io, "^")
-        Op.KronPow(base, exp) => print(io, "^⊗")
+        Op.Pow(base, exp) => begin
+            print(io, "^")
+            Tree.inline_print(io, exp)
+        end
+        Op.KronPow(base, exp) => begin
+            print(io, "^⊗")
+            Tree.inline_print(io, exp)
+        end
         Op.Exp(op) => print(io, "exp")
         Op.Log(op) => print(io, "log")
         Op.Tr(op) => print(io, "tr")
@@ -180,10 +178,11 @@ function Tree.print_node(io::IO, node::Op.Type)
             end
             print(io, "]")
         end
+        _ => print(io, variant_name(node))
 
-        # these are using custom printing
-        # Op.Add(coeffs, terms) => print(io, "+")
-        _ => error("unhandled node: ", variant_type(node))
+        # # these are using custom printing
+        # # Op.Add(coeffs, terms) => print(io, "+")
+        # _ => error("unhandled node: ", variant_type(node))
     end
 end
 
@@ -191,14 +190,14 @@ function Tree.is_infix(node::Op.Type)
     @match node begin
         Op.Mul(_) => true
         Op.Kron(_) => true
-        Op.Pow(_) => true
-        Op.KronPow(_) => true
         _ => false
     end
 end
 
 function Tree.is_postfix(node::Op.Type)
     @match node begin
+        Op.Pow(_) => true
+        Op.KronPow(_) => true
         Op.Adjoint(_) => true
         Op.Transpose(_) => true
         Op.Subscript(_) => true
