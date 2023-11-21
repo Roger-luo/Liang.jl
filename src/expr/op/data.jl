@@ -88,7 +88,6 @@ TWOLEVEL_NOTE = """
     end
 
     struct Add
-        coeffs::Scalar.Type # Identity
         terms::Dict{Op,Scalar.Type}
     end
 

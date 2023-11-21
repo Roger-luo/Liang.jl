@@ -80,6 +80,27 @@ Check if a node is a leaf node.
 """
 $INTERFACE
 
+Check if a node is an infix node/operator.
+"""
+@interface is_infix(node) = false
+
+"""
+$INTERFACE
+
+Check if a node is a postfix node/operator.
+"""
+@interface is_postfix(node) = false
+
+"""
+$INTERFACE
+
+Return the precedence of an infix node/operator.
+"""
+@interface precedence(node)::Int = 0
+
+"""
+$INTERFACE
+
 Print the node
 """
 @interface print_node(io::IO, node) = not_implemented_error()
@@ -103,23 +124,38 @@ Useful for dynamic dispatch, e.g a variant in data type.
 """
 $INTERFACE
 
-Check if a node is an infix node/operator.
+Return an iterator of the annotation of the children of a node.
+Return an empty iterator if the node has no annotation.
 """
-@interface is_infix(node) = false
+@interface annotations(node) = ()
 
 """
 $INTERFACE
 
-Check if a node is a postfix node/operator.
+Should the annotation of the children of a node be printed or not.
+Return `true` if the annotation should be printed, `false` otherwise.
+Default to `false`.
 """
-@interface is_postfix(node) = false
+@interface should_print_annotation(node) = false
 
 """
 $INTERFACE
 
-Return the precedence of an infix node/operator.
+Print the meta info of a node, this will be printed after
+calling [`print_node`](@ref).
 """
-@interface precedence(node)::Int = 0
+@interface print_meta(io::IO, node) = nothing
+
+
+# TODO: remove the color kwargs?
+
+"""
+$INTERFACE
+
+Print the annotation of the children of a node, default
+to [`inline_print`](@ref).
+"""
+@interface print_annotation(io::IO, node, annotation; color=nothing) = inline_print(io, annotation)
 
 include("tools.jl")
 include("inline.jl")

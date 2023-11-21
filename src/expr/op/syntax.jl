@@ -2,30 +2,34 @@ function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
     # NOTE: unlike the scalar case, we don't calculate
     # constant in case it's too slow.
     if lhs == rhs
-        return Op.Add(0, Dict(lhs => 2))
+        return Op.Add(Dict(lhs => 2))
     else
-        return Op.Add(0, Dict(lhs => 1, rhs => 1))
+        return Op.Add(Dict(lhs => 1, rhs => 1))
     end
 end
 
 function Base.:(+)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
-    return Op.Add(rhs, Dict(lhs => 1))
+    return Op.Add(Dict(lhs => 1)) + rhs * Op.I
 end
 
 function Base.:(+)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
-    return Op.Add(lhs, Dict(rhs => 1))
+    return rhs + lhs
+end
+
+function Base.:(-)(op::Op.Type)
+    return Op.Add(Dict(op => -1))
 end
 
 function Base.:(-)(lhs::Op.Type, rhs::Op.Type)
-    return Op.Add(0, Dict(lhs => 1, rhs => -1))
+    return Op.Add(Dict(lhs => 1, rhs => -1))
 end
 
 function Base.:(-)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
-    return Op.Add(-rhs, Dict(lhs => 1))
+    return Op.Add(Dict(lhs => 1)) - rhs * Op.I
 end
 
 function Base.:(-)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
-    return Op.Add(lhs, Dict(rhs => -1))
+    return -rhs + lhs
 end
 
 function Base.:(*)(lhs::Op.Type, rhs::Op.Type)
@@ -33,11 +37,11 @@ function Base.:(*)(lhs::Op.Type, rhs::Op.Type)
 end
 
 function Base.:(*)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
-    return Op.Add(0, Dict(lhs => rhs))
+    return Op.Add(Dict(lhs => rhs))
 end
 
 function Base.:(*)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
-    return Op.Add(0, Dict(rhs => lhs))
+    return rhs * lhs
 end
 
 function Base.:(/)(lhs::Op.Type, rhs::Op.Type)

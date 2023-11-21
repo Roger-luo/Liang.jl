@@ -100,7 +100,7 @@ function emit_interface_stub_storage(mod::Module)
 end
 
 function emit_interface_stub(mod::Module, jl::JLFunction)
-    kwargs_names = isnothing(jl.kwargs) ? [] : QuoteNode.(name_only.(jl.kwargs))
+    kwargs_names = isnothing(jl.kwargs) ? [] : name_only.(jl.kwargs)
     kwargs_types = isnothing(jl.kwargs) ? [] : type_only.(jl.kwargs)
     kwargs_defaults = if isnothing(jl.kwargs)
         []
@@ -135,6 +135,7 @@ function type_only(expr)
     end
     Meta.isexpr(expr, :kw) && return type_only(expr.args[1])
     Meta.isexpr(expr, :(=)) && return type_only(expr.args[1])
+    Meta.isexpr(expr, :...) && return type_only(expr.args[1])
     return error("invalid expression: $expr")
 end
 

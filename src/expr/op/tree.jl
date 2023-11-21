@@ -2,7 +2,7 @@ Data.show_data(io::IO, node::Op.Type) = Tree.inline_print(io, node)
 
 function Tree.children(node::Op.Type)
     @match node begin
-        Op.Add(_, terms) => collect(Op.Type, keys(terms))
+        Op.Add(terms) => collect(Op.Type, keys(terms))
         Op.Mul(lhs, rhs) => [lhs, rhs]
         Op.Kron(lhs, rhs) => [lhs, rhs]
         Op.Comm(base, op, pow) => [base, op]
@@ -27,7 +27,7 @@ end
 
 function Tree.n_children(node::Op.Type)
     @match node begin
-        Op.Add(_, terms) => length(terms)
+        Op.Add(terms) => length(terms)
         Op.Mul(lhs, rhs) => 2
         Op.Kron(lhs, rhs) => 2
         Op.Comm(base, op, pow) => 2
@@ -52,7 +52,7 @@ end
 
 function Tree.map_children(f, node::Op.Type)
     @match node begin
-        Op.Add(coeffs, terms) => Op.Add(coeffs, Tree.map_ac_set(f, +, terms))
+        Op.Add(terms) => Op.Add(Tree.map_ac_set(f, +, terms))
         Op.Mul(lhs, rhs) => Op.Mul(f(lhs), f(rhs))
         Op.Kron(lhs, rhs) => Op.Kron(f(lhs), f(rhs))
         Op.Comm(base, op, pow) => Op.Comm(f(base), f(op), pow)
@@ -77,7 +77,7 @@ end
 
 function Tree.threaded_map_children(f, node::Op.Type)
     @match node begin
-        Op.Add(coeffs, terms) => Op.Add(coeffs, Tree.threaded_map_ac_set(f, +, terms))
+        Op.Add(terms) => Op.Add(Tree.threaded_map_ac_set(f, +, terms))
         _ => Tree.map_children(f, node)
     end
 end
@@ -219,7 +219,7 @@ end
 
 function Tree.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
-        Op.Add(coeffs, terms) => print_add(io, coeffs, terms)
+        Op.Add(terms) => print_add(io, terms)
         Op.Sum(region, term) => begin
             print(io, "(∑_{")
             print(io, region) # TODO: switch to region's inline_print
@@ -253,22 +253,60 @@ function Tree.precedence(node::Op.Type)
     end
 end
 
-function print_add(io::IO, coeffs::Scalar.Type, terms::Dict{Op.Type,Scalar.Type})
+function Tree.should_print_annotation(node::Op.Type)
+    @match variant_type(node) begin
+        Op.Add => true
+        _ => false
+    end
+end
+
+function Tree.annotations(node::Op.Type)
+    @match node begin
+        Op.Add(terms) => collect(Scalar.Type, values(terms))
+        _ => Scalar.Type[]
+    end
+end
+
+function Tree.print_annotation(io::IO, node::Op.Type, coeff::Scalar.Type; color=nothing)
+    @match coeff begin
+        Scalar.Constant(Num.One) => return
+        _ => begin
+            Tree.inline_print(io, coeff)
+            print(io, " * ")
+        end
+    end
+end
+
+function Tree.print_meta(io::IO, node::Op.Type)
+    @match node begin
+        Op.Comm(base, op, pow) => if !isone(pow)
+            print(io, "^")
+            Tree.inline_print(io, pow)
+        end
+        Op.AComm(base, op, pow) => if !isone(pow)
+            print(io, "^")
+            Tree.inline_print(io, pow)
+        end
+        Op.Pow(base, exp) => begin
+            print(io, "^")
+            Tree.inline_print(io, exp)
+        end
+        Op.KronPow(base, exp) => begin
+            print(io, "^")
+            Tree.inline_print(io, exp)
+        end
+
+        # TODO: switch this to region inline_print
+        Op.Sum(region) => print(io, region)
+        Op.Prod(region) => print(io, region)
+        _ => nothing
+    end
+end
+
+function print_add(io::IO, terms::Dict{Op.Type,Scalar.Type})
     parent_pred = get(io, :precedence, 0)
     node_pred = Tree.precedence(:+)
     parent_pred > node_pred && print(io, "(")
-
-    @match coeffs begin
-        Scalar.Constant(Num.Zero) => nothing
-
-        _ => begin
-            Tree.inline_print(io, coeffs)
-            print(io, "*I")
-            if !isempty(terms)
-                print(io, "+")
-            end
-        end
-    end
 
     for (idx, (term, coeff)) in enumerate(terms)
         # NOTE: we should just print all terms
