@@ -12,6 +12,11 @@ end
 
 @derive PrimitiveOp[PartialEq, Hash]
 
+TWOLEVEL_NOTE = """
+!!! note
+        This operator expects a basis of 2-level space.
+"""
+
 @data Op begin
     Wildcard
     Match(Symbol) # Match a variable
@@ -19,29 +24,62 @@ end
     # these constants
     # are just predefined for convenience
     I # Identity
+
+    """
+    Pauli operator `X` with `d`-dimensional spin.
+    """
     X
+
+    """
+    Pauli operator `Y` with `d`-dimensional spin.
+    """
     Y
+
+    """
+    Pauli operator `Z` with `d`-dimensional spin.
+    """
     Z
 
     """
-    Spin Pauli operator `Sx` with `d`-dimensional spin.
+    Spin operator `Sx` with `d`-dimensional spin.
+
+    ```math
+    Sx = \\frac{ħ}{2} X
+    ```
     """
     Sx
 
     """
-    Spin Pauli operator `Sy` with `d`-dimensional spin.
+    Spin operator `Sy` with `d`-dimensional spin.
+
+    ```math
+    Sy = \\frac{ħ}{2} Y
+    ```
     """
     Sy
 
     """
-    Spin Pauli operator `Sz` with `d`-dimensional spin.
+    Spin operator `Sz` with `d`-dimensional spin.
+
+    ```math
+    Sz = \\frac{ħ}{2} Z
+    ```
     """
     Sz
 
-    S
+    """
+    Hadamard operator `H` on 2-level system.
+
+    $TWOLEVEL_NOTE
+    """
     H
+
+    """
+    T-gate operator `T` on 2-level system.
+
+    $TWOLEVEL_NOTE
+    """
     T
-    SWAP
 
     Constant(PrimitiveOp.Type)
     struct Variable

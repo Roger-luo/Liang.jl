@@ -109,7 +109,7 @@ function Tree.print_node(io::IO, node::Op.Type)
     @match node begin
         Op.Wildcard => print(io, "_")
         Op.Match(name) => print(io, "\$", name)
-        Op.Annotate(op, basis) => printstyled(io, " %", basis)
+        Op.Annotate(op, basis) => printstyled(io, " |", basis, color=:light_black)
 
         Op.Constant(value) => print(io, value)
         Op.Variable(name, id) => if id > 0 # SSA var

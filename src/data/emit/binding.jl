@@ -17,7 +17,22 @@
             doc = variant.doc
         end
 
-        doc = variant_heading(info, variant) * "\n\n" * doc
+        doc_heading = variant_heading(info, variant) * "\n\n"
+        doc = if Meta.isexpr(doc, :string)
+            new_doc = Expr(:string, doc_heading)
+            for each in doc.args
+                if each isa AbstractString
+                    push!(new_doc.args, each)
+                elseif each isa Symbol
+                    push!(new_doc.args, :($(info.def.mod).$(each)))
+                else
+                    push!(new_doc.args, :($(info.def.mod).eval($(QuoteNode(each)))))
+                end
+            end
+            new_doc
+        else
+            doc_heading * doc
+        end
 
         quote
             $binding

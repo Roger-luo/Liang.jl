@@ -128,6 +128,6 @@ function Base.transpose(op::Op.Type)
     return Op.Transpose(op)
 end
 
-function Base.rem(op::Op.Type, basis::Basis)
+function Base.:(|)(op::Op.Type, basis::Basis)
     return Op.Annotate(op, basis)
 end
