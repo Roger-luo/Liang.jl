@@ -274,3 +274,11 @@ end
         end
     end
 end
+
+@pass function emit_variant_type_cmp(info::EmitInfo)
+    quote
+        function $Base.:(==)(lhs::$(info.type.variant), rhs::$(info.type.variant))
+            return lhs.tag == rhs.tag
+        end
+    end
+end

@@ -26,23 +26,12 @@ end
     H
     T
     SWAP
-    CNOT
-    CZ
-    CPHASE(Scalar.Type)
-    ISWAP
-    SQISWAP
-    SQRTSWAP
-    SQRTISWAP
-    XX(Scalar.Type)
-    YY(Scalar.Type)
-    ZZ(Scalar.Type)
-    RX(Scalar.Type)
-    RY(Scalar.Type)
-    RZ(Scalar.Type)
-    PHASE(Scalar.Type)
 
     Constant(PrimitiveOp.Type)
-    Variable(Symbol)
+    struct Variable
+        name::Symbol
+        id::UInt64 = 0# SSA id
+    end
 
     struct Add
         coeffs::Scalar.Type # Identity
