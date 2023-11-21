@@ -121,7 +121,7 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Partial(expr, var) => print(io, "∂")
         Scalar.Derivative(expr, var) => print(io, "d")
 
-        Scalar.Annotate(expr, domain, unit) => print(io, "::")
+        Scalar.Annotate(expr, domain, unit) => printstyled(io, "*", unit, color=:light_black)
     end
 end
 
@@ -133,17 +133,19 @@ function Tree.is_infix(node::Scalar.Type)
     end
 end
 
+function Tree.is_postfix(node::Scalar.Type)
+    return isa_variant(node, Scalar.Annotate)
+end
+
 function Tree.use_custom_print(node::Scalar.Type)
     return isa_variant(node, Scalar.Sum) ||
-           isa_variant(node, Scalar.Prod) ||
-           isa_variant(node, Scalar.Annotate)
+           isa_variant(node, Scalar.Prod)
 end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
         Scalar.Sum(coeffs, terms) => print_sum(io, coeffs, terms)
         Scalar.Prod(coeffs, terms) => print_prod(io, coeffs, terms)
-        Scalar.Annotate(expr, domain, unit) => print_annotate(io, expr, domain, unit)
     end
 end
 
@@ -154,6 +156,18 @@ function Tree.precedence(node::Scalar.Type)
         Scalar.Pow(_...) => Base.operator_precedence(:^)
         Scalar.Div(_...) => Base.operator_precedence(:/)
         _ => 0
+    end
+end
+
+function Tree.print_meta(io::IO, node::Scalar.Type)
+    @match node begin
+        Scalar.Sum(coeffs) => if !iszero(coeffs)
+            Tree.inline_print(io, coeffs)
+        end
+        Scalar.Prod(coeffs) => if !isone(coeffs)
+            Tree.inline_print(io, coeffs)
+        end
+        _ => nothing
     end
 end
 
