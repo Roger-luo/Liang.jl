@@ -13,3 +13,12 @@ function (p::Chain)(x)
     end
     return x
 end
+
+function Base.show(io::IO, p::Chain)
+    print(io, "Chain(")
+    for (idx, map) in enumerate(p.maps)
+        idx > 1 && print(io, ", ")
+        print(io, map)
+    end
+    print(io, ")")
+end

@@ -25,3 +25,15 @@ function (p::Fixpoint)(x)
     @debug "fixpoint reached max iteration"
     return y # return the last result
 end
+
+function Base.show(io::IO, p::Fixpoint)
+    print(io, "Fixpoint(")
+    print(io, p.map)
+
+    if p.max_iter != 1000
+        print(io, "; max_iter=")
+        print(io, p.max_iter)
+    end
+
+    print(io, ")")
+end

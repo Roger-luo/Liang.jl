@@ -41,3 +41,13 @@ function ((p::Post)(node::E)::E) where E
     is_leaf(node) && return node::E
     return p.map(node)::E
 end
+
+function Base.show(io::IO, p::Walk)
+    print(io, nameof(typeof(p)), "(")
+    print(io, p.map)
+    if p.threaded
+        print(io, "; threaded=true")
+        p.thread_cutoff != 100 && print(io, ", thread_cutoff=", p.thread_cutoff)
+    end
+    print(io, ")")
+end
