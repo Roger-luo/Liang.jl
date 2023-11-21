@@ -1,3 +1,5 @@
+Data.show_data(io::IO, node::Op.Type) = Tree.inline_print(io, node)
+
 function Tree.children(node::Op.Type)
     @match node begin
         Op.Add(_, terms) => collect(Op.Type, keys(terms))
