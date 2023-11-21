@@ -14,7 +14,7 @@ end
 
 function (p::Fixpoint)(x)
     y = p.map(x)
-    for _ in 1:rw.max_iter
+    for _ in 1:p.max_iter
         x === y && return x # rule return the same object
         x == y && return x # rule return the equal value
         isnothing(y) && return x # rule terminates

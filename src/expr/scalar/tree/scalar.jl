@@ -149,6 +149,10 @@ function Tree.precedence(node::Scalar.Type)
 end
 
 function print_sum(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
+    parent_pred = get(io, :precedence, 0)
+    node_pred = Tree.precedence(:+)
+    parent_pred > node_pred && print(io, "(")
+
     @match coeffs begin
         Num.Zero => nothing
         _ => begin
@@ -176,10 +180,16 @@ function print_sum(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
             print(io, "+")
         end
     end
+
+    parent_pred > node_pred && print(io, ")")
     return nothing
 end
 
 function print_prod(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
+    parent_pred = get(io, :precedence, 0)
+    node_pred = Tree.precedence(:+)
+    parent_pred > node_pred && print(io, "(")
+
     @match coeffs begin
         Num.Zero => nothing
         _ => begin
@@ -209,5 +219,6 @@ function print_prod(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
             print(io, "*")
         end
     end
+    parent_pred > node_pred && print(io, ")")
     return nothing
 end
