@@ -61,8 +61,6 @@ This is the basic numeric type.
     Real(Float64)
     Imag(Float64)
     Complex(Float64, Float64)
-    Pi # Irrational{π}
-    Euler # Irrational{e}
 end
 
 @derive Num[PartialEq, Hash, Tree]
@@ -79,6 +77,18 @@ This is the basic scalar type. It supports pattern matching.
 
     # expression semantics
     Constant(Num.Type)
+
+    # these are constant but usually
+    # not treated as numerical constant
+    # putting them here so they don't get
+    # eval-ed when propagating constants
+    Pi # Irrational{π}
+    Euler # Irrational{e}
+
+    """
+    Planck constant
+    """
+    Hbar # Planck constant
 
     struct Variable
         name::Symbol

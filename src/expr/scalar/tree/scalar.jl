@@ -83,6 +83,9 @@ function Tree.is_leaf(node::Scalar.Type)
         Scalar.Match(name) => true
         Scalar.Constant(x) => true
         Scalar.Variable(name, id) => true
+        Scalar.Pi => true
+        Scalar.Euler => true
+        Scalar.Hbar => true
         _ => false
     end
 end
@@ -92,6 +95,9 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Wildcard => print(io, "_")
         Scalar.Match(name) => print(io, "\$", name)
         Scalar.Constant(x) => Tree.inline_print(io, x)
+        Scalar.Pi => print(io, "π")
+        Scalar.Euler => print(io, "ℯ")
+        Scalar.Hbar => print(io, "ℏ")
         Scalar.Variable(name, id) => if id > 0 # SSA var
             print(io, "%", name)
         else

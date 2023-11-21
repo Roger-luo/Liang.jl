@@ -19,11 +19,18 @@ Base.convert(::Type{Num.Type}, x::Complex) =
         Num.Complex(real(x), imag(x))
     end
 
-Base.convert(::Type{Num.Type}, x::typeof(MathConstants.e)) = Num.Euler
-Base.convert(::Type{Num.Type}, x::typeof(pi)) = Num.Pi
+# Base.convert(::Type{Num.Type}, x::typeof(MathConstants.e)) = Num.Euler
+# Base.convert(::Type{Num.Type}, x::typeof(pi)) = Num.Pi
 
 Base.convert(::Type{Scalar.Type}, x::Num.Type) = Scalar.Constant(x)
-Base.convert(::Type{Scalar.Type}, x::Number) = Scalar.Constant(convert(Num.Type, x))
+Base.convert(::Type{Scalar.Type}, x::Number) = if x isa Irrational{:π}
+    Scalar.Pi
+elseif x isa Irrational{:ℯ}
+    Scalar.Euler
+else
+    Scalar.Constant(convert(Num.Type, x))
+end
+
 
 # backwards conversion
 Base.convert(::Type{Int}, x::Index.Type) =
@@ -60,20 +67,23 @@ function Base.convert(::Type{T}, x::Num.Type) where {T<:Number}
         return convert(T, x.:1) * im
     elseif isa_variant(x, Num.Complex)
         return convert(T, Complex(x.:1, x.:2))
-    elseif isa_variant(x, Num.Pi)
-        return convert(T, pi)
-    elseif isa_variant(x, Num.Euler)
-        return convert(T, MathConstants.e)
+    # elseif isa_variant(x, Num.Pi)
+    #     return convert(T, pi)
+    # elseif isa_variant(x, Num.Euler)
+    #     return convert(T, MathConstants.e)
     else
         error("Expect a real number, got $x")
     end
 end
 
-function Base.convert(::Type{T}, x::Scalar.Type) where {T<:Real}
-    return convert(T, onlyif_constant(x -> x.:1, x))
-end
-function Base.convert(::Type{T}, x::Scalar.Type) where {T<:Complex}
-    return convert(T, onlyif_constant(x -> x.:1, x))
+function Base.convert(::Type{T}, x::Scalar.Type) where {T<:Number}
+    @match x begin
+        Scalar.Constant(y) => return convert(T, y)
+        Scalar.Pi => return convert(T, pi)
+        Scalar.Euler => return convert(T, MathConstants.e)
+        Scalar.Hbar => error("cannot convert Hbar to a number without units")
+        _ => error("Expect a constant scalar, got $x")
+    end
 end
 
 (::Type{T})(x::Num.Type) where {T<:Number} = convert(T, x)

@@ -5,7 +5,5 @@ function Tree.inline_print(io::IO, x::Num.Type)
         Num.Real(x) => print(io, x)
         Num.Imag(x) => print(io, x, "*im")
         Num.Complex(x, y) => print(io, x, "+", y, "*im")
-        Num.Pi => print(io, "π")
-        Num.Euler => print(io, "e")
     end
 end

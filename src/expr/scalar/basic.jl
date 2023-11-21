@@ -19,8 +19,6 @@ function Base.isreal(x::Num.Type)
         Num.Zero => true
         Num.One => true
         Num.Real(_) => true
-        Num.Pi => true
-        Num.Euler => true
         _ => false
     end
 end
@@ -42,6 +40,9 @@ end
 function Base.isreal(x::Scalar.Type)
     @match x begin
         Scalar.Constant(x) => isreal(x)
+        Scalar.Pi => true
+        Scalar.Euler => true
+        Scalar.Hbar => true
         _ => false
     end
 end

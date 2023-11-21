@@ -206,3 +206,5 @@ for fn in [
 ]
     @eval Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
 end
+
+const ħ = Scalar.Hbar
