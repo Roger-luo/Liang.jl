@@ -2,6 +2,7 @@ Data.show_data(io::IO, data::Space.Type) = Tree.inline_print(io, data)
 Base.show(io::IO, data::Basis) = Tree.inline_print(io, data)
 
 function Tree.inline_print(io::IO, node::Basis)
+    isempty(node.alias) || return printstyled(io, node.alias, color=:light_black)
     printstyled(io, "Basis(", color=:light_black)
     Tree.inline_print(io, node.op)
     printstyled(io, ", ", color=:light_black)

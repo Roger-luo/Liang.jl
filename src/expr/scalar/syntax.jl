@@ -26,6 +26,7 @@ function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x + y)
         (_, Scalar.Constant(_)) => Scalar.Sum(rhs, Dict(lhs => 1))
         (Scalar.Constant(_), _) => Scalar.Sum(lhs, Dict(rhs => 1))
+        (x, x) => Scalar.Sum(Scalar.Constant(0), Dict(x => 2))
         _ => Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
     end
 end
@@ -40,6 +41,7 @@ function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x - y)
         (_, Scalar.Constant(_)) => Scalar.Sum(-rhs, Dict(lhs => 1))
         (Scalar.Constant(_), _) => Scalar.Sum(lhs, Dict(rhs => -1))
+        (x, x) => Scalar.Constant(0)
         _ => Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => -1))
     end
 end
@@ -54,6 +56,7 @@ function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x * y)
         (_, Scalar.Constant(_)) => Scalar.Prod(rhs, Dict(lhs => 1))
         (Scalar.Constant(_), _) => Scalar.Prod(lhs, Dict(rhs => 1))
+        (x, x) => Scalar.Pow(x, Scalar.Constant(2))
         _ => Scalar.Prod(Scalar.Constant(1), Dict(lhs => 1, rhs => 1))
     end
 end
@@ -64,6 +67,7 @@ Base.:(/)(lhs::Scalar.Type, rhs::Num.Type) = lhs / Scalar.Constant(rhs)
 Base.:(/)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
 
 function Base.:(/)(lhs::Scalar.Type, rhs::Scalar.Type)
+    lhs == rhs && return Scalar.Constant(1)
     return Scalar.Div(lhs, rhs)
 end
 
@@ -72,6 +76,7 @@ Base.:(\)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
 Base.:(\)(lhs::Scalar.Type, rhs::Num.Type) = lhs \ Scalar.Constant(rhs)
 Base.:(\)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
 function Base.:(\)(lhs::Scalar.Type, rhs::Scalar.Type)
+    lhs == rhs && return Scalar.Constant(1)
     return Scalar.Div(rhs, lhs)
 end
 

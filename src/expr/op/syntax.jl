@@ -1,7 +1,11 @@
 function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
     # NOTE: unlike the scalar case, we don't calculate
     # constant in case it's too slow.
-    return Op.Add(0, Dict(lhs => 1, rhs => 1))
+    if lhs == rhs
+        return Op.Add(0, Dict(lhs => 2))
+    else
+        return Op.Add(0, Dict(lhs => 1, rhs => 1))
+    end
 end
 
 function Base.:(+)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
@@ -128,6 +132,6 @@ function Base.transpose(op::Op.Type)
     return Op.Transpose(op)
 end
 
-function Base.:(|)(op::Op.Type, basis::Basis)
+function Base.rem(op::Op.Type, basis::Basis)
     return Op.Annotate(op, basis)
 end

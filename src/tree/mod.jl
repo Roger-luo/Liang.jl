@@ -123,5 +123,6 @@ Return the precedence of an infix node/operator.
 
 include("tools.jl")
 include("inline.jl")
+include("text.jl")
 
 end # module Tree

@@ -43,4 +43,9 @@ end
 struct Basis
     op # Op
     space::Space.Type
+    alias::String
+end
+
+function Basis(op, space::Space.Type; alias::String="")
+    return Basis(op, space, "")
 end
