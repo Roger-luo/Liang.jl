@@ -17,6 +17,11 @@ function inline_print(io::IO, node)
         print_node(io, node)
         inline_print(sub_io, right)
         node_pred < parent_pred && print(io, ")")
+    elseif is_postfix(node)
+        @assert length(subnodes) == 1
+        sub_io = IOContext(io, :precedence => node_pred)
+        inline_print(sub_io, subnodes[1])
+        print_node(io, node)
     else # print as a call
         print_node(io, node)
         print(io, "(")

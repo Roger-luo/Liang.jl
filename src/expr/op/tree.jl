@@ -117,6 +117,7 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.H => print(io, "H")
         Op.T => print(io, "T")
         Op.SWAP => print(io, "SWAP")
+        Op.Annotate(op, basis) => printstyled(io, " %", basis)
 
         Op.Constant(value) => print(io, value)
         Op.Variable(name, id) => if id > 0 # SSA var
@@ -135,7 +136,6 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Det(op) => print(io, "det")
         Op.Inv(op) => print(io, "inv")
         Op.Sqrt(op) => print(io, "sqrt")
-        Op.Annotate(_) => print(io, "::")
 
         Op.Comm(base, op, pow) => if isone(pow)
             print(io, "ad_{")
@@ -167,12 +167,22 @@ function Tree.print_node(io::IO, node::Op.Type)
             print(io, "|")
         end
 
+        # postfix op
+        Op.Adjoint(op) => print(io, "†")
+        Op.Transpose(op) => print(io, "ᵀ")
+        Op.Subscript(op, inds) => begin
+            print(io, "[")
+            for (i, ind) in enumerate(inds)
+                if i > 1
+                    print(io, ", ")
+                end
+                Tree.inline_print(IOContext(io, :precedence => 0), ind)
+            end
+            print(io, "]")
+        end
+
         # these are using custom printing
-        # Op.Subscript(op, idx) => print(io, "[", idx, "]")
         # Op.Add(coeffs, terms) => print(io, "+")
-        # Op.Adjoint(op) => print(io, "†")
-        # Op.Transpose(op) => print(io, "transpose")
-        # Op.Outer(lhs, rhs)
         _ => error("unhandled node: ", variant_type(node))
     end
 end
@@ -187,12 +197,19 @@ function Tree.is_infix(node::Op.Type)
     end
 end
 
+function Tree.is_postfix(node::Op.Type)
+    @match node begin
+        Op.Adjoint(_) => true
+        Op.Transpose(_) => true
+        Op.Subscript(_) => true
+        Op.Annotate(_) => true
+        _ => false
+    end
+end
+
 function Tree.use_custom_print(node::Op.Type)
     @match variant_type(node) begin
-        Op.Subscript => true
         Op.Add => true
-        Op.Adjoint => true
-        Op.Transpose => true
         Op.Sum => true
         Op.Prod => true
         _ => false
@@ -201,31 +218,7 @@ end
 
 function Tree.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
-        Op.Subscript(op, inds) => begin
-            Tree.inline_print(io, op)
-            print(io, "[")
-            for (i, ind) in enumerate(inds)
-                if i > 1
-                    print(io, ", ")
-                end
-                Tree.inline_print(IOContext(io, :precedence => 0), ind)
-            end
-            print(io, "]")
-        end
-
         Op.Add(coeffs, terms) => print_add(io, coeffs, terms)
-        Op.Adjoint(op) => begin
-            print(io, "(")
-            Tree.inline_print(io, op)
-            print(io, ")")
-            print(io, "†")
-        end
-        Op.Transpose(op) => begin
-            print(io, "(")
-            Tree.inline_print(io, op)
-            print(io, ")")
-            print(io, "ᵀ")
-        end
         Op.Sum(region, term) => begin
             print(io, "(∑_{")
             print(io, region) # TODO: switch to region's inline_print
@@ -242,6 +235,11 @@ function Tree.custom_inline_print(io::IO, node::Op.Type)
             print(io, "} ")
             Tree.inline_print(io, term)
             print(io, ")")
+        end
+
+        Op.Annotate(op, basis) => begin
+            Tree.inline_print(io, op)
+            Tree.print_node(io, basis)
         end
 
         _ => error("unhandled node: ", variant_type(node))

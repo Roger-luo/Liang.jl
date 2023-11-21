@@ -110,6 +110,13 @@ Check if a node is an infix node/operator.
 """
 $INTERFACE
 
+Check if a node is a postfix node/operator.
+"""
+@interface is_postfix(node) = false
+
+"""
+$INTERFACE
+
 Return the precedence of an infix node/operator.
 """
 @interface precedence(node)::Int = 0

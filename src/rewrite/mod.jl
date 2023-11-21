@@ -1,5 +1,7 @@
 """
 The rewrite engine.
+
+This module is highly-based on SymbolicUtils.
 """
 module Rewrite
 
