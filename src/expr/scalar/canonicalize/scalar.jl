@@ -72,7 +72,8 @@ function merge_pow_prod(node::Scalar.Type)
     terms = Dict{Scalar.Type,Num.Type}()
     for (term, val) in node.terms
         @match term begin
-            Scalar.Pow(base, Scalar.Constant(exp)) => update_ac_set!(terms, term.base, term.exp * val)
+            Scalar.Pow(base, Scalar.Constant(exp)) =>
+                update_ac_set!(terms, term.base, term.exp * val)
             _ => update_ac_set!(terms, term, val)
         end
     end
@@ -167,7 +168,7 @@ function update_ac_set!(terms::Dict, term, val)
 end
 
 function canonicalize(node::Scalar.Type)
-    p = Chain(
+    p = Pre(Fixpoint(Chain(
         merge_nested_sum,
         merge_nested_prod,
         merge_pow_prod,
@@ -176,6 +177,6 @@ function canonicalize(node::Scalar.Type)
         merge_sum_prod,
         prop_const_div,
         remove_empty_sum,
-    ) |> Fixpoint |> Pre
+    )))
     return p(node)
 end

@@ -53,7 +53,7 @@ function Base.show(io::IO, im::InterfaceMethod)
         print(io, "}")
     end
 
-    isnothing(im.return_type) || print(io, " -> ", im.return_type)
+    return isnothing(im.return_type) || print(io, " -> ", im.return_type)
 end
 
 """

@@ -208,7 +208,7 @@ function Tree.custom_inline_print(io::IO, node::Op.Type)
                 if i > 1
                     print(io, ", ")
                 end
-                Tree.inline_print(IOContext(io, :precedence=>0), ind)
+                Tree.inline_print(IOContext(io, :precedence => 0), ind)
             end
             print(io, "]")
         end

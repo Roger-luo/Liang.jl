@@ -1,5 +1,5 @@
-struct Chain{Rs <: Tuple}
-    maps::Rs    
+struct Chain{Rs<:Tuple}
+    maps::Rs
 end
 
 Chain(maps...) = Chain(maps)
@@ -20,5 +20,5 @@ function Base.show(io::IO, p::Chain)
         idx > 1 && print(io, ", ")
         print(io, map)
     end
-    print(io, ")")
+    return print(io, ")")
 end

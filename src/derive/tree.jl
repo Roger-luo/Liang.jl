@@ -19,7 +19,7 @@ function tree_derive_map_children(mod::Module, type::Module)
 
     return quote
         function $Tree.generated_map_children(map, node::$type.Type)
-            $body
+            return $body
         end
     end
 end
@@ -31,7 +31,7 @@ function tree_derive_threaded_map_children(mod::Module, type::Module)
 
     return quote
         function $Tree.generated_threaded_map_children(map, node::$type.Type)
-            $body
+            return $body
         end
     end
 end
@@ -105,10 +105,13 @@ function tree_map_children(mapgen, mod::Module, type::Module, node::Symbol)
                 if field_type == type.Type # children, use replacement
                     @gensym value task
                     task_expr, value_expr = mapgen(value, task)
-                    push!(tasks_body.args, quote
-                        $value = $field_value
-                        $task = $task_expr
-                    end)
+                    push!(
+                        tasks_body.args,
+                        quote
+                            $value = $field_value
+                            $task = $task_expr
+                        end,
+                    )
                     push!(children, value_expr)
                 else # not children, use original
                     push!(children, field_value)

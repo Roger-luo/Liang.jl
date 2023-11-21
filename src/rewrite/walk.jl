@@ -20,7 +20,7 @@ function Post(map; threaded::Bool=false, thread_cutoff::Int=100)
     return Post(map, threaded, thread_cutoff)
 end
 
-function ((p::Pre)(node::E)::E) where E
+function ((p::Pre)(node::E)::E) where {E}
     is_leaf(node) && return p.map(node)::E
     node = p.map(node)::E
     is_leaf(node) && return node
@@ -31,7 +31,7 @@ function ((p::Pre)(node::E)::E) where E
     end
 end
 
-function ((p::Post)(node::E)::E) where E
+function ((p::Post)(node::E)::E) where {E}
     is_leaf(node) && return p.map(node)::E
     node = if p.threaded && n_children(node) > p.thread_cutoff
         map_children(PassThrough(p), node)::E
@@ -49,5 +49,5 @@ function Base.show(io::IO, p::Walk)
         print(io, "; threaded=true")
         p.thread_cutoff != 100 && print(io, ", thread_cutoff=", p.thread_cutoff)
     end
-    print(io, ")")
+    return print(io, ")")
 end

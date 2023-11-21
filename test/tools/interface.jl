@@ -9,4 +9,4 @@ using Liang.Data.Prelude
 
 mt = methods(children)[1]
 
-(foo(x::T; y::T)::Vector{T}) where T = 1
+(foo(x::T; y::T)::Vector{T}) where {T} = 1

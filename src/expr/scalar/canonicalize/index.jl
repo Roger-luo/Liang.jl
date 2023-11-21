@@ -5,7 +5,7 @@ function simple_const_fold(node::Index.Type)
         Index.Mul(Index.Constant(x), Index.Constant(y)) => Index.Constant(x * y)
         Index.Div(Index.Constant(x), Index.Constant(y)) => Index.Constant(x ÷ y)
         Index.Rem(Index.Constant(x), Index.Constant(y)) => Index.Constant(x % y)
-        Index.Pow(Index.Constant(x), Index.Constant(y)) => Index.Constant(x ^ y)
+        Index.Pow(Index.Constant(x), Index.Constant(y)) => Index.Constant(x^y)
         Index.Neg(Index.Constant(x)) => Index.Constant(-x)
         Index.Abs(Index.Constant(x)) => Index.Constant(abs(x))
         _ => node
@@ -13,8 +13,6 @@ function simple_const_fold(node::Index.Type)
 end
 
 function canonicalize(node::Index.Type)
-    p = Chain(
-        simple_const_fold,
-    ) |> Fixpoint |> Pre
+    p = Pre(Fixpoint(Chain(simple_const_fold)))
     return p(node)
 end

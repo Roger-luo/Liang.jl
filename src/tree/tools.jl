@@ -1,4 +1,4 @@
-function map_ac_set(f, op, terms::Dict{E, V}) where {E, V}
+function map_ac_set(f, op, terms::Dict{E,V}) where {E,V}
     new_terms = Dict{E,V}()
     for (key, val) in terms
         new_key = f(key)
@@ -11,8 +11,8 @@ function map_ac_set(f, op, terms::Dict{E, V}) where {E, V}
     return new_terms
 end
 
-function threaded_map_ac_set(f, terms::Dict{E, V}) where {E, V}
-    mapped_pairs = tcollect(terms |> Map(p->(f(p.first) => p.second)))
+function threaded_map_ac_set(f, terms::Dict{E,V}) where {E,V}
+    mapped_pairs = tcollect(Map(p -> (f(p.first) => p.second))(terms))
 
     new_terms = Dict{E,V}()
     for (key, val) in mapped_pairs

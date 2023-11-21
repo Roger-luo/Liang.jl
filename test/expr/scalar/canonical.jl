@@ -1,6 +1,7 @@
 using Liang.Data.Prelude
 using Liang.Expression.Prelude
-using Liang.Expression: Expression,
+using Liang.Expression:
+    Expression,
     merge_nested_prod,
     merge_nested_sum,
     merge_pow_prod,
@@ -11,7 +12,7 @@ using Liang.Expression: Expression,
 using Liang.Tree
 using Liang.Rewrite: Fixpoint, Chain, Pre
 
-p = Chain(
+p = Pre(Fixpoint(Chain(
     merge_nested_sum,
     merge_nested_prod,
     merge_pow_prod,
@@ -19,7 +20,7 @@ p = Chain(
     pow_one,
     merge_sum_prod,
     remove_empty_sum,
-) |> Fixpoint |> Pre
+)))
 
 p(scalar"i" * 2 * scalar"j"^2)
 p(Scalar.Prod(1, Dict(scalar"i"^3 => 1)))

@@ -60,15 +60,15 @@ tool, leaving possibility for users to overload `threaded_map_children` on their
 """
 @interface generated_threaded_map_children(f, node) = not_implemented_error()
 
-
 """
 $INTERFACE
 
 Substitute a (non-leaf) node with given children.
 """
-@interface substitute(node, replace::Dict) = map_children(node) do child
-    get(replace, child, child)
-end
+@interface substitute(node, replace::Dict) =
+    map_children(node) do child
+        get(replace, child, child)
+    end
 
 """
 $INTERFACE
