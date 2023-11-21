@@ -1,4 +1,5 @@
 Data.show_data(io::IO, node::Op.Type) = Tree.inline_print(io, node)
+Data.show_data(io::IO, ::MIME"text/plain", node::Op.Type) = Tree.text_print(io, node)
 
 function Tree.children(node::Op.Type)
     @match node begin
