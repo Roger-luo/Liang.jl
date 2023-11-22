@@ -1,6 +1,7 @@
 module Prelude
 
 using Liang.Expression:
+    @def,
     canonicalize,
     Space,
     Basis,
@@ -21,7 +22,8 @@ using Liang.Expression:
     @prod_str,
     Tensor
 
-export canonicalize,
+export @def,
+    canonicalize,
     Space,
     Basis,
     PrimitiveOp,

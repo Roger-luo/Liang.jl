@@ -141,10 +141,20 @@ function parse_var(f, s::AbstractString)
 end
 
 # variable syntax
+"""
+    @scalar_str
+
+Create a `Scalar.Variable` from a string.
+"""
 macro scalar_str(s::AbstractString)
     return parse_var(Scalar.Variable, s)
 end
 
+"""
+    @index_str
+
+Create a `Index.Variable` from a string.
+"""
 macro index_str(s::AbstractString)
     return parse_var(Index.Variable, s)
 end

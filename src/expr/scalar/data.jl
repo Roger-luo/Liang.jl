@@ -142,6 +142,15 @@ This is the basic scalar type. It supports pattern matching.
     JuliaCall(Module, Symbol, Vector{Scalar})
     RoutineCall(Symbol, Vector{Scalar})
 
+    """
+    Like variable, but points to an external
+    Julia indexable object.
+    """
+    struct Subscript
+        ref::Symbol
+        indices::Vector{Index.Type}
+    end
+
     # derivative
     Partial(Scalar, Scalar)
     Derivative(Scalar, Scalar)
