@@ -291,8 +291,14 @@ end
 function Tree.print_meta(io::IO, node::Op.Type)
     @match node begin
         # TODO: switch this to region inline_print
-        Op.Sum(region) => print(io, region)
-        Op.Prod(region) => print(io, region)
+        Op.Sum(region, indices) => begin
+            join(io, indices, ", ")
+            print(io, " ∈ ", region)
+        end
+        Op.Prod(region, indices) => begin
+            join(io, indices, ", ")
+            print(io, " ∈ ", region)
+        end
         _ => nothing
     end
 end
