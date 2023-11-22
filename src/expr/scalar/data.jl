@@ -46,6 +46,23 @@ It supports pattern matching.
     Pow(Index, Index)
     Neg(Index)
     Abs(Index)
+
+    """
+    require evaluation on `n_sites` of variable from other expression
+    """
+    struct NSites
+        name::Symbol
+        id::UInt64 = 0# SSA id
+    end
+
+    """
+    assert two indices are equal
+    """
+    struct AssertEqual
+        lhs::Index
+        rhs::Index
+        msg::String
+    end
 end
 
 @derive Index[PartialEq, Hash, Tree]
@@ -102,12 +119,12 @@ This is the basic scalar type. It supports pattern matching.
     Log(Scalar)
     Sqrt(Scalar)
 
-    struct Sum
+    struct Add
         coeffs::Num.Type
         terms::Dict{Scalar,Num.Type}
     end
 
-    struct Prod
+    struct Mul
         coeffs::Num.Type
         terms::Dict{Scalar,Num.Type}
     end

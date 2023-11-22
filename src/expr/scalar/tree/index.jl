@@ -21,6 +21,7 @@ function Tree.precedence(node::Index.Type)
     @match node begin
         Index.Constant(x) => x < 0 ? 0 : 100
         Index.Variable(_) => 100
+        Index.NSites(_) => 100
         Index.Wildcard => 100
         Index.Match(_) => 100
         Index.Add(lhs, rhs) => 1
@@ -46,5 +47,18 @@ function Tree.print_node(io::IO, node::Index.Type)
         Index.Pow(lhs, rhs) => print(io, "^")
         Index.Neg(x) => print(io, "-")
         Index.Abs(x) => print(io, "abs")
+        Index.NSites(name) => print(io, "n_sites(@$name)")
+        Index.AssertEqual(_) => print(io, "assert_equal")
+    end
+end
+
+function Tree.print_meta(io::IO, node::Index.Type)
+    @match node begin
+        Index.AssertEqual(lhs, rhs, msg) => if isempty(msg)
+            return nothing
+        else
+            printstyled(io, '"', msg, '"'; color=:yellow)
+        end
+        _ => nothing
     end
 end

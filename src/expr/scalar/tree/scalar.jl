@@ -5,8 +5,8 @@ function Tree.children(node::Scalar.Type)
         Scalar.Exp(x) => [x]
         Scalar.Log(x) => [x]
         Scalar.Sqrt(x) => [x]
-        Scalar.Sum(coeffs, terms) => collect(Scalar.Type, keys(terms))
-        Scalar.Prod(coeffs, terms) => collect(Scalar.Type, keys(terms))
+        Scalar.Add(coeffs, terms) => collect(Scalar.Type, keys(terms))
+        Scalar.Mul(coeffs, terms) => collect(Scalar.Type, keys(terms))
         Scalar.Pow(base, exp) => [base, exp]
         Scalar.Div(num, den) => [num, den]
         Scalar.JuliaCall(mod, name, args) => args
@@ -24,8 +24,8 @@ function Tree.n_children(node::Scalar.Type)
         Scalar.Exp(x) => 1
         Scalar.Log(x) => 1
         Scalar.Sqrt(x) => 1
-        Scalar.Sum(coeffs, terms) => length(terms)
-        Scalar.Prod(coeffs, terms) => length(terms)
+        Scalar.Add(coeffs, terms) => length(terms)
+        Scalar.Mul(coeffs, terms) => length(terms)
         Scalar.Pow(base, exp) => 2
         Scalar.Div(num, den) => 2
         Scalar.JuliaCall(mod, name, args) => length(args)
@@ -43,8 +43,8 @@ function Tree.map_children(f, node::Scalar.Type)
         Scalar.Exp(x) => Scalar.Exp(f(x))
         Scalar.Log(x) => Scalar.Log(f(x))
         Scalar.Sqrt(x) => Scalar.Sqrt(f(x))
-        Scalar.Sum(coeffs, terms) => Scalar.Sum(coeffs, Tree.map_ac_set(f, +, terms))
-        Scalar.Prod(coeffs, terms) => Scalar.Prod(coeffs, Tree.map_ac_set(f, *, terms))
+        Scalar.Add(coeffs, terms) => Scalar.Add(coeffs, Tree.map_ac_set(f, +, terms))
+        Scalar.Mul(coeffs, terms) => Scalar.Mul(coeffs, Tree.map_ac_set(f, *, terms))
         Scalar.Pow(base, exp) => Scalar.Pow(f(base), f(exp))
         Scalar.Div(num, den) => Scalar.Div(f(num), f(den))
         Scalar.JuliaCall(mod, name, args) => Scalar.JuliaCall(mod, name, map(f, args))
@@ -62,10 +62,10 @@ function Tree.threaded_map_children(f, node::Scalar.Type)
         Scalar.Exp(x) => Scalar.Exp(f(x))
         Scalar.Log(x) => Scalar.Log(f(x))
         Scalar.Sqrt(x) => Scalar.Sqrt(f(x))
-        Scalar.Sum(coeffs, terms) =>
-            Scalar.Sum(coeffs, Tree.threaded_map_ac_set(f, +, terms))
-        Scalar.Prod(coeffs, terms) =>
-            Scalar.Prod(coeffs, Tree.threaded_map_ac_set(f, *, terms))
+        Scalar.Add(coeffs, terms) =>
+            Scalar.Add(coeffs, Tree.threaded_map_ac_set(f, +, terms))
+        Scalar.Mul(coeffs, terms) =>
+            Scalar.Mul(coeffs, Tree.threaded_map_ac_set(f, *, terms))
         Scalar.Pow(base, exp) => Scalar.Pow(f(base), f(exp))
         Scalar.Div(num, den) => Scalar.Div(f(num), f(den))
         Scalar.JuliaCall(mod, name, args) =>
@@ -110,8 +110,8 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Log(x) => print(io, "log")
         Scalar.Sqrt(x) => print(io, "sqrt")
 
-        Scalar.Sum(coeffs, terms) => print(io, "+")
-        Scalar.Prod(coeffs, terms) => print(io, "*")
+        Scalar.Add(coeffs, terms) => print(io, "+")
+        Scalar.Mul(coeffs, terms) => print(io, "*")
         Scalar.Pow(base, exp) => print(io, "^")
         Scalar.Div(num, den) => print(io, "/")
 
@@ -146,13 +146,13 @@ function Tree.is_postfix(node::Scalar.Type)
 end
 
 function Tree.use_custom_print(node::Scalar.Type)
-    return isa_variant(node, Scalar.Sum) || isa_variant(node, Scalar.Prod)
+    return isa_variant(node, Scalar.Add) || isa_variant(node, Scalar.Mul)
 end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Sum(coeffs, terms) => print_sum(io, coeffs, terms)
-        Scalar.Prod(coeffs, terms) => print_prod(io, coeffs, terms)
+        Scalar.Add(coeffs, terms) => print_sum(io, coeffs, terms)
+        Scalar.Mul(coeffs, terms) => print_prod(io, coeffs, terms)
     end
 end
 
@@ -165,8 +165,8 @@ function Tree.precedence(node::Scalar.Type)
         Scalar.Hbar => 100
         Scalar.Wildcard => 100
         Scalar.Match(_) => 100
-        Scalar.Sum(_...) => Base.operator_precedence(:+)
-        Scalar.Prod(_...) => Base.operator_precedence(:*)
+        Scalar.Add(_...) => Base.operator_precedence(:+)
+        Scalar.Mul(_...) => Base.operator_precedence(:*)
         Scalar.Pow(_...) => Base.operator_precedence(:^)
         Scalar.Div(_...) => Base.operator_precedence(:/)
         _ => 0
@@ -175,10 +175,10 @@ end
 
 function Tree.print_meta(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Sum(coeffs) => if !iszero(coeffs)
+        Scalar.Add(coeffs) => if !iszero(coeffs)
             Tree.inline_print(io, coeffs)
         end
-        Scalar.Prod(coeffs) => if !isone(coeffs)
+        Scalar.Mul(coeffs) => if !isone(coeffs)
             Tree.inline_print(io, coeffs)
         end
         _ => nothing

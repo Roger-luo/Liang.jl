@@ -105,6 +105,8 @@ function Base.convert(::Type{Scalar.Type}, x::Index.Type)
         Index.Abs(x) => return abs(convert(Scalar.Type, x))
         Index.Wildcard => return Scalar.Wildcard
         Index.Match(name) => return Scalar.Match(name)
+        Index.NSites(name, id) => error("cannot convert NSites to Scalar")
+        Index.AssertEqual(lhs, rhs, msg) => error("cannot convert AssertEqual to Scalar")
         _ => error("Expect a constant index, got $x")
     end
 end

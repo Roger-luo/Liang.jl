@@ -8,6 +8,7 @@ function simple_const_fold(node::Index.Type)
         Index.Pow(Index.Constant(x), Index.Constant(y)) => Index.Constant(x^y)
         Index.Neg(Index.Constant(x)) => Index.Constant(-x)
         Index.Abs(Index.Constant(x)) => Index.Constant(abs(x))
+        Index.AssertEqual(x, x) => x
         _ => node
     end
 end

@@ -24,10 +24,10 @@ Base.:(+)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
 function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x + y)
-        (_, Scalar.Constant(_)) => Scalar.Sum(rhs, Dict(lhs => 1))
-        (Scalar.Constant(_), _) => Scalar.Sum(lhs, Dict(rhs => 1))
-        (x, x) => Scalar.Sum(Scalar.Constant(0), Dict(x => 2))
-        _ => Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
+        (_, Scalar.Constant(_)) => Scalar.Add(rhs, Dict(lhs => 1))
+        (Scalar.Constant(_), _) => Scalar.Add(lhs, Dict(rhs => 1))
+        (x, x) => Scalar.Add(Scalar.Constant(0), Dict(x => 2))
+        _ => Scalar.Add(Scalar.Constant(0), Dict(lhs => 1, rhs => 1))
     end
 end
 
@@ -39,10 +39,10 @@ Base.:(-)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
 function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x - y)
-        (_, Scalar.Constant(_)) => Scalar.Sum(-rhs, Dict(lhs => 1))
-        (Scalar.Constant(_), _) => Scalar.Sum(lhs, Dict(rhs => -1))
+        (_, Scalar.Constant(_)) => Scalar.Add(-rhs, Dict(lhs => 1))
+        (Scalar.Constant(_), _) => Scalar.Add(lhs, Dict(rhs => -1))
         (x, x) => Scalar.Constant(0)
-        _ => Scalar.Sum(Scalar.Constant(0), Dict(lhs => 1, rhs => -1))
+        _ => Scalar.Add(Scalar.Constant(0), Dict(lhs => 1, rhs => -1))
     end
 end
 
@@ -54,10 +54,10 @@ Base.:(*)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
 function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x * y)
-        (_, Scalar.Constant(_)) => Scalar.Prod(rhs, Dict(lhs => 1))
-        (Scalar.Constant(_), _) => Scalar.Prod(lhs, Dict(rhs => 1))
+        (_, Scalar.Constant(_)) => Scalar.Mul(rhs, Dict(lhs => 1))
+        (Scalar.Constant(_), _) => Scalar.Mul(lhs, Dict(rhs => 1))
         (x, x) => Scalar.Pow(x, Scalar.Constant(2))
-        _ => Scalar.Prod(Scalar.Constant(1), Dict(lhs => 1, rhs => 1))
+        _ => Scalar.Mul(Scalar.Constant(1), Dict(lhs => 1, rhs => 1))
     end
 end
 
@@ -95,6 +95,17 @@ Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
 
 # Index
 Base.abs(x::Index.Type) = Index.Abs(x)
+
+"""
+$SIGNATURES
+
+Assert that the index `lhs` and `rhs` are equal.
+"""
+function assert_equal(lhs::Index.Type, rhs::Index.Type, msg::String = "")
+    lhs == rhs && return lhs # short-circuit
+    return Index.AssertEqual(lhs, rhs, msg)
+end
+
 Base.:(+)(x::Index.Type) = x
 Base.:(-)(x::Index.Type) = Index.Neg(x)
 Base.:(+)(lhs::Index.Type, rhs::Index.Type) = Index.Add(lhs, rhs)
