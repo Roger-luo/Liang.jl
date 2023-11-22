@@ -12,8 +12,8 @@ function Tree.children(node::Op.Type)
         Op.KronPow(base, exp) => [base]
         Op.Adjoint(op) => [op]
         Op.Subscript(op, _) => [op]
-        Op.Sum(_, term) => [term]
-        Op.Prod(_, term) => [term]
+        Op.Sum(_, _, term) => [term]
+        Op.Prod(_, _, term) => [term]
         Op.Exp(op) => [op]
         Op.Log(op) => [op]
         Op.Tr(op) => [op]
@@ -37,8 +37,8 @@ function Tree.n_children(node::Op.Type)
         Op.KronPow(base, exp) => 1
         Op.Adjoint(op) => 1
         Op.Subscript(op, _) => 1
-        Op.Sum(_, term) => 1
-        Op.Prod(_, term) => 1
+        Op.Sum(_, _, term) => 1
+        Op.Prod(_, _, term) => 1
         Op.Exp(op) => 1
         Op.Log(op) => 1
         Op.Tr(op) => 1
@@ -62,8 +62,8 @@ function Tree.map_children(f, node::Op.Type)
         Op.KronPow(base, exp) => Op.KronPow(f(base), exp)
         Op.Adjoint(op) => Op.Adjoint(f(op))
         Op.Subscript(op, idx) => Op.Subscript(f(op), idx)
-        Op.Sum(region, term) => Op.Sum(region, f(term))
-        Op.Prod(region, term) => Op.Prod(region, f(term))
+        Op.Sum(region, indices, term) => Op.Sum(region, indices, f(term))
+        Op.Prod(region, indices, term) => Op.Prod(region, indices, f(term))
         Op.Exp(op) => Op.Exp(f(op))
         Op.Log(op) => Op.Log(f(op))
         Op.Tr(op) => Op.Tr(f(op))
@@ -222,43 +222,33 @@ end
 function Tree.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
         Op.Add(terms) => print_add(io, terms)
-        Op.Sum(region, term) => begin
-            print(io, "(∑_{")
-            print(io, region) # TODO: switch to region's inline_print
-            # Tree.inline_print(io, region)
-            print(io, "} ")
-            Tree.inline_print(io, term)
-            print(io, ")")
-        end
-        # TODO: remove copied code after fixing #1
-        Op.Comm(base, exp, pow) => begin
-            Tree.print_node(io, node)
-            print(io, "_{")
-            Tree.inline_print(base)
-            print(io, "}(")
-            Tree.inline_print(exp)
-            print(io, ")")
-        end
-        Op.AComm(base, exp, pow) => begin
-            Tree.print_node(io, node)
-            print(io, "_{")
-            Tree.inline_print(base)
-            print(io, "}(")
-            Tree.inline_print(exp)
-            print(io, ")")
-        end
-
-        Op.Prod(region, term) => begin
-            print(io, "(∏_{")
-            print(io, region) # TODO: switch to region's inline_print
-            # Tree.inline_print(io, region)
-            print(io, "} ")
-            Tree.inline_print(io, term)
-            print(io, ")")
-        end
+        Op.Sum(region, indices, term) => print_reduction(io, "∑", region, indices, term)
+        Op.Prod(region, indices, term) => print_reduction(io, "∏", region, indices, term)
+        Op.Comm(_) => print_jordan_lie(io, node)
+        Op.AComm(_) => print_jordan_lie(io, node)
 
         _ => error("unhandled node: ", variant_type(node))
     end
+end
+
+function print_jordan_lie(io::IO, node::Op.Type)
+    isa_variant(node, Op.Comm) || isa_variant(node, Op.AComm) || error("invalid node")
+    Tree.print_node(io, node)
+    print(io, "_{")
+    Tree.inline_print(node.base)
+    print(io, "}(")
+    Tree.inline_print(node.exp)
+    print(io, ")")
+end
+
+function print_reduction(io::IO, op::String, region, indices, term)
+    print(io, "(", op, "_{")
+    print(io, indices, "∈")
+    print(io, region) # TODO: switch to region's inline_print
+    # Tree.inline_print(io, region)
+    print(io, "} ")
+    Tree.inline_print(io, term)
+    print(io, ")")
 end
 
 function Tree.precedence(node::Op.Type)

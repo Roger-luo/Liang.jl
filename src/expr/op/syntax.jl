@@ -100,12 +100,12 @@ function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
     return Op.Subscript(op, collect(Index.Type, subscripts))
 end
 
-function Base.sum(region, op::Op.Type)
-    return Op.Sum(region, op)
+function Base.sum(region, term::Pair{Vector{Index.Type}, Op.Type})
+    return Op.Sum(region, term.first, term.second)
 end
 
-function Base.prod(region, op::Op.Type)
-    return Op.Prod(region, op)
+function Base.prod(region, term::Pair{Vector{Index.Type}, Op.Type})
+    return Op.Prod(region, term.first, term.second)
 end
 
 function Base.exp(op::Op.Type)

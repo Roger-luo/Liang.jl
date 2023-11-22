@@ -122,11 +122,13 @@ TWOLEVEL_NOTE = """
 
     struct Sum
         region
+        indices::Vector{Index.Type}
         term::Op
     end
 
     struct Prod
         region
+        indices::Vector{Index.Type}
         term::Op
     end
 
