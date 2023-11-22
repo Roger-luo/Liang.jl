@@ -1,6 +1,16 @@
 @data State begin
     Wildcard
     Match(Symbol)
+
+    """
+    A variable state, useful when the state is a
+    numerical state without much known structure,
+    e.g a `Vector{ComplexF64}`.
+    """
+    struct Variable
+        name::Symbol
+        id::UInt64 = 0# SSA id
+    end
     # this is mainly for making the algebra complete
     Zero
     # Eigen(Op, Int)
