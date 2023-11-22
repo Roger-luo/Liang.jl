@@ -34,17 +34,52 @@ It supports pattern matching.
     """
     Constant(Int)
 
+    """
+    Variable index, e.g. i, j, k, ...
+    """
     struct Variable
         name::Symbol
         id::UInt64 = 0# SSA id
     end
+
+    """
+    Add two indices
+    """
     Add(Index, Index)
+
+    """
+    Subtract two indices
+    """
     Sub(Index, Index)
+
+    """
+    Multiply two indices
+    """
     Mul(Index, Index)
+
+    """
+    Divide two indices
+    """
     Div(Index, Index) # int division, floor
+
+    """
+    Modular division
+    """
     Rem(Index, Index) # remainder
+
+    """
+    Power of two indices
+    """
     Pow(Index, Index)
+
+    """
+    Negate an index
+    """
     Neg(Index)
+
+    """
+    Absolute value of an index
+    """
     Abs(Index)
 
     """
