@@ -13,7 +13,7 @@ end
 
 function Base.:(^)(base::Basis, n::Int)
     n > 0 || error("exponent must be positive")
-    return Basis(Op.KronPow(base.op, n), base.space ^ n)
+    return Basis(Op.KronPow(base.op, n), base.space^n)
 end
 
 function Base.getindex(space::Space.Type, indices)

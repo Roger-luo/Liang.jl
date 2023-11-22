@@ -113,7 +113,7 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Zero => print(io, "O")
         Op.Wildcard => print(io, "_")
         Op.Match(name) => print(io, "\$", name)
-        Op.Annotate(op, basis) => printstyled(io, "%", basis, color=:light_black)
+        Op.Annotate(op, basis) => printstyled(io, "%", basis; color=:light_black)
 
         Op.Constant(value) => print(io, value)
         Op.Variable(name, id) => if id > 0 # SSA var
@@ -288,7 +288,7 @@ end
 
 function Tree.print_annotation(io::IO, node::Op.Type, coeff::Scalar.Type; color=nothing)
     @match coeff begin
-        Scalar.Constant(Num.One) => return
+        Scalar.Constant(Num.One) => return nothing
         Scalar.Neg(Num.One) => print(io, "-")
         Scalar.Constant(Num.Real(-1)) => print(io, "-")
         _ => begin

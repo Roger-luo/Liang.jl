@@ -121,7 +121,8 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Partial(expr, var) => print(io, "∂")
         Scalar.Derivative(expr, var) => print(io, "d")
 
-        Scalar.Annotate(expr, domain, unit) => printstyled(io, "*", unit, color=:light_black)
+        Scalar.Annotate(expr, domain, unit) =>
+            printstyled(io, "*", unit; color=:light_black)
     end
 end
 
@@ -145,8 +146,7 @@ function Tree.is_postfix(node::Scalar.Type)
 end
 
 function Tree.use_custom_print(node::Scalar.Type)
-    return isa_variant(node, Scalar.Sum) ||
-           isa_variant(node, Scalar.Prod)
+    return isa_variant(node, Scalar.Sum) || isa_variant(node, Scalar.Prod)
 end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)

@@ -153,7 +153,6 @@ calling [`print_node`](@ref).
 """
 @interface print_meta(io::IO, node) = nothing
 
-
 # TODO: remove the color kwargs?
 
 """
@@ -162,7 +161,8 @@ $INTERFACE
 Print the annotation of the children of a node, default
 to [`inline_print`](@ref).
 """
-@interface print_annotation(io::IO, node, annotation; color=nothing) = inline_print(io, annotation)
+@interface print_annotation(io::IO, node, annotation; color=nothing) =
+    inline_print(io, annotation)
 
 include("tools.jl")
 include("inline.jl")

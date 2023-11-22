@@ -151,7 +151,7 @@ end
 function Base.show(io::IO, x::EigenDecomp)
     print(io, "eigen(")
     Tree.inline_print(io, x.op)
-    print(io, ")")
+    return print(io, ")")
 end
 
 function Base.getindex(eig::EigenDecomp, idx::Int)

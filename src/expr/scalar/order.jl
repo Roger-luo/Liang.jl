@@ -16,13 +16,13 @@ for op in (:<, :<=, :>, :>=, :isless)
         end
 
         function Base.$op(lhs::Num.Type, rhs::Number)
-            $op(Number(lhs), rhs)
+            return $op(Number(lhs), rhs)
         end
 
         function Base.$op(lhs::Number, rhs::Num.Type)
-            $op(Number(lhs), rhs)
+            return $op(Number(lhs), rhs)
         end
-        
+
         function Base.$op(lhs::Index.Type, rhs::Index.Type)
             @match (lhs, rhs) begin
                 (Index.Constant(x), Index.Constant(y)) => $op(x, y)

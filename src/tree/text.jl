@@ -39,11 +39,13 @@ struct TextPrinter{IO_t}
     state::State
 end
 
-function TextPrinter(io::IO_t;
-        charset::CharSet = CharSet(:unicode),
-        max_depth::Int = 5,
-        color::Color = Color(),
-        state = State()) where {IO_t}
+function TextPrinter(
+    io::IO_t;
+    charset::CharSet=CharSet(:unicode),
+    max_depth::Int=5,
+    color::Color=Color(),
+    state=State(),
+) where {IO_t}
     return TextPrinter{IO_t}(io, charset, max_depth, color, state)
 end
 
@@ -51,10 +53,12 @@ function (p::TextPrinter)(node)
     print(xs...) = Base.print(p.io, xs...)
     println(xs...) = Base.println(p.io, xs...)
     printstyled(xs...; kw...) = Base.printstyled(p.io, xs...; kw...)
-    print_annotation(node, annotation) = Tree.print_annotation(p.io, node, annotation; color = p.color.annotation)
+    function print_annotation(node, annotation)
+        return Tree.print_annotation(p.io, node, annotation; color=p.color.annotation)
+    end
 
-    node_str = sprint(Tree.print_node, node, context=IOContext(p.io))
-    node_str *= " " * sprint(Tree.print_meta, node, context=IOContext(p.io))
+    node_str = sprint(Tree.print_node, node; context=IOContext(p.io))
+    node_str *= " " * sprint(Tree.print_meta, node; context=IOContext(p.io))
     for (i, line) in enumerate(split(node_str, '\n'))
         i ≠ 1 && print(state.prefix)
         print(line)
@@ -65,7 +69,7 @@ function (p::TextPrinter)(node)
 
     if p.state.depth > p.max_depth
         println(p.charset.trunc)
-        return
+        return nothing
     end
 
     this_print_annotation = should_print_annotation(node)
@@ -86,10 +90,7 @@ function (p::TextPrinter)(node)
 
         if isempty(children)
             print(p.charset.terminator)
-            child_prefix *= " " ^ (
-                textwidth(p.charset.skip) +
-                textwidth(p.charset.dash) + 1
-            )
+            child_prefix *= " "^(textwidth(p.charset.skip) + textwidth(p.charset.dash) + 1)
 
             if p.state.depth > 0 && p.state.last
                 is_last_leaf_child = true
@@ -100,9 +101,7 @@ function (p::TextPrinter)(node)
             end
         else
             print(p.charset.mid)
-            child_prefix *= p.charset.skip * " " ^ (
-                textwidth(p.charset.dash) + 1
-            )
+            child_prefix *= p.charset.skip * " "^(textwidth(p.charset.dash) + 1)
             is_last_leaf_child = false
         end
 
@@ -112,7 +111,7 @@ function (p::TextPrinter)(node)
             key_str = sprint(Tree.print_annotation, node, annotation)
             print_annotation(node, annotation)
 
-            child_prefix *= " " ^ textwidth(key_str)
+            child_prefix *= " "^textwidth(key_str)
         end
 
         p.state.depth += 1

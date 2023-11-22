@@ -28,7 +28,7 @@ function eq end
         stub = Core.GeneratedFunctionStub(
             identity, Core.svec(:methodinstance, :lhs, :rhs), Core.svec()
         )
-        if Tuple{typeof(==), Any, Any} <: mt.sig
+        if Tuple{typeof(==),Any,Any} <: mt.sig
             ret = :(not_implemented_error())
         else
             ret = :($Base.:(==)(lhs, rhs))

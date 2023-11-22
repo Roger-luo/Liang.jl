@@ -23,14 +23,14 @@ Base.convert(::Type{Num.Type}, x::Complex) =
 # Base.convert(::Type{Num.Type}, x::typeof(pi)) = Num.Pi
 
 Base.convert(::Type{Scalar.Type}, x::Num.Type) = Scalar.Constant(x)
-Base.convert(::Type{Scalar.Type}, x::Number) = if x isa Irrational{:π}
-    Scalar.Pi
-elseif x isa Irrational{:ℯ}
-    Scalar.Euler
-else
-    Scalar.Constant(convert(Num.Type, x))
-end
-
+Base.convert(::Type{Scalar.Type}, x::Number) =
+    if x isa Irrational{:π}
+        Scalar.Pi
+    elseif x isa Irrational{:ℯ}
+        Scalar.Euler
+    else
+        Scalar.Constant(convert(Num.Type, x))
+    end
 
 # backwards conversion
 Base.convert(::Type{Int}, x::Index.Type) =
@@ -70,10 +70,10 @@ function Base.convert(::Type{T}, x::Num.Type) where {T<:Number}
         return convert(T, x.:1) * im
     elseif isa_variant(x, Num.Complex)
         return convert(T, Complex(x.:1, x.:2))
-    # elseif isa_variant(x, Num.Pi)
-    #     return convert(T, pi)
-    # elseif isa_variant(x, Num.Euler)
-    #     return convert(T, MathConstants.e)
+        # elseif isa_variant(x, Num.Pi)
+        #     return convert(T, pi)
+        # elseif isa_variant(x, Num.Euler)
+        #     return convert(T, MathConstants.e)
     else
         error("Expect a real number, got $x")
     end
@@ -95,12 +95,12 @@ end
 function Base.convert(::Type{Scalar.Type}, x::Index.Type)
     @match x begin
         Index.Constant(y) => return Scalar.Constant(y)
-        Index.Variable(; name, id) => return Scalar.Variable(;name, id)
+        Index.Variable(; name, id) => return Scalar.Variable(; name, id)
         Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
         Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
         Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
         Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
-        Index.Pow(x, y) => return convert(Scalar.Type, x) ^ convert(Scalar.Type, y)
+        Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
         Index.Neg(x) => return -convert(Scalar.Type, x)
         Index.Abs(x) => return abs(convert(Scalar.Type, x))
         Index.Wildcard => return Scalar.Wildcard
