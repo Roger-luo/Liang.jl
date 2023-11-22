@@ -83,6 +83,7 @@ function Tree.is_leaf(node::Scalar.Type)
         Scalar.Match(name) => true
         Scalar.Constant(x) => true
         Scalar.Variable(name, id) => true
+        Scalar.Subscript(ref, indices) => true
         Scalar.Pi => true
         Scalar.Euler => true
         Scalar.Hbar => true
@@ -102,6 +103,17 @@ function Tree.print_node(io::IO, node::Scalar.Type)
             print(io, "%", name)
         else
             print(io, name)
+        end
+        Scalar.Subscript(ref, indices) => begin
+            print(io, ref)
+            print(io, "[")
+            for (idx, index) in enumerate(indices)
+                Tree.inline_print(io, index)
+                if idx < length(indices)
+                    print(io, ", ")
+                end
+            end
+            print(io, "]")
         end
 
         Scalar.Neg(x) => print(io, "-")
@@ -160,6 +172,7 @@ function Tree.precedence(node::Scalar.Type)
     @match node begin
         Scalar.Constant(x) => x < 0 ? 0 : 100
         Scalar.Variable(_) => 100
+        Scalar.Subscript(_) => 100
         Scalar.Pi => 100
         Scalar.Euler => 100
         Scalar.Hbar => 100
