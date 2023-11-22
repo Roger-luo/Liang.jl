@@ -80,6 +80,13 @@ Check if a node is a leaf node.
 """
 $INTERFACE
 
+Check if a node is a prefix node/operator.
+"""
+@interface is_prefix(node) = false
+
+"""
+$INTERFACE
+
 Check if a node is an infix node/operator.
 """
 @interface is_infix(node) = false

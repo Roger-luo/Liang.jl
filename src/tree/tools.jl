@@ -16,7 +16,7 @@ function threaded_map_ac_set(f, terms::Dict{E,V}) where {E,V}
 
     new_terms = Dict{E,V}()
     for (key, val) in mapped_pairs
-        if haskey(new_terms, new_key)
+        if haskey(new_terms, key)
             new_terms[key] = op(new_terms[key], val)
         else
             new_terms[key] = val

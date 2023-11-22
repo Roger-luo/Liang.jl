@@ -188,13 +188,24 @@ A_[1] * kron(B, C)
 ### Canonicalization
 
 The same subscript multiplied together can be merged into a single subscript
-with values being the multiplication of the operators.
+with values being the multiplication of the operators, e.g
 
-The nested subscript can be flattened into a single subscript with the
-subscripts being re-mapped to the new subscript.
 
-The subscript on kronecker product can be flattened into a subscript
-on the child operator of kronecker product.
+```julia
+X[i] * Y[i] == (X * Y)[i]
+```
+
+NOTE: this is not impl currently because it's not clear which direction
+we want to canonicalize.
+
+~The nested subscript can be flattened into a single subscript with the
+subscripts being re-mapped to the new subscript.~ NOTE: we probably don't
+want to support this because it's not clear how to handle the case where
+the subscripts are variables.
+
+~The subscript on kronecker product can be flattened into a subscript
+on the child operator of kronecker product.~ NOTE: This seems require inference
+on number of sites, which is not possible at canonicalization stage.
 
 ## Reduction
 

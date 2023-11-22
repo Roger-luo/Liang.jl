@@ -55,7 +55,10 @@ function onlyif_constant(f, x::Scalar.Type)
     end
 end
 
-Base.convert(::Type{Num.Type}, x::Scalar.Type) = onlyif_constant(x -> x.:1, x)
+Base.convert(::Type{Num.Type}, x::Scalar.Type) = begin
+    onlyif_constant(x -> x.:1, x)
+end
+
 function Base.convert(::Type{T}, x::Num.Type) where {T<:Number}
     if isa_variant(x, Num.Real)
         return x.:1
@@ -88,3 +91,20 @@ end
 
 (::Type{T})(x::Num.Type) where {T<:Number} = convert(T, x)
 (::Type{T})(x::Scalar.Type) where {T<:Number} = convert(T, x)
+
+function Base.convert(::Type{Scalar.Type}, x::Index.Type)
+    @match x begin
+        Index.Constant(y) => return Scalar.Constant(y)
+        Index.Variable(; name, id) => return Scalar.Variable(;name, id)
+        Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
+        Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
+        Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
+        Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
+        Index.Pow(x, y) => return convert(Scalar.Type, x) ^ convert(Scalar.Type, y)
+        Index.Neg(x) => return -convert(Scalar.Type, x)
+        Index.Abs(x) => return abs(convert(Scalar.Type, x))
+        Index.Wildcard => return Scalar.Wildcard
+        Index.Match(name) => return Scalar.Match(name)
+        _ => error("Expect a constant index, got $x")
+    end
+end

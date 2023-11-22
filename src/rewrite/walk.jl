@@ -34,9 +34,9 @@ end
 function ((p::Post)(node::E)::E) where {E}
     is_leaf(node) && return p.map(node)::E
     node = if p.threaded && n_children(node) > p.thread_cutoff
-        map_children(PassThrough(p), node)::E
-    else
         threaded_map_children(PassThrough(p), node)::E
+    else
+        map_children(PassThrough(p), node)::E
     end
     is_leaf(node) && return node::E
     return p.map(node)::E

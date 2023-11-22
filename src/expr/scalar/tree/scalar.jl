@@ -125,6 +125,13 @@ function Tree.print_node(io::IO, node::Scalar.Type)
     end
 end
 
+function Tree.is_prefix(node::Scalar.Type)
+    @match node begin
+        Scalar.Neg(x) => true
+        _ => false
+    end
+end
+
 function Tree.is_infix(node::Scalar.Type)
     @match node begin
         Scalar.Pow(base, exp) => true
@@ -151,6 +158,13 @@ end
 
 function Tree.precedence(node::Scalar.Type)
     @match node begin
+        Scalar.Constant(x) => x < 0 ? 0 : 100
+        Scalar.Variable(_) => 100
+        Scalar.Pi => 100
+        Scalar.Euler => 100
+        Scalar.Hbar => 100
+        Scalar.Wildcard => 100
+        Scalar.Match(_) => 100
         Scalar.Sum(_...) => Base.operator_precedence(:+)
         Scalar.Prod(_...) => Base.operator_precedence(:*)
         Scalar.Pow(_...) => Base.operator_precedence(:^)

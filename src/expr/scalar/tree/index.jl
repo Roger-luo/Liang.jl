@@ -1,3 +1,10 @@
+function Tree.is_prefix(node::Index.Type)
+    @match node begin
+        Index.Neg(x) => true
+        _ => false
+    end
+end
+
 function Tree.is_infix(node::Index.Type)
     @match node begin
         Index.Add(lhs, rhs) => true
@@ -12,6 +19,10 @@ end
 
 function Tree.precedence(node::Index.Type)
     @match node begin
+        Index.Constant(x) => x < 0 ? 0 : 100
+        Index.Variable(_) => 100
+        Index.Wildcard => 100
+        Index.Match(_) => 100
         Index.Add(lhs, rhs) => 1
         Index.Sub(lhs, rhs) => 1
         Index.Mul(lhs, rhs) => 2

@@ -23,6 +23,7 @@ TWOLEVEL_NOTE = """
 
     # these constants
     # are just predefined for convenience
+    Zero # 0
     I # Identity
 
     """
@@ -136,6 +137,7 @@ TWOLEVEL_NOTE = """
     Det(Op)
     Inv(Op)
     Sqrt(Op)
+    Conj(Op)
     Transpose(Op)
 
     struct Outer

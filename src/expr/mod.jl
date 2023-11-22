@@ -8,7 +8,7 @@ using Liang.Data: Data
 using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Derive: @derive
-using Liang.Rewrite: Fixpoint, Chain, Pre
+using Liang.Rewrite: Fixpoint, Chain, Pre, Post
 using LinearAlgebra: LinearAlgebra
 using Transducers: Map, tcollect
 using DocStringExtensions

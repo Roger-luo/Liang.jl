@@ -78,7 +78,7 @@ end
 
 function Tree.threaded_map_children(f, node::Op.Type)
     @match node begin
-        Op.Add(terms) => Op.Add(Tree.threaded_map_ac_set(f, +, terms))
+        Op.Add(terms) => Op.Add(Tree.threaded_map_ac_set(f, terms))
         _ => Tree.map_children(f, node)
     end
 end
@@ -110,6 +110,7 @@ end
 
 function Tree.print_node(io::IO, node::Op.Type)
     @match node begin
+        Op.Zero => print(io, "O")
         Op.Wildcard => print(io, "_")
         Op.Match(name) => print(io, "\$", name)
         Op.Annotate(op, basis) => printstyled(io, "%", basis, color=:light_black)
@@ -139,24 +140,22 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Sqrt(op) => print(io, "sqrt")
 
         Op.Comm(base, op, pow) => if isone(pow)
-            print(io, "ad_{")
-            Tree.inline_print(io, base)
-            print(io, "}")
+            print(io, "ad")
         else
-            print(io, "ad_{")
-            Tree.inline_print(io, base)
-            print(io, "}^{")
+            print(io, "ad^{")
             Tree.inline_print(io, pow)
             print(io, "}")
         end
+
+        # NOTE: ehhh, there is no standard notation
+        # for Jordan product or anti-commutator  ---- ChatGPT & Bard
+        #
+        # let's use `ap` for "adjoint plus", make it easier to print
+        #                                   ---- Issac Newton
         Op.AComm(base, op, pow) => if isone(pow)
-            print(io, "ad_{")
-            Tree.inline_print(io, base)
-            print(io, ",+}")
+            print(io, "ap")
         else
-            print(io, "ad_{")
-            Tree.inline_print(io, base)
-            print(io, ",+}^{")
+            print(io, "ap^{")
             Tree.inline_print(io, pow)
             print(io, "}")
         end
@@ -214,6 +213,8 @@ function Tree.use_custom_print(node::Op.Type)
         Op.Add => true
         Op.Sum => true
         Op.Prod => true
+        Op.Comm => true
+        Op.AComm => true
         _ => false
     end
 end
@@ -227,6 +228,23 @@ function Tree.custom_inline_print(io::IO, node::Op.Type)
             # Tree.inline_print(io, region)
             print(io, "} ")
             Tree.inline_print(io, term)
+            print(io, ")")
+        end
+        # TODO: remove copied code after fixing #1
+        Op.Comm(base, exp, pow) => begin
+            Tree.print_node(io, node)
+            print(io, "_{")
+            Tree.inline_print(base)
+            print(io, "}(")
+            Tree.inline_print(exp)
+            print(io, ")")
+        end
+        Op.AComm(base, exp, pow) => begin
+            Tree.print_node(io, node)
+            print(io, "_{")
+            Tree.inline_print(base)
+            print(io, "}(")
+            Tree.inline_print(exp)
             print(io, ")")
         end
 
@@ -271,6 +289,8 @@ end
 function Tree.print_annotation(io::IO, node::Op.Type, coeff::Scalar.Type; color=nothing)
     @match coeff begin
         Scalar.Constant(Num.One) => return
+        Scalar.Neg(Num.One) => print(io, "-")
+        Scalar.Constant(Num.Real(-1)) => print(io, "-")
         _ => begin
             Tree.inline_print(io, coeff)
             print(io, " * ")
@@ -280,23 +300,6 @@ end
 
 function Tree.print_meta(io::IO, node::Op.Type)
     @match node begin
-        Op.Comm(base, op, pow) => if !isone(pow)
-            print(io, "^")
-            Tree.inline_print(io, pow)
-        end
-        Op.AComm(base, op, pow) => if !isone(pow)
-            print(io, "^")
-            Tree.inline_print(io, pow)
-        end
-        Op.Pow(base, exp) => begin
-            print(io, "^")
-            Tree.inline_print(io, exp)
-        end
-        Op.KronPow(base, exp) => begin
-            print(io, "^")
-            Tree.inline_print(io, exp)
-        end
-
         # TODO: switch this to region inline_print
         Op.Sum(region) => print(io, region)
         Op.Prod(region) => print(io, region)

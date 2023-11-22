@@ -21,6 +21,7 @@ function Base.:(-)(op::Op.Type)
 end
 
 function Base.:(-)(lhs::Op.Type, rhs::Op.Type)
+    lhs == rhs && return Op.Zero
     return Op.Add(Dict(lhs => 1, rhs => -1))
 end
 
@@ -73,7 +74,7 @@ function comm(base::Op.Type, op::Op.Type)
 end
 
 function comm(base::Op.Type, op::Op.Type, pow::Int)
-    return comm(base, op, Scalar.Constant(pow))
+    return comm(base, op, Index.Constant(pow))
 end
 
 function comm(base::Op.Type, op::Op.Type, pow::Index.Type)
@@ -85,16 +86,15 @@ function acomm(base::Op.Type, op::Op.Type)
 end
 
 function acomm(base::Op.Type, op::Op.Type, pow::Int)
-    return acomm(base, op, Scalar.Constant(pow))
+    return acomm(base, op, Index.Constant(pow))
 end
 
 function acomm(base::Op.Type, op::Op.Type, pow::Index.Type)
     return Op.AComm(base, op, pow)
 end
 
-function Base.adjoint(op::Op.Type)
-    return Op.Adjoint(op)
-end
+Base.conj(op::Op.Type) = Op.Conj(op)
+Base.adjoint(op::Op.Type) = Op.Adjoint(op)
 
 function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
     return Op.Subscript(op, collect(Index.Type, subscripts))
@@ -138,4 +138,26 @@ end
 
 function Base.rem(op::Op.Type, basis::Basis)
     return Op.Annotate(op, basis)
+end
+
+function outer(lhs::State.Type, rhs::State.Type)
+    return Op.Outer(lhs, rhs)
+end
+
+struct EigenDecomp
+    op::Op.Type
+end
+
+function Base.show(io::IO, x::EigenDecomp)
+    print(io, "eigen(")
+    Tree.inline_print(io, x.op)
+    print(io, ")")
+end
+
+function Base.getindex(eig::EigenDecomp, idx::Int)
+    return State.Eigen(eig.op, idx)
+end
+
+function LinearAlgebra.eigen(op::Op.Type)
+    return EigenDecomp(op)
 end

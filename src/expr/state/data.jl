@@ -1,15 +1,19 @@
 @data State begin
     Wildcard
     Match(Symbol)
-    # Eigen(Op, Vector{Int}), e.g
-    # |01010110> each is an eigenstate of Z
-    Eigen(Any, Vector{Int})
+    # this is mainly for making the algebra complete
+    Zero
+    # Eigen(Op, Int)
+    # this is mainly for large unknown operators
+    # for product state on small operators, use
+    # Product with Basis instead
+    Eigen(Any, Int)
     # A product state with configuration
     Product(Vector{Int})
     Kron(State, State)
 
     # e.g alpha * |0> + beta * |1>
-    Sum(Dict{State,Scalar.Type})
+    Add(Dict{State,Scalar.Type})
 
     struct Annotate
         expr::State
