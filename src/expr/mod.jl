@@ -45,20 +45,19 @@ function def_m(defs)
         Meta.isexpr(def, :(::)) || error("expect type annotation, got: $def")
         length(def.args) == 2 || error("expect name, got: $def")
         name, type = def.args
-        if type === :Scalar
-            return quote
-                $name = $Scalar.Variable(;name=$(QuoteNode(name)))
-            end
+        mod = if type === :Scalar
+            Scalar
         elseif type === :Index
-            return quote
-                $name = $Index.Variable(;name=$(QuoteNode(name)))
-            end
+            Index
         elseif type === :Op
-            return quote
-                $name = $Op.Variable(;name=$(QuoteNode(name)))
-            end
+            Op
+        elseif type === :State
+            State
         else
             error("expect Scalar, Index or Op, got: $type")
+        end
+        return quote
+            $name = $mod.Variable(;name=$(QuoteNode(name)))
         end
     end
 end
