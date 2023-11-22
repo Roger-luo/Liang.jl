@@ -99,20 +99,11 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Pi => print(io, "π")
         Scalar.Euler => print(io, "ℯ")
         Scalar.Hbar => print(io, "ℏ")
-        Scalar.Variable(name, id) => if id > 0 # SSA var
-            print(io, "%", name)
-        else
-            print(io, name)
-        end
+        Scalar.Variable(name, id) => Tree.print_variable(io, name, id)
         Scalar.Subscript(ref, indices) => begin
             print(io, ref)
             print(io, "[")
-            for (idx, index) in enumerate(indices)
-                Tree.inline_print(io, index)
-                if idx < length(indices)
-                    print(io, ", ")
-                end
-            end
+            Tree.print_list(IOContext(io, :precedence => 0), indices)
             print(io, "]")
         end
 
@@ -163,8 +154,31 @@ end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Add(coeffs, terms) => print_add(io, coeffs, terms)
-        Scalar.Mul(coeffs, terms) => print_mul(io, coeffs, terms)
+        Scalar.Add(coeffs, terms) => begin
+            @match coeffs begin
+                Num.Zero => nothing
+                _ => begin
+                    Tree.inline_print(io, coeffs)
+                    if !isempty(terms)
+                        print(io, "+")
+                    end
+                end
+            end
+            Tree.print_add(io, terms)
+        end
+        Scalar.Mul(coeffs, terms) => begin
+            @match coeffs begin
+                Num.Zero => nothing
+                Num.One => nothing
+                _ => begin
+                    Tree.inline_print(io, coeffs)
+                    if !isempty(terms)
+                        print(io, "*")
+                    end
+                end
+            end
+            Tree.print_mul(io, terms)
+        end
     end
 end
 
@@ -196,80 +210,4 @@ function Tree.print_meta(io::IO, node::Scalar.Type)
         end
         _ => nothing
     end
-end
-
-function print_add(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
-    parent_pred = get(io, :precedence, 0)
-    node_pred = Tree.precedence(:+)
-    parent_pred > node_pred && print(io, "(")
-
-    @match coeffs begin
-        Num.Zero => nothing
-        _ => begin
-            Tree.inline_print(io, coeffs)
-            if !isempty(terms)
-                print(io, "+")
-            end
-        end
-    end
-
-    for (idx, (term, coeff)) in enumerate(terms)
-        # NOTE: we should just print all terms
-        # cause otherwise they should be simplified
-        # otherwise.
-        # iszero(coeff) && continue
-        if !isone(coeff)
-            Tree.inline_print(io, coeff)
-            print(io, "*")
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
-        else
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:+))
-        end
-        Tree.inline_print(sub_io, term)
-        if idx < length(terms)
-            print(io, "+")
-        end
-    end
-
-    parent_pred > node_pred && print(io, ")")
-    return nothing
-end
-
-function print_mul(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
-    parent_pred = get(io, :precedence, 0)
-    node_pred = Tree.precedence(:+)
-    parent_pred > node_pred && print(io, "(")
-
-    @match coeffs begin
-        Num.Zero => nothing
-        Num.One => nothing
-        _ => begin
-            Tree.inline_print(io, coeffs)
-            if !isempty(terms)
-                print(io, "*")
-            end
-        end
-    end
-
-    for (idx, (term, coeff)) in enumerate(terms)
-        # NOTE: we should just print all terms
-        # cause otherwise they should be simplified
-        # otherwise.
-        # iszero(coeff) && continue
-        if !isone(coeff)
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:^))
-            Tree.inline_print(sub_io, term)
-            print(io, "^")
-            Tree.inline_print(io, coeff)
-        else
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
-            Tree.inline_print(sub_io, term)
-        end
-
-        if idx < length(terms)
-            print(io, "*")
-        end
-    end
-    parent_pred > node_pred && print(io, ")")
-    return nothing
 end

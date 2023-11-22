@@ -15,13 +15,13 @@ end
 Base.kron(lhs::State.Type, rhs::State.Type) = State.Kron(lhs, rhs)
 
 function Base.:(+)(lhs::State.Type, rhs::State.Type)
-    lhs == rhs && return Add(Dict(lhs => 2))
-    return Add(Dict(lhs => 1, rhs => 1))
+    lhs == rhs && return State.Add(Dict(lhs => 2))
+    return State.Add(Dict(lhs => 1, rhs => 1))
 end
 
 function Base.:(-)(lhs::State.Type, rhs::State.Type)
     lhs == rhs && return State.Zero
-    return Add(Dict(lhs => 1, rhs => -1))
+    return State.Add(Dict(lhs => 1, rhs => -1))
 end
 
 function Base.:(%)(state::State.Type, basis::Basis)

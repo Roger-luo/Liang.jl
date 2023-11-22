@@ -116,11 +116,7 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Annotate(op, basis) => printstyled(io, "%", basis; color=:light_black)
 
         Op.Constant(value) => print(io, value)
-        Op.Variable(name, id) => if id > 0 # SSA var
-            print(io, "%", name)
-        else
-            print(io, name)
-        end
+        Op.Variable(; name, id) => Tree.print_variable(io, name, id)
 
         Op.Mul(lhs, rhs) => print(io, "*")
         Op.Kron(lhs, rhs) => print(io, "⊗")
@@ -172,12 +168,7 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Transpose(op) => print(io, "ᵀ")
         Op.Subscript(op, inds) => begin
             print(io, "[")
-            for (i, ind) in enumerate(inds)
-                if i > 1
-                    print(io, ", ")
-                end
-                Tree.inline_print(IOContext(io, :precedence => 0), ind)
-            end
+            Tree.print_list(IOContext(io, :precedence => 0), inds)
             print(io, "]")
         end
         _ => print(io, variant_name(node))
@@ -276,7 +267,7 @@ function Tree.annotations(node::Op.Type)
     end
 end
 
-function Tree.print_annotation(io::IO, node::Op.Type, coeff::Scalar.Type; color=nothing)
+function Tree.print_annotation(io::IO, coeff::Scalar.Type)
     @match coeff begin
         Scalar.Constant(Num.One) => return nothing
         Scalar.Neg(Num.One) => print(io, "-")
