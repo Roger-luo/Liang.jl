@@ -151,8 +151,8 @@ end
 
 function Tree.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Add(coeffs, terms) => print_sum(io, coeffs, terms)
-        Scalar.Mul(coeffs, terms) => print_prod(io, coeffs, terms)
+        Scalar.Add(coeffs, terms) => print_add(io, coeffs, terms)
+        Scalar.Mul(coeffs, terms) => print_mul(io, coeffs, terms)
     end
 end
 
@@ -185,7 +185,7 @@ function Tree.print_meta(io::IO, node::Scalar.Type)
     end
 end
 
-function print_sum(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
+function print_add(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
     parent_pred = get(io, :precedence, 0)
     node_pred = Tree.precedence(:+)
     parent_pred > node_pred && print(io, "(")
@@ -222,13 +222,14 @@ function print_sum(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
     return nothing
 end
 
-function print_prod(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
+function print_mul(io::IO, coeffs::Num.Type, terms::Dict{Scalar.Type,Num.Type})
     parent_pred = get(io, :precedence, 0)
     node_pred = Tree.precedence(:+)
     parent_pred > node_pred && print(io, "(")
 
     @match coeffs begin
         Num.Zero => nothing
+        Num.One => nothing
         _ => begin
             Tree.inline_print(io, coeffs)
             if !isempty(terms)

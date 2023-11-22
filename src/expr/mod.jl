@@ -34,7 +34,10 @@ include("tensor/mod.jl")
 Create a variable definition of given type.
 """
 macro def(defs...)
-    return esc(def_m(defs))
+    return quote
+        $(esc(def_m(defs)))
+        nothing
+    end
 end
 
 function def_m(defs)
