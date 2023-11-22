@@ -18,4 +18,6 @@ include("expr/mod.jl")
 include("rules/mod.jl")
 include("target/mod.jl")
 
+include("precompile.jl")
+
 end # Liang
