@@ -15,6 +15,7 @@ include("rewrite/mod.jl")
 
 # quantum stuff
 include("expr/mod.jl")
+include("analysis/mod.jl")
 include("rules/mod.jl")
 include("target/mod.jl")
 
