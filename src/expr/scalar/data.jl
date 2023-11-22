@@ -73,6 +73,16 @@ It supports pattern matching.
     Pow(Index, Index)
 
     """
+    Maximum of two indices
+    """
+    Max(Index, Index)
+
+    """
+    Minimum of two indices
+    """
+    Min(Index, Index)
+
+    """
     Negate an index
     """
     Neg(Index)

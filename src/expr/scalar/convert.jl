@@ -101,6 +101,8 @@ function Base.convert(::Type{Scalar.Type}, x::Index.Type)
         Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
         Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
         Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
+        Index.Max(x, y) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
+        Index.Min(x, y) => return min(convert(Scalar.Type, x), convert(Scalar.Type, y))
         Index.Neg(x) => return -convert(Scalar.Type, x)
         Index.Abs(x) => return abs(convert(Scalar.Type, x))
         Index.Wildcard => return Scalar.Wildcard
