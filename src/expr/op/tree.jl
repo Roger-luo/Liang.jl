@@ -237,7 +237,7 @@ function print_jordan_lie(io::IO, node::Op.Type)
     print(io, "_{")
     Tree.inline_print(node.base)
     print(io, "}(")
-    Tree.inline_print(node.exp)
+    Tree.inline_print(node.pow)
     print(io, ")")
 end
 
