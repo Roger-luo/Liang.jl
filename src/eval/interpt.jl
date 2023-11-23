@@ -54,14 +54,16 @@ function interpret(node::Index.Type, vars::Dict{Symbol, Index.Type}, assign::Dic
     end
 end
 
-function partial(node::Index.Type, assign::Dict{Index.Type, Int})
-    function substitute(node::Index.Type)
-        if haskey(assign, node)
-            return Index.Constant(assign[node])
-        else
-            return node
+for (E, V) in [(Index, Int), (Scalar, Num.Type)]
+    @eval function partial(node::$E.Type, assign::Dict{$E.Type, $V})
+        function substitute(node::$E.Type)
+            if haskey(assign, node)
+                return $E.Constant(assign[node])
+            else
+                return node
+            end
         end
+        p = Chain(substitute, canonicalize) |> Pre |> Post
+        return p(node)
     end
-    p = Chain(substitute, canonicalize) |> Pre |> Post
-    return p(node)
 end
