@@ -12,15 +12,15 @@ Partially eval an expression with given variable assignments.
 """
 @interface partial(node::E, assign::Dict{E, V}) where {E, V} = not_implemented_error()
 
-struct InterpretFn{E}
+struct PartialFn{E}
     expr::E
     vars::Dict{Symbol, E}
 end
 
-InterpretFn(expr::E) where E = InterpretFn(expr, vars(expr))
+PartialFn(expr::E) where E = PartialFn(expr, vars(expr))
 
-function Base.show(io::IO, fn::InterpretFn)
-    print(io, "InterpretFn: ")
+function Base.show(io::IO, fn::PartialFn)
+    print(io, "PartialFn: ")
     length(fn.vars) > 1 && print(io, "(")
     for (idx, var) in enumerate(keys(fn.vars))
         print(io, var)
@@ -33,25 +33,21 @@ function Base.show(io::IO, fn::InterpretFn)
     print(io, fn.expr)
 end
 
-function (fn::InterpretFn{Index.Type})(;kw...)
-    assign = Dict{Index.Type, Int}(fn.vars[k] => Int(v) for (k, v) in kw)
-    return interpret(fn.expr, fn.vars, assign)::Int
+# function (fn::PartialFn{Index.Type})(;kw...)
+#     assign = Dict{Index.Type, Int}(fn.vars[k] => Int(v) for (k, v) in kw)
+#     return interpret(fn.expr, fn.vars, assign)::Int
+# end
+
+function (fn::PartialFn{Index.Type})(scope::Dict{Symbol, Any})
+    assign = Dict{Index.Type, Int}()
+    for (k, v) in fn.vars
+        haskey(scope, k) || continue
+        assign[v] = convert(Int, scope[k])
+    end
+    return partial(fn.expr, fn.vars, assign)::Index.Type
 end
 
-function (fn::InterpretFn{Scalar.Type})(;kw...)
-    assign = Dict{Scalar.Type, Num.Type}(fn.vars[k] => convert(Num.Type, v) for (k, v) in kw)
-    return interpret(fn.expr, fn.vars, assign)::Num.Type
-end
-
-function interpret(node::Index.Type, vars::Dict{Symbol, Index.Type}, assign::Dict{Index.Type, Int})
-    for v in values(vars)
-        haskey(assign, v) || error("missing assignment for $v")
-    end
-
-    @match partial(node, assign) begin
-        Index.Constant(value) => value
-        failed => error("failed interpret $failed")
-    end
+function (fn::PartialFn{Scalar.Type})(scope::Dict{Symbol, Any})
 end
 
 for (E, V) in [(Index, Int), (Scalar, Num.Type)]
@@ -65,5 +61,38 @@ for (E, V) in [(Index, Int), (Scalar, Num.Type)]
         end
         p = Chain(substitute, canonicalize) |> Pre |> Post
         return p(node)
+    end
+end
+
+function extern_partial(node::Scalar.Type, assign::Dict{Symbol, Any})
+    function substitute(node::$E.Type)
+        @match node begin
+            Scalar.Subscript(ref, indices) => begin
+                vals = map(indices) do index
+                    PartialFn(index)(assign)
+                end
+                is_const = all(vals) do val
+                    @match val begin
+                        Index.Constant(_) => true
+                        _ => false
+                    end
+                end
+                if is_const && haskey(assign, ref)
+                    obj = assign[ref]
+                    idx = map(vals) do val
+                        @match val Index.Constant(idx) => idx
+                    end
+                    return obj[idx...]
+                else
+                    return Scalar.Subscript(ref, vals)
+                end
+            end
+        end
+
+        if haskey(assign, node)
+            return $E.Constant(assign[node])
+        else
+            return node
+        end
     end
 end
