@@ -9,6 +9,7 @@ using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Derive: @derive
 using Liang.Rewrite: Fixpoint, Chain, Pre, Post
+using Liang.Traits: Hash
 using Liang.Tools.Interface
 using LinearAlgebra: LinearAlgebra
 using Transducers: Map, tcollect

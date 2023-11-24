@@ -32,16 +32,32 @@ function emit_variant_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
     if (variant.kind === Singleton || variant.kind === Anonymous)
         return emit_positional_cons(info, variant, vinfo)
     end
+
     # variant.kind === Named
-    quote
-        if $Base.:!($Base.isempty(args)) && $Base.:!($Base.isempty(kwargs))
-            $Core.throw($ArgumentError("cannot mix positional and keyword arguments"))
-        elseif $Base.isempty(args)
-            $(emit_kwargs_cons(info, variant, vinfo))
-        else
-            $(emit_positional_cons(info, variant, vinfo))
+    jl = JLIfElse()
+    jl[:($Base.length(args) == $(length(vinfo)))] = quote
+        $(emit_positional_cons(info, variant, vinfo))
+    end
+    jl[:($Base.isempty(args))] = quote
+        $(emit_kwargs_cons(info, variant, vinfo))
+    end
+
+    has_optional = any(variant.fields) do field::NamedField
+        field.default != no_default
+    end
+
+    if has_optional
+        jl[:($Base.:(<)($Base.length(args), $(length(vinfo))))] = quote
+            $(emit_positional_kw_cons(info, variant, vinfo))
         end
     end
+
+    type_name = String(info.def.name)
+    vname = String(variant.name)
+    jl.otherwise = quote
+        $Core.throw($ArgumentError("wrong number of arguments for $($(type_name)).$($vname)"))
+    end
+    return codegen_ast(jl)
 end
 
 function emit_kwargs_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
@@ -57,8 +73,9 @@ function emit_kwargs_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
                 kwargs[$(QuoteNode(field.name))]
             end
         else
+            f_default = cons_default(info.def.mod, field.default)
             quote
-                $Base.get(kwargs, $(QuoteNode(field.name)), $(field.default))
+                $Base.get(kwargs, $(QuoteNode(field.name)), $f_default)
             end
         end
 
@@ -92,12 +109,62 @@ function emit_positional_cons(info::EmitInfo, variant::Variant, vinfo::VariantIn
     end
 
     @gensym bits ptrs
+    type_name = String(info.def.name)
+    vname = String(variant.name)
     return quote
         $Base.length(args) == $(length(vinfo)) || $Core.throw(
-            $ArgumentError("wrong number of arguments, expect $($(length(vinfo)))")
+            $ArgumentError("wrong number of arguments for $($(type_name)).$($vname), expect $($(length(vinfo)))")
         )
         $bits = $bits_expr
         $ptrs = $ptrs_expr
         $(info.type.name)($(info.type.storage.name)(type.tag, $bits, $ptrs))
+    end
+end
+
+# NOTE: this is useful when expr contains meta info, e.g hash
+# <variant>(<no_default...>; kw=<has_default...>)
+function emit_positional_kw_cons(info::EmitInfo, variant::Variant, vinfo::VariantInfo)
+    arg_count = 0
+    bits_expr, ptrs_expr = Expr(:tuple), Expr(:tuple)
+    for (kth_field, finfo) in enumerate(vinfo)
+        field = variant.fields[kth_field]::NamedField
+        value = if field.default === no_default # arg
+            arg_count += 1
+            :(args[$arg_count])
+        else # kw
+            f_default = cons_default(info.def.mod, field.default)
+            :($Base.get(kwargs, $(QuoteNode(field.name)), $f_default))
+        end
+        value = :($Base.convert($(finfo.type), $value))
+        if finfo.is_bitstype
+            push!(bits_expr.args, value)
+        else
+            push!(ptrs_expr.args, value)
+        end
+    end
+
+    @gensym bits ptrs
+    type_name = String(info.def.name)
+    vname = String(variant.name)
+    return quote
+        $Base.length(args) == $(arg_count) || $Core.throw(
+            $ArgumentError("wrong number of arguments for $($(type_name)).$($vname), expect $($arg_count)")
+        )
+        $bits = $bits_expr
+        $ptrs = $ptrs_expr
+        $(info.type.name)($(info.type.storage.name)(type.tag, $bits, $ptrs))
+    end
+end
+
+# call the default_expr in current module
+# instead of the baremodule of ADT
+function cons_default(mod::Module, default_expr)
+    default_expr isa Symbol && return :($mod.$default_expr)
+    if Meta.isexpr(default_expr, :.)
+        return Expr(:., cons_default(mod, default_expr.args[1]), default_expr.args[2])
+    elseif Meta.isexpr(default_expr, :call)
+        return Expr(:call, cons_default(mod, default_expr.args[1]), default_expr.args[2:end]...)
+    else
+        return default_expr
     end
 end

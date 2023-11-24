@@ -90,6 +90,7 @@ TWOLEVEL_NOTE = """
 
     struct Add
         terms::Dict{Op,Scalar.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     Mul(Op, Op)
@@ -118,18 +119,25 @@ TWOLEVEL_NOTE = """
     end
 
     Adjoint(Op)
-    Subscript(Op, Vector{Index.Type})
+
+    struct Subscript
+        op::Op
+        indices::Vector{Index.Type}
+        hash::Hash.Cache = Hash.Cache()
+    end
 
     struct Sum
         region
         indices::Vector{Index.Type}
         term::Op
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Prod
         region
         indices::Vector{Index.Type}
         term::Op
+        hash::Hash.Cache = Hash.Cache()
     end
 
     # primitive operations

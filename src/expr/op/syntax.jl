@@ -97,7 +97,7 @@ Base.conj(op::Op.Type) = Op.Conj(op)
 Base.adjoint(op::Op.Type) = Op.Adjoint(op)
 
 function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
-    return Op.Subscript(op, collect(Index.Type, subscripts))
+    return Op.Subscript(;op, indices=collect(Index.Type, subscripts))
 end
 
 function Base.sum(region, term::Pair{Vector{Index.Type}, Op.Type})

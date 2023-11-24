@@ -1,13 +1,17 @@
 module Hash
 
-mutable struct HashCache
+mutable struct Cache
     value::UInt64
-
-    HashCache() = new()
-    HashCache(value::UInt64) = new(value)
+    is_set::Bool
 end
 
-Base.getindex(cache::HashCache) = cache.value
-Base.setindex!(cache::HashCache, value) = cache.value = value
+Cache() = Cache(0, false)
+
+Base.getindex(cache::Cache) = cache.value
+function Base.setindex!(cache::Cache, value)
+    cache.value = value
+    cache.is_set = true
+    return cache
+end
 
 end # Hash

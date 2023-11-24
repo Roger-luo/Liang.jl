@@ -1,7 +1,8 @@
 module Derive
 
 using ExproniconLite: expr_map, JLIfElse, codegen_ast, xcall, xtuple
-using ..Data.Prelude
+using Liang.Data.Prelude
+using Liang.Traits: Hash
 
 include("macro.jl")
 include("eq.jl")
