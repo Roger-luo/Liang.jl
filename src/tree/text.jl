@@ -62,7 +62,7 @@ function (p::TextPrinter)(node)
     for (i, line) in enumerate(split(node_str, '\n'))
         i ≠ 1 && print(state.prefix)
         print(line)
-        if !(p.state.last && is_leaf(node))
+        if !((p.state.depth == 0 || p.state.last) && is_leaf(node))
             println()
         end
     end
