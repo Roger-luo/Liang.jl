@@ -2,7 +2,7 @@ module Interface
 
 using ExproniconLite: JLFunction, name_only, no_default
 using DocStringExtensions: DocStringExtensions, Abbreviation, SIGNATURES, TYPEDEF
-
+export @interface, INTERFACE, INTERFACE_LIST
 const INTERFACE_STUB = Symbol("#INTERFACE_STUB#")
 
 """

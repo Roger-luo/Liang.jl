@@ -15,9 +15,10 @@ Partially eval an expression with given variable assignments.
 struct PartialFn{E}
     expr::E
     vars::Dict{Symbol, E}
+    hash::UInt64
 end
 
-PartialFn(expr::E) where E = PartialFn(expr, vars(expr))
+PartialFn(expr::E) where E = PartialFn(expr, vars(expr), hash(expr))
 
 function Base.show(io::IO, fn::PartialFn)
     print(io, "PartialFn: ")
@@ -65,7 +66,7 @@ for (E, V) in [(Index, Int), (Scalar, Num.Type)]
 end
 
 function extern_partial(node::Scalar.Type, assign::Dict{Symbol, Any})
-    function substitute(node::$E.Type)
+    function substitute(node::Scalar.Type)
         @match node begin
             Scalar.Subscript(ref, indices) => begin
                 vals = map(indices) do index
@@ -90,7 +91,7 @@ function extern_partial(node::Scalar.Type, assign::Dict{Symbol, Any})
         end
 
         if haskey(assign, node)
-            return $E.Constant(assign[node])
+            return Scalar.Constant(assign[node])
         else
             return node
         end

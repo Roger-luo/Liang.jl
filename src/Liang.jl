@@ -18,6 +18,7 @@ include("expr/mod.jl")
 include("analysis/mod.jl")
 include("eval/mod.jl")
 
+include("prelude.jl")
 include("precompile.jl")
 
 end # Liang

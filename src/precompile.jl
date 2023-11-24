@@ -1,7 +1,7 @@
 using PrecompileTools
 
 @setup_workload begin
-    using Liang.Expression.Prelude
+    using Liang.Prelude
     @compile_workload begin
         redirect_stdout(devnull) do
             Tree.inline_print(canonicalize(comm(Op.X, comm(Op.X, Op.Y), 2)))

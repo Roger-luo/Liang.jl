@@ -1,9 +1,9 @@
 module Prelude
 
-using ..Data: @data, pprint
+using ..Data: Data, @data, pprint
 using ..Reflection
 
-export @data, pprint
+export @data, pprint, Reflection, Data
 for (name, methods) in Reflection.var"#INTERFACE_STUB#"
     @eval export $name
 end
