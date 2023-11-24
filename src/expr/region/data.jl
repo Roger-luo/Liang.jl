@@ -1,30 +1,46 @@
 """
 Region conceptually is equivalent to
-an iterator that returns `Vector{Int}`.
+an iterator that returns labels as `Vector{Index.Type}`.
 This is used for specifying the following:
 
 - reduction of sum expression.
-- a chain complex (e.g sites, bonds, plaquettes).
+- labels of sites, bonds, plaquettes, etc.
 
-Formally, the `Region` is defined as a chain complex
-over integer sets. Implementation-wise, we use more
-structural expression to represent the region to improve
-storage efficiency and retain more information about user
-input.
+Formally, the `Region` is defined as an iterator of
+`p`-cell from a chain complex. This is the most generic
+way of defining a topology without specifying the geometry.
+
+Implementation-wise, we use more structural expression to
+represent the region to improve storage efficiency and
+retain more information about user input.
 """
-@data Region begin
-    UnitRange(UnitRange{Int})
-
-    struct ToInf
-        start::Int
-        step::Int
+@data IndexRegion begin
+    Extern(Any)
+    UnitRange(UnitRange{Index.Type})
+    StepRange(StepRange{Index.Type, Index.Type})
+    struct OpenRange
+        start::Index.Type
+        step::Index.Type
     end
 
-    ListOfLocations(Matrix{Scalar.Type})
+    Set(Set{Vector{Index.Type}})
+    Ordered(Matrix{Index.Type}) # <=> eachcol(x)
+    Cell(CellEnum)
+end
+
+"""
+Similar to `IndexRegion`, except that the `Geometry` returns
+a set of coordinates as `Set{Vector{Scalar.Type}}`.
+"""
+@data Geometry begin
+    Extern(Any)
+
+    struct Bravis
+        vectors::Matrix{Index.Type}
+    end
 
     struct BoundedBravis
-        shape::Vector{Int}
-        spacing::Scalar.Type
-        cell_vectors::Matrix{Scalar.Type}
+        shape::Vector{Index.Type}
+        vectors::Matrix{Index.Type}
     end
 end
