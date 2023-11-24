@@ -20,7 +20,14 @@ function materialize_self(mod::Module, expr, self; source=nothing)
 end
 
 function guess_module(mod::Module, expr)
+    if expr isa Symbol && isdefined(mod, expr)
+        val = getfield(mod, expr)
+        val isa Module && return val
+        return mod
+    end
+
     Meta.isexpr(expr, :.) || return mod
+
     if expr isa Symbol
         isdefined(mod, expr) || throw(SyntaxError("unknown module: $expr"))
         return getfield(mod, expr)

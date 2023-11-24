@@ -16,11 +16,11 @@ retain more information about user input.
 """
 @data IndexRegion begin
     Extern(Any)
-    UnitRange(UnitRange{Index.Type})
-    StepRange(StepRange{Index.Type, Index.Type})
-    struct OpenRange
+
+    struct Range
         start::Index.Type
         step::Index.Type
+        stop::Index.Type
     end
 
     Set(Set{Vector{Index.Type}})

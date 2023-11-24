@@ -46,7 +46,7 @@ $TYPEDEF
 A `CellMap` is a map between two cells of a chain complex.
 """
 struct CellMap
-    cell::Cell
+    cell::CellEnum
     p1p2::Dict{Int, Set{Int}} # enum -> base
     p2p1::Dict{Int, Set{Int}} # base -> enum
 end

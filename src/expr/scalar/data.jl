@@ -29,6 +29,8 @@ It supports pattern matching.
     Wildcard
     Match(Symbol)
 
+    Inf
+
     """
     Constant index, e.g. 0, 1, 2, 3, ...
     """

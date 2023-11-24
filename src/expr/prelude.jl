@@ -17,7 +17,7 @@ using Liang.Expression:
     assert_equal,
     @scalar_str,
     @index_str,
-    Region,
+    # Region,
     State,
     @prod_str,
     Tensor
@@ -38,7 +38,7 @@ export @def,
     assert_equal,
     @scalar_str,
     @index_str,
-    Region,
+    # Region,
     State,
     @prod_str,
     Tensor
