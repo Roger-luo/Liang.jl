@@ -9,6 +9,7 @@ using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Derive: @derive
 using Liang.Rewrite: Fixpoint, Chain, Pre, Post
+using Liang.Tools.Interface
 using LinearAlgebra: LinearAlgebra
 using Transducers: Map, tcollect
 using ExproniconLite: expr_map
@@ -20,6 +21,14 @@ struct Routine{E}
     args::Vector{Symbol}
     body::E
 end
+
+"""
+$INTERFACE
+
+Run canonicalize on given expression. This is an API for
+defining the canonicalization transform of an expression type.
+"""
+@interface canonicalize(node) = not_implemented_error()
 
 include("scalar/mod.jl")
 include("basis/mod.jl")
