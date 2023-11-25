@@ -42,6 +42,7 @@ a set of coordinates as `Matrix{Scalar.Type}`.
         vectors::Matrix{Scalar.Type}
     end
 
+    # TODO: port Parallelpiped from Bloqade.jl
     struct Bounded
         geometry::Geometry.Type
         shape::Vector{Index.Type}
