@@ -55,7 +55,7 @@ end
 
 function print_variable(io::IO, name::Symbol, id::UInt64)
     if id > 0 # SSA var
-        print(io, "%", name)
+        print(io, "%", id)
     else
         print(io, name)
     end

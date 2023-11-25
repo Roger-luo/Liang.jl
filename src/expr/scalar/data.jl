@@ -169,11 +169,13 @@ This is the basic scalar type. It supports pattern matching.
     struct Add
         coeffs::Num.Type
         terms::Dict{Scalar,Num.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Mul
         coeffs::Num.Type
         terms::Dict{Scalar,Num.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Pow
@@ -186,8 +188,18 @@ This is the basic scalar type. It supports pattern matching.
         den::Scalar
     end
 
-    JuliaCall(Module, Symbol, Vector{Scalar})
-    RoutineCall(Symbol, Vector{Scalar})
+    struct JuliaCall
+        mod::Module
+        name::Symbol
+        args::Vector{Scalar}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
+    struct RoutineCall
+        name::Symbol
+        args::Vector{Scalar}
+        hash::Hash.Cache = Hash.Cache()
+    end
 
     """
     Like variable, but points to an external
@@ -196,6 +208,7 @@ This is the basic scalar type. It supports pattern matching.
     struct Subscript
         ref::Symbol
         indices::Vector{Index.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     # derivative

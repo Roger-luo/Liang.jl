@@ -22,6 +22,7 @@ The tensor language for describing general tensor networks.
     struct Variable
         name::Symbol
         dims::Vector{Index.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Device
@@ -32,6 +33,7 @@ The tensor language for describing general tensor networks.
     struct Reshape
         tensor::Tensor
         dims::Vector{Index.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     # bundle a few legs into one
@@ -42,6 +44,7 @@ The tensor language for describing general tensor networks.
         # bi-directional map
         # old => new leg id
         old_legs::Vector{Int}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Slice
@@ -50,11 +53,13 @@ The tensor language for describing general tensor networks.
         dims::Vector{Vector{Index.Type}}
         # new => old id
         legs::Vector{Int}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct PermuteDims
         tensor::Tensor
         perm::Vector{Index.Type}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Conjugate
@@ -66,12 +71,14 @@ The tensor language for describing general tensor networks.
         tensor2::Tensor
         indices1::Vector{Int}
         indices2::Vector{Int}
+        hash::Hash.Cache = Hash.Cache()
     end
 
     struct Trace
         tensor::Tensor
         indices1::Vector{Int}
         indices2::Vector{Int}
+        hash::Hash.Cache = Hash.Cache()
     end
 end
 

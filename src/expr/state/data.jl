@@ -19,11 +19,18 @@
     # Product with Basis instead
     Eigen(Any, Int)
     # A product state with configuration
-    Product(Vector{Int})
+    struct Product
+        configs::Vector{Int}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
     Kron(State, State)
 
     # e.g alpha * |0> + beta * |1>
-    Add(Dict{State,Scalar.Type})
+    struct Add
+        terms::Dict{State,Scalar.Type}
+        hash::Hash.Cache = Hash.Cache()
+    end
 
     struct Annotate
         expr::State
