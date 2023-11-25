@@ -14,7 +14,7 @@ Implementation-wise, we use more structural expression to
 represent the region to improve storage efficiency and
 retain more information about user input.
 """
-@data IndexRegion begin
+@data Label begin
     Extern(Any)
 
     struct Range
@@ -28,8 +28,10 @@ retain more information about user input.
     Cell(CellEnum)
 end
 
+@derive Label[PartialEq, Hash]
+
 """
-Similar to `IndexRegion`, except that the `Geometry` returns
+Similar to `Label`, except that the `Geometry` returns
 a set of coordinates as `Set{Vector{Scalar.Type}}`.
 """
 @data Geometry begin
@@ -44,3 +46,12 @@ a set of coordinates as `Set{Vector{Scalar.Type}}`.
         vectors::Matrix{Index.Type}
     end
 end
+
+@derive Geometry[PartialEq, Hash]
+
+@data Region begin
+    Index(Label.Type)
+    Geometry(Geometry.Type)
+end
+
+@derive Region[PartialEq, Hash]

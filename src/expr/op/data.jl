@@ -127,15 +127,15 @@ TWOLEVEL_NOTE = """
     end
 
     struct Sum
-        region
-        indices::Vector{Index.Type}
+        region::Region.Type
+        indices::Vector{Symbol}
         term::Op
         hash::Hash.Cache = Hash.Cache()
     end
 
     struct Prod
-        region
-        indices::Vector{Index.Type}
+        region::Region.Type
+        indices::Vector{Symbol}
         term::Op
         hash::Hash.Cache = Hash.Cache()
     end
