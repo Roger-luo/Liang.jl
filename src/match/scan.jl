@@ -37,6 +37,22 @@ function EmitInfo(mod::Module, value, body, source=nothing)
     )
 end
 
+function split_toplevel_or(cases::Vector{Pattern.Type}, exprs::Vector{Any})
+    new_cases, new_exprs = Pattern.Type[], []
+    for (case, expr) in zip(cases, exprs)
+        if isa_variant(case, Pattern.Or)
+            push!(new_cases, case.:1)
+            push!(new_exprs, expr)
+            push!(new_cases, case.:2)
+            push!(new_exprs, expr)
+        else
+            push!(new_cases, case)
+            push!(new_exprs, expr)
+        end
+    end
+    return new_cases, new_exprs
+end
+
 function expr2pattern(expr)
     expr === :_ && return Pattern.Wildcard
     expr isa Symbol && return Pattern.Variable(expr)

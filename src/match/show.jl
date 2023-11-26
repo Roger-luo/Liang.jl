@@ -23,7 +23,7 @@ function Base.show(io::IO, ::MIME"text/plain", x::EmitInfo)
     return ff.print(x.return_var; color=:light_cyan)
 end
 
-function Data.show_data(io::IO, x::Pattern.Type)
+function Data.show(io::IO, x::Pattern.Type)
     f = Data.FormatPrinter(io)
     if isa_variant(x, Pattern.Wildcard)
         f.print("_"; color=:red)

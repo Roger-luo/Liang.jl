@@ -9,7 +9,14 @@ function decons_variable(info::PatternInfo, pat::Pattern.Type)
         # NOTE: this is used to create a scope
         # using let ... end later, so we cannot
         # directly assign it to the pattern variable
-        placeholder = gensym()
+        #
+        # we use a new variable everytime we match a pattern
+        # variable, so that we can check if duplicated
+        # variables are equivalent later
+        #
+        # placeholder! is used to control within the same pattern
+        # that branches created by or are using the same placeholder
+        placeholder = placeholder!(info)
         info[pat.:1] = placeholder
         return quote
             $(placeholder) = $value

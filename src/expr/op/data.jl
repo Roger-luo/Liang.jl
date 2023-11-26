@@ -99,13 +99,13 @@ TWOLEVEL_NOTE = """
     struct Comm
         base::Op
         op::Op
-        pow::Index.Type
+        pow::Index.Type = Index.Constant(1)
     end
 
     struct AComm
         base::Op
         op::Op
-        pow::Index.Type
+        pow::Index.Type = Index.Constant(1)
     end
 
     struct Pow

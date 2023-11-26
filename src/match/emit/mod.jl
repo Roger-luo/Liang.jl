@@ -28,10 +28,13 @@ end
 
 struct PatternInfo
     emit::EmitInfo
+    placeholder::Symbol
+    placeholder_count::Base.RefValue{Int}
     scope::Dict{Symbol,Set{Symbol}}
 end
 
-PatternInfo(info::EmitInfo) = PatternInfo(info, Dict{Symbol,Set{Symbol}}())
+PatternInfo(info::EmitInfo) = PatternInfo(info, gensym(:placeholder), Ref(0), Dict{Symbol,Set{Symbol}}())
+placeholder!(info::PatternInfo) = Symbol(info.placeholder, "#", info.placeholder_count[] += 1)
 
 function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)
     push!(get!(Set{Symbol}, info.scope, k), v)
