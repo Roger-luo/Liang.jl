@@ -15,6 +15,23 @@ function simple_const_fold(node::Index.Type)
     end
 end
 
+# function prop_infty(node::Index.Type)
+#     @match node begin
+#         Index.Add(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Add(_, Index.Inf) || Index.Add(Index.Inf, _) => Index.Inf
+#         Index.Sub(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Sub(_, Index.Inf) || Index.Sub(Index.Inf, _) => Index.Inf
+#         Index.Mul(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Mul(Index.Inf, -Index.Inf) || Index.Mul(-Index.Inf, Index.Inf) => -Index.Inf
+#         Index.Div(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Div(Index.Inf, -Index.Inf) || Index.Div(-Index.Inf, Index.Inf) => -Index.Inf
+#         Index.Max(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Max(Index.Inf, _) || Index.Max(_, Index.Inf) => Index.Inf
+#         Index.Min(Index.Inf, Index.Inf) => Index.Inf
+#         Index.Min(Index.Inf, x) || Index.Min(x, Index.Inf) => x
+#     end
+# end
+
 function canonicalize(node::Index.Type)
     p = Pre(Fixpoint(Chain(simple_const_fold)))
     return p(node)
