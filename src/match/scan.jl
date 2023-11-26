@@ -62,6 +62,7 @@ function expr2pattern(expr)
     head === :$ && return quote2pattern(expr)
     head === :(&&) && return and2pattern(expr)
     head === :(||) && return or2pattern(expr)
+    head === :if && return if2pattern(expr)
     head === :ref && return ref2pattern(expr)
     head === :call && return call2pattern(expr)
     head === :. && return dot2pattern(expr)
@@ -94,6 +95,11 @@ end
 
 function or2pattern(expr)
     return Pattern.Or(expr2pattern(expr.args[1]), expr2pattern(expr.args[2]))
+end
+
+function if2pattern(expr)
+    cond = expr.args[1] # just ignore body
+    return Pattern.Guard(cond)
 end
 
 function generator2pattern(expr)

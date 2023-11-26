@@ -60,6 +60,7 @@ end
 
 include("decons.jl")
 include("collect.jl")
+include("guard.jl")
 include("leafs.jl")
 include("logic.jl")
 include("call.jl")

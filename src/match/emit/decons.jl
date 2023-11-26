@@ -11,6 +11,7 @@ end
 function inner_decons(info::PatternInfo, pat::Pattern.Type)
     isa_variant(pat, Pattern.Wildcard) && return decons_wildcard(info, pat)
     isa_variant(pat, Pattern.Variable) && return decons_variable(info, pat)
+    isa_variant(pat, Pattern.Guard) && return decons_guard(info, pat)
     isa_variant(pat, Pattern.Quote) && return decons_quote(info, pat)
     isa_variant(pat, Pattern.And) && return decons_and(info, pat)
     isa_variant(pat, Pattern.Or) && return decons_or(info, pat)

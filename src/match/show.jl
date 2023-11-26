@@ -35,6 +35,10 @@ function Data.show(io::IO, x::Pattern.Type)
         else
             f.print(x.:1)
         end
+    elseif isa_variant(x, Pattern.Guard)
+        f.print("if "; color=:red)
+        f.show(x.:1)
+        f.print(" end"; color=:red)
     elseif isa_variant(x, Pattern.And)
         f.print("(")
         f.show(x.:1)
