@@ -1,46 +1,6 @@
 Base.show(io::IO, node::State.Type) = Tree.Print.inline(io, node)
 Base.show(io::IO, ::MIME"text/plain", node::State.Type) = Tree.Print.text(io, node)
 
-function Tree.children(node::State.Type)
-    @match node begin
-        State.Kron(lhs, rhs) => [lhs, rhs]
-        State.Add(terms) => collect(State.Type, keys(terms))
-        State.Annotate(expr) => [expr]
-        _ => State.Type[]
-    end
-end
-
-function Tree.n_children(node::State.Type)
-    @match node begin
-        State.Kron(lhs, rhs) => 2
-        State.Add(terms) => length(terms)
-        State.Annotate(expr) => 1
-        _ => State.Type[]
-    end
-end
-
-function Tree.map_children(f, node::State.Type)
-    @match node begin
-        State.Kron(lhs, rhs) => State.Kron(f(lhs), f(rhs))
-        State.Add(terms) => State.Add(Tree.map_ac_set(f, +, terms))
-        State.Annotate(expr) => State.Annotate(f(expr))
-        _ => node
-    end
-end
-
-function Tree.threaded_map_children(f, node::State.Type)
-    @match node begin
-        State.Kron(lhs, rhs) => State.Kron(f(lhs), f(rhs))
-        State.Add(terms) => State.Add(Tree.threaded_map_ac_set(f, +, terms))
-        State.Annotate(expr) => State.Annotate(f(expr))
-        _ => node
-    end
-end
-
-function Tree.is_leaf(node::State.Type)
-    return iszero(Tree.n_children(node))
-end
-
 function Tree.Print.print_node(io::IO, node::State.Type)
     @match node begin
         State.Wildcard => print(io, "_")

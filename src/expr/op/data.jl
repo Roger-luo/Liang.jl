@@ -89,7 +89,7 @@ TWOLEVEL_NOTE = """
     end
 
     struct Add
-        terms::Dict{Op,Scalar.Type}
+        terms::ACSet{Op,Scalar.Type}
         hash::Hash.Cache = Hash.Cache()
     end
 
@@ -159,6 +159,6 @@ TWOLEVEL_NOTE = """
     end
 end
 
-@derive Op[PartialEq, Hash]
+@derive Op[PartialEq, Hash, Tree]
 
 Base.convert(::Type{Op.Type}, op::PrimitiveOp.Type) = Op.Constant(op)

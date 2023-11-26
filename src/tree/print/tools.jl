@@ -1,4 +1,4 @@
-function print_add(io::IO, terms::Dict)
+function print_add(io::IO, terms::AbstractDict)
     parent_pred = get(io, :precedence, 0)
     node_pred = Base.operator_precedence(:+)
     parent_pred > node_pred && print(io, "(")
@@ -24,7 +24,7 @@ function print_add(io::IO, terms::Dict)
     return nothing
 end
 
-function print_mul(io::IO, terms::Dict)
+function print_mul(io::IO, terms::AbstractDict)
     parent_pred = get(io, :precedence, 0)
     node_pred = precedence(:+)
     parent_pred > node_pred && print(io, "(")

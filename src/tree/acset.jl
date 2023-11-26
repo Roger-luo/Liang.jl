@@ -45,11 +45,20 @@ $SIGNATURES
 Create an ACSet from a list of pairs.
 """
 function ACSet{K, V}(pairs::Pair...) where {K, V}
+    return ACSet{K, V}(pairs)
+end
+
+"""
+$SIGNATURES
+
+Create an ACSet from an iterator of pairs.
+"""
+function ACSet{K, V}(itr) where {K, V}
     # NOTE: guarantee similar terms are merged
     #       by using setindex instead of create
     #       directly.
     acset = ACSet{K, V}()
-    for (key, val) in pairs
+    for (key, val) in itr
         acset[convert(K, key)] = convert(V, val)
     end
     return acset
@@ -108,4 +117,24 @@ function Base.iterate(acset::ACSet, state = 1)
     end
     key = acset.order[state]
     return key => acset.terms[key], state + 1
+end
+
+function lazy_map(f, acset::ACSet)
+    return Map(p -> (f(p.first) => p.second))(acset.terms)
+end
+
+function Base.map(f, acset::ACSet{K, V}) where {K, V}
+    return ACSet{K, V}(lazy_map(f, acset))
+end
+
+function threaded_map(f, acset::ACSet{K, V}) where {K, V}
+    return ACSet{K, V}(tcollect(lazy_map(f, acset)))
+end
+
+function threaded_map(f, acset::Vector)
+    return tcollect(Map(f)(acset))
+end
+
+function Base.:(==)(lhs::ACSet{K,V}, rhs::ACSet{K,V}) where {K,V}
+    return lhs.terms == rhs.terms
 end

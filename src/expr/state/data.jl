@@ -28,7 +28,7 @@
 
     # e.g alpha * |0> + beta * |1>
     struct Add
-        terms::Dict{State,Scalar.Type}
+        terms::ACSet{State,Scalar.Type}
         hash::Hash.Cache = Hash.Cache()
     end
 
@@ -38,4 +38,4 @@
     end
 end
 
-@derive State[PartialEq, Hash]
+@derive State[PartialEq, Hash, Tree]

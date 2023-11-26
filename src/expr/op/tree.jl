@@ -1,105 +1,6 @@
 Base.show(io::IO, node::Op.Type) = Tree.Print.inline(io, node)
 Base.show(io::IO, ::MIME"text/plain", node::Op.Type) = Tree.Print.text(io, node)
 
-function Tree.children(node::Op.Type)
-    @match node begin
-        Op.Add(terms) => collect(Op.Type, keys(terms))
-        Op.Mul(lhs, rhs) => [lhs, rhs]
-        Op.Kron(lhs, rhs) => [lhs, rhs]
-        Op.Comm(base, op, pow) => [base, op]
-        Op.AComm(base, op, pow) => [base, op]
-        Op.Pow(base, exp) => [base]
-        Op.KronPow(base, exp) => [base]
-        Op.Adjoint(op) => [op]
-        Op.Subscript(op, _) => [op]
-        Op.Sum(_, _, term) => [term]
-        Op.Prod(_, _, term) => [term]
-        Op.Exp(op) => [op]
-        Op.Log(op) => [op]
-        Op.Inv(op) => [op]
-        Op.Sqrt(op) => [op]
-        Op.Transpose(op) => [op]
-        Op.Annotate(expr) => [expr]
-        _ => Op.Type[]
-    end
-end
-
-function Tree.n_children(node::Op.Type)
-    @match node begin
-        Op.Add(terms) => length(terms)
-        Op.Mul(lhs, rhs) => 2
-        Op.Kron(lhs, rhs) => 2
-        Op.Comm(base, op, pow) => 2
-        Op.AComm(base, op, pow) => 2
-        Op.Pow(base, exp) => 1
-        Op.KronPow(base, exp) => 1
-        Op.Adjoint(op) => 1
-        Op.Subscript(op, _) => 1
-        Op.Sum(_, _, term) => 1
-        Op.Prod(_, _, term) => 1
-        Op.Exp(op) => 1
-        Op.Log(op) => 1
-        Op.Inv(op) => 1
-        Op.Sqrt(op) => 1
-        Op.Transpose(op) => 1
-        Op.Annotate(expr) => 1
-        _ => Op.Type[]
-    end
-end
-
-function Tree.map_children(f, node::Op.Type)
-    @match node begin
-        Op.Add(terms) => Op.Add(Tree.map_ac_set(f, +, terms))
-        Op.Mul(lhs, rhs) => Op.Mul(f(lhs), f(rhs))
-        Op.Kron(lhs, rhs) => Op.Kron(f(lhs), f(rhs))
-        Op.Comm(base, op, pow) => Op.Comm(f(base), f(op), pow)
-        Op.AComm(base, op, pow) => Op.AComm(f(base), f(op), pow)
-        Op.Pow(base, exp) => Op.Pow(f(base), exp)
-        Op.KronPow(base, exp) => Op.KronPow(f(base), exp)
-        Op.Adjoint(op) => Op.Adjoint(f(op))
-        Op.Subscript(op, idx) => Op.Subscript(f(op), idx)
-        Op.Sum(region, indices, term) => Op.Sum(region, indices, f(term))
-        Op.Prod(region, indices, term) => Op.Prod(region, indices, f(term))
-        Op.Exp(op) => Op.Exp(f(op))
-        Op.Log(op) => Op.Log(f(op))
-        Op.Inv(op) => Op.Inv(f(op))
-        Op.Sqrt(op) => Op.Sqrt(f(op))
-        Op.Transpose(op) => Op.Transpose(f(op))
-        Op.Annotate(expr) => Op.Annotate(f(expr))
-        _ => node
-    end
-end
-
-function Tree.threaded_map_children(f, node::Op.Type)
-    @match node begin
-        Op.Add(terms) => Op.Add(Tree.threaded_map_ac_set(f, terms))
-        _ => Tree.map_children(f, node)
-    end
-end
-
-function Tree.is_leaf(node::Op.Type)
-    @match variant_type(node) begin
-        Op.Add => false
-        Op.Mul => false
-        Op.Kron => false
-        Op.Comm => false
-        Op.AComm => false
-        Op.Pow => false
-        Op.KronPow => false
-        Op.Adjoint => false
-        Op.Subscript => false
-        Op.Sum => false
-        Op.Prod => false
-        Op.Exp => false
-        Op.Log => false
-        Op.Inv => false
-        Op.Sqrt => false
-        Op.Transpose => false
-        Op.Annotate => false
-        _ => true
-    end
-end
-
 function Tree.Print.print_node(io::IO, node::Op.Type)
     @match node begin
         Op.Zero => print(io, "O")
@@ -202,7 +103,7 @@ end
 
 function Tree.Print.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
-        Op.Add(terms) => print_add(io, terms)
+        Op.Add(terms) => Tree.Print.print_add(io, terms)
         Op.Sum(region, indices, term) => print_reduction(io, "∑", region, indices, term)
         Op.Prod(region, indices, term) => print_reduction(io, "∏", region, indices, term)
         Op.Comm(_) => print_jordan_lie(io, node)
@@ -283,31 +184,4 @@ function Tree.Print.print_meta(io::IO, node::Op.Type)
         end
         _ => nothing
     end
-end
-
-function print_add(io::IO, terms::Dict{Op.Type,Scalar.Type})
-    parent_pred = get(io, :precedence, 0)
-    node_pred = Tree.Print.precedence(:+)
-    parent_pred > node_pred && print(io, "(")
-
-    for (idx, (term, coeff)) in enumerate(terms)
-        # NOTE: we should just print all terms
-        # cause otherwise they should be simplified
-        # otherwise.
-        # iszero(coeff) && continue
-        if !isone(coeff)
-            Tree.Print.inline(io, coeff)
-            print(io, "*")
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
-        else
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:+))
-        end
-        Tree.Print.inline(sub_io, term)
-        if idx < length(terms)
-            print(io, "+")
-        end
-    end
-
-    parent_pred > node_pred && print(io, ")")
-    return nothing
 end

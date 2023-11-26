@@ -168,13 +168,13 @@ This is the basic scalar type. It supports pattern matching.
 
     struct Add
         coeffs::Num.Type
-        terms::Dict{Scalar,Num.Type}
+        terms::ACSet{Scalar,Num.Type}
         hash::Hash.Cache = Hash.Cache()
     end
 
     struct Mul
         coeffs::Num.Type
-        terms::Dict{Scalar,Num.Type}
+        terms::ACSet{Scalar,Num.Type}
         hash::Hash.Cache = Hash.Cache()
     end
 
@@ -232,4 +232,4 @@ This is the basic scalar type. It supports pattern matching.
     end
 end
 
-@derive Scalar[PartialEq, Hash]
+@derive Scalar[PartialEq, Hash, Tree]

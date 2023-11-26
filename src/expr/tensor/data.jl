@@ -82,4 +82,4 @@ The tensor language for describing general tensor networks.
     end
 end
 
-@derive Tensor[PartialEq, Hash, Show]
+@derive Tensor[PartialEq, Hash, Tree]
