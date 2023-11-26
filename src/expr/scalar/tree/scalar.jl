@@ -50,8 +50,8 @@ function Tree.Print.print_node(io::IO, node::Scalar.Type)
         Scalar.Partial(expr, var) => print(io, "∂")
         Scalar.Derivative(expr, var) => print(io, "d")
 
-        Scalar.Annotate(expr, domain, unit) =>
-            printstyled(io, "*", unit; color=:light_black)
+        Scalar.Domain(expr, domain) => nothing # don't show in inline print
+        Scalar.Unit(expr, unit) => printstyled(io, "*", unit; color=:light_black)
     end
 end
 
@@ -71,7 +71,7 @@ function Tree.Print.is_infix(node::Scalar.Type)::Bool
 end
 
 function Tree.Print.is_postfix(node::Scalar.Type)::Bool
-    return isa_variant(node, Scalar.Annotate)
+    return isa_variant(node, Scalar.Unit)
 end
 
 function Tree.Print.use_custom_print(node::Scalar.Type)::Bool
@@ -140,6 +140,7 @@ function Tree.Print.print_meta(io::IO, node::Scalar.Type)
         Scalar.Mul(coeffs) => if !isone(coeffs)
             print(io, coeffs)
         end
+        Scalar.Domain(expr, domain) => print(io, "[$domain]")
         _ => nothing
     end
 end

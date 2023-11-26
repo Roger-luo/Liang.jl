@@ -14,6 +14,7 @@ using Liang.Tools.Interface
 using LinearAlgebra: LinearAlgebra
 using Transducers: Map, tcollect
 using ExproniconLite: expr_map
+using DynamicQuantities: Dimensions, DEFAULT_DIM_BASE_TYPE
 using DocStringExtensions
 
 struct Routine{E}

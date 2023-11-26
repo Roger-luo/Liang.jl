@@ -225,11 +225,8 @@ This is the basic scalar type. It supports pattern matching.
     """
     Det(Any)
 
-    struct Annotate
-        expr::Scalar
-        domain::Domain.Type
-        unit::Unit.Type
-    end
+    Domain(Scalar, Domain.Type)
+    Unit(Scalar, Dimensions{DEFAULT_DIM_BASE_TYPE})
 end
 
 @derive Scalar[PartialEq, Hash, Tree]
