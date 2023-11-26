@@ -1,5 +1,5 @@
-Base.show(io::IO, node::State.Type) = Tree.inline_print(io, node)
-Base.show(io::IO, ::MIME"text/plain", node::State.Type) = Tree.text_print(io, node)
+Base.show(io::IO, node::State.Type) = Tree.Print.inline(io, node)
+Base.show(io::IO, ::MIME"text/plain", node::State.Type) = Tree.Print.text(io, node)
 
 function Tree.children(node::State.Type)
     @match node begin
@@ -41,43 +41,43 @@ function Tree.is_leaf(node::State.Type)
     return iszero(Tree.n_children(node))
 end
 
-function Tree.print_node(io::IO, node::State.Type)
+function Tree.Print.print_node(io::IO, node::State.Type)
     @match node begin
         State.Wildcard => print(io, "_")
         State.Match(name) => print(io, "\$", name)
         State.Variable(; name, id) => braket(io) do
-            Tree.print_variable(io, name, id)
+            Tree.Print.print_variable(io, name, id)
         end
         State.Zero => print(io, "0")
         State.Eigen(op::Op.Type, n) => begin
             print(io, "Eigen(")
-            Tree.inline_print(io, op)
+            Tree.Print.inline(io, op)
             print(io, ", ", n, ")")
         end
         State.Product(config) => braket(io) do
-            Tree.print_list(IOContext(io, :precedence => 0), config)
+            Tree.Print.inline_list(IOContext(io, :precedence => 0), config)
         end
         State.Kron(lhs, rhs) => print(io, "⊗")
         State.Add(terms) => print(io, "+")
-        State.Annotate(expr) => print(io, "%")
+        State.Annotate(_, basis) => printstyled(io, "%", basis; color=:light_black)
     end
 end
 
-function Tree.is_infix(node::State.Type)
+function Tree.Print.is_infix(node::State.Type)
     @match node begin
         State.Kron(lhs, rhs) => true
         _ => false
     end
 end
 
-function Tree.is_postfix(node::State.Type)
+function Tree.Print.is_postfix(node::State.Type)
     @match node begin
         State.Annotate(expr) => true
         _ => false
     end
 end
 
-function Tree.precedence(node::State.Type)
+function Tree.Print.precedence(node::State.Type)
     @match node begin
         State.Wildcard => 100
         State.Match(_) => 100
@@ -90,24 +90,24 @@ function Tree.precedence(node::State.Type)
     end
 end
 
-function Tree.use_custom_print(node::State.Type)
+function Tree.Print.use_custom_print(node::State.Type)
     return isa_variant(node, State.Add)
 end
 
-function Tree.custom_inline_print(io::IO, node::State.Type)
+function Tree.Print.custom_inline_print(io::IO, node::State.Type)
     @match node begin
-        State.Add(terms) => Tree.print_add(io, terms)
+        State.Add(terms) => Tree.Print.print_add(io, terms)
     end
 end
 
-function Tree.should_print_annotation(node::State.Type)
+function Tree.Print.should_print_annotation(node::State.Type)
     @match variant_type(node) begin
         State.Add => true
         _ => false
     end
 end
 
-function Tree.annotations(node::State.Type)
+function Tree.Print.annotations(node::State.Type)
     @match node begin
         State.Add(terms) => collect(Scalar.Type, values(terms))
         _ => Scalar.Type[]

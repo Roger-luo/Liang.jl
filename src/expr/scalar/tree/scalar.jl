@@ -1,4 +1,4 @@
-function Tree.children(node::Scalar.Type)
+function Tree.children(node::Scalar.Type)::Vector{Scalar.Type}
     @match node begin
         Scalar.Neg(x) => [x]
         Scalar.Abs(x) => [x]
@@ -17,7 +17,7 @@ function Tree.children(node::Scalar.Type)
     end
 end
 
-function Tree.n_children(node::Scalar.Type)
+function Tree.n_children(node::Scalar.Type)::Int
     @match node begin
         Scalar.Neg(x) => 1
         Scalar.Abs(x) => 1
@@ -36,7 +36,24 @@ function Tree.n_children(node::Scalar.Type)
     end
 end
 
-function Tree.map_children(f, node::Scalar.Type)
+# well we don't really need printing to be type stable
+function Tree.Print.children(node::Scalar.Type)::Vector{Union{Op.Type, Scalar.Type}}
+    @match node begin
+        Scalar.Tr(op) => [op]
+        Scalar.Det(op) => [op]
+        _ => Tree.children(node)
+    end
+end
+
+function Tree.Print.n_children(node::Scalar.Type)::Int
+    @match node begin
+        Scalar.Tr(op) => 1
+        Scalar.Det(op) => 1
+        _ => Tree.n_children(node)
+    end
+end
+
+function Tree.map_children(f, node::Scalar.Type)::Scalar.Type
     @match node begin
         Scalar.Neg(x) => Scalar.Neg(f(x))
         Scalar.Abs(x) => Scalar.Abs(f(x))
@@ -55,7 +72,7 @@ function Tree.map_children(f, node::Scalar.Type)
     end
 end
 
-function Tree.threaded_map_children(f, node::Scalar.Type)
+function Tree.threaded_map_children(f, node::Scalar.Type)::Scalar.Type
     @match node begin
         Scalar.Neg(x) => Scalar.Neg(f(x))
         Scalar.Abs(x) => Scalar.Abs(f(x))
@@ -77,7 +94,7 @@ function Tree.threaded_map_children(f, node::Scalar.Type)
     end
 end
 
-function Tree.is_leaf(node::Scalar.Type)
+function Tree.is_leaf(node::Scalar.Type)::Bool
     @match node begin
         Scalar.Wildcard => true
         Scalar.Match(name) => true
@@ -91,19 +108,19 @@ function Tree.is_leaf(node::Scalar.Type)
     end
 end
 
-function Tree.print_node(io::IO, node::Scalar.Type)
+function Tree.Print.print_node(io::IO, node::Scalar.Type)
     @match node begin
         Scalar.Wildcard => print(io, "_")
         Scalar.Match(name) => print(io, "\$", name)
-        Scalar.Constant(x) => Tree.inline_print(io, x)
+        Scalar.Constant(x) => print(io, x)
         Scalar.Pi => print(io, "π")
         Scalar.Euler => print(io, "ℯ")
         Scalar.Hbar => print(io, "ℏ")
-        Scalar.Variable(name, id) => Tree.print_variable(io, name, id)
+        Scalar.Variable(name, id) => Tree.Print.print_variable(io, name, id)
         Scalar.Subscript(ref, indices) => begin
             print(io, ref)
             print(io, "[")
-            Tree.print_list(IOContext(io, :precedence => 0), indices)
+            Tree.Print.inline_list(IOContext(io, :precedence => 0), indices)
             print(io, "]")
         end
 
@@ -112,6 +129,8 @@ function Tree.print_node(io::IO, node::Scalar.Type)
         Scalar.Exp(x) => print(io, "exp")
         Scalar.Log(x) => print(io, "log")
         Scalar.Sqrt(x) => print(io, "sqrt")
+        Scalar.Tr(x) => print(io, "tr")
+        Scalar.Det(x) => print(io, "det")
 
         Scalar.Add(coeffs, terms) => print(io, "+")
         Scalar.Mul(coeffs, terms) => print(io, "*")
@@ -129,14 +148,14 @@ function Tree.print_node(io::IO, node::Scalar.Type)
     end
 end
 
-function Tree.is_prefix(node::Scalar.Type)
+function Tree.Print.is_prefix(node::Scalar.Type)::Bool
     @match node begin
         Scalar.Neg(x) => true
         _ => false
     end
 end
 
-function Tree.is_infix(node::Scalar.Type)
+function Tree.Print.is_infix(node::Scalar.Type)::Bool
     @match node begin
         Scalar.Pow(base, exp) => true
         Scalar.Div(num, den) => true
@@ -144,54 +163,60 @@ function Tree.is_infix(node::Scalar.Type)
     end
 end
 
-function Tree.is_postfix(node::Scalar.Type)
+function Tree.Print.is_postfix(node::Scalar.Type)::Bool
     return isa_variant(node, Scalar.Annotate)
 end
 
-function Tree.use_custom_print(node::Scalar.Type)
-    return isa_variant(node, Scalar.Add) || isa_variant(node, Scalar.Mul)
+function Tree.Print.use_custom_print(node::Scalar.Type)::Bool
+    @match variant_type(node) begin
+        Scalar.Add => true
+        Scalar.Mul => true
+        Scalar.Tr => true
+        Scalar.Det => true
+        _ => false
+    end
 end
 
-function Tree.custom_inline_print(io::IO, node::Scalar.Type)
+function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
+        Scalar.Tr(op) || Scalar.Det(op) => begin
+            Tree.Print.print_node(io, node)
+            print(io, "(")
+            Tree.Print.inline(io, op)
+            print(io, ")")
+        end
         Scalar.Add(coeffs, terms) => begin
             @match coeffs begin
                 Num.Zero => nothing
                 _ => begin
-                    Tree.inline_print(io, coeffs)
+                    print(io, coeffs)
                     if !isempty(terms)
                         print(io, "+")
                     end
                 end
             end
-            Tree.print_add(io, terms)
+            Tree.Print.print_add(io, terms)
         end
         Scalar.Mul(coeffs, terms) => begin
             @match coeffs begin
                 Num.Zero => nothing
                 Num.One => nothing
                 _ => begin
-                    Tree.inline_print(io, coeffs)
+                    print(io, coeffs)
                     if !isempty(terms)
                         print(io, "*")
                     end
                 end
             end
-            Tree.print_mul(io, terms)
+            Tree.Print.print_mul(io, terms)
         end
     end
 end
 
-function Tree.precedence(node::Scalar.Type)
+function Tree.Print.precedence(node::Scalar.Type)::Int
     @match node begin
         Scalar.Constant(x) => x < 0 ? 0 : 100
-        Scalar.Variable(_) => 100
-        Scalar.Subscript(_) => 100
-        Scalar.Pi => 100
-        Scalar.Euler => 100
-        Scalar.Hbar => 100
-        Scalar.Wildcard => 100
-        Scalar.Match(_) => 100
+        if Tree.is_leaf(node) end => 100
         Scalar.Add(_...) => Base.operator_precedence(:+)
         Scalar.Mul(_...) => Base.operator_precedence(:*)
         Scalar.Pow(_...) => Base.operator_precedence(:^)
@@ -200,13 +225,13 @@ function Tree.precedence(node::Scalar.Type)
     end
 end
 
-function Tree.print_meta(io::IO, node::Scalar.Type)
+function Tree.Print.print_meta(io::IO, node::Scalar.Type)
     @match node begin
         Scalar.Add(coeffs) => if !iszero(coeffs)
-            Tree.inline_print(io, coeffs)
+            print(io, coeffs)
         end
         Scalar.Mul(coeffs) => if !isone(coeffs)
-            Tree.inline_print(io, coeffs)
+            print(io, coeffs)
         end
         _ => nothing
     end

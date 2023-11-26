@@ -1,11 +1,11 @@
-function Tree.is_prefix(node::Index.Type)
+function Tree.Print.is_prefix(node::Index.Type)
     @match node begin
         Index.Neg(x) => true
         _ => false
     end
 end
 
-function Tree.is_infix(node::Index.Type)
+function Tree.Print.is_infix(node::Index.Type)
     @match node begin
         Index.Add(lhs, rhs) => true
         Index.Sub(lhs, rhs) => true
@@ -17,7 +17,7 @@ function Tree.is_infix(node::Index.Type)
     end
 end
 
-function Tree.precedence(node::Index.Type)
+function Tree.Print.precedence(node::Index.Type)
     @match node begin
         Index.Constant(x) => x < 0 ? 0 : 100
         Index.Variable(_) => 100
@@ -34,12 +34,12 @@ function Tree.precedence(node::Index.Type)
     end
 end
 
-function Tree.print_node(io::IO, node::Index.Type)
+function Tree.Print.print_node(io::IO, node::Index.Type)
     @match node begin
         Index.Wildcard => print(io, "_")
         Index.Constant(x) => print(io, x)
         Index.Inf => print(io, "∞")
-        Index.Variable(; name, id) => Tree.print_variable(io, name, id)
+        Index.Variable(; name, id) => Tree.Print.print_variable(io, name, id)
         Index.Add(lhs, rhs) => print(io, "+")
         Index.Sub(lhs, rhs) => print(io, "-")
         Index.Mul(lhs, rhs) => print(io, "*")
@@ -55,7 +55,7 @@ function Tree.print_node(io::IO, node::Index.Type)
     end
 end
 
-function Tree.print_meta(io::IO, node::Index.Type)
+function Tree.Print.print_meta(io::IO, node::Index.Type)
     @match node begin
         Index.AssertEqual(lhs, rhs, msg) => if isempty(msg)
             return nothing

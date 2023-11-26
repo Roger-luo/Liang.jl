@@ -117,11 +117,11 @@ function Base.log(op::Op.Type)
 end
 
 function LinearAlgebra.tr(op::Op.Type)
-    return Op.Tr(op)
+    return Scalar.Tr(canonicalize(op))
 end
 
 function LinearAlgebra.det(op::Op.Type)
-    return Op.Det(op)
+    return Scalar.Det(canonicalize(op))
 end
 
 function Base.inv(op::Op.Type)
@@ -150,7 +150,7 @@ end
 
 function Base.show(io::IO, x::EigenDecomp)
     print(io, "eigen(")
-    Tree.inline_print(io, x.op)
+    Tree.Print.inline(io, x.op)
     return print(io, ")")
 end
 

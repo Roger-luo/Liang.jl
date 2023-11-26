@@ -143,8 +143,6 @@ TWOLEVEL_NOTE = """
     # primitive operations
     Exp(Op)
     Log(Op)
-    Tr(Op)
-    Det(Op)
     Inv(Op)
     Sqrt(Op)
     Conj(Op)

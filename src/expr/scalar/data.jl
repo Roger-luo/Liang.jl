@@ -127,7 +127,7 @@ This is the basic numeric type.
     Complex(Float64, Float64)
 end
 
-@derive Num[PartialEq, Hash, Tree]
+@derive Num[PartialEq, Hash]
 
 """
     Scalar
@@ -214,6 +214,16 @@ This is the basic scalar type. It supports pattern matching.
     # derivative
     Partial(Scalar, Scalar)
     Derivative(Scalar, Scalar)
+
+    """
+    trace of an external expression
+    """
+    Tr(Any)
+
+    """
+    determinant of an external expression
+    """
+    Det(Any)
 
     struct Annotate
         expr::Scalar

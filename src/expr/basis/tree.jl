@@ -1,16 +1,15 @@
-Base.show(io::IO, data::Space.Type) = Tree.inline_print(io, data)
-Base.show(io::IO, data::Basis) = Tree.inline_print(io, data)
+Base.show(io::IO, data::Space.Type) = Tree.Print.inline(io, data)
 
-function Tree.inline_print(io::IO, node::Basis)
+function Base.show(io::IO, node::Basis)
     isempty(node.alias) || return printstyled(io, node.alias; color=:light_black)
     printstyled(io, "Basis("; color=:light_black)
-    Tree.inline_print(io, node.op)
+    Tree.Print.inline(io, node.op)
     printstyled(io, ", "; color=:light_black)
-    Tree.inline_print(io, node.space)
+    Tree.Print.inline(io, node.space)
     return printstyled(io, ")"; color=:light_black)
 end
 
-function Tree.print_node(io::IO, node::Space.Type)
+function Tree.Print.print_node(io::IO, node::Space.Type)
     @match node begin
         Space.Qubit => printstyled(io, "Qubit"; color=:light_black)
         Space.Qudit(d) => printstyled(io, "Qudit($d)"; color=:light_black)
@@ -51,7 +50,7 @@ function Tree.print_node(io::IO, node::Space.Type)
     end
 end
 
-function Tree.precedence(node::Space.Type)
+function Tree.Print.precedence(node::Space.Type)
     @match variant_type(node) begin
         Space.Product => 1
         Space.Pow => 2
@@ -59,14 +58,14 @@ function Tree.precedence(node::Space.Type)
     end
 end
 
-function Tree.is_infix(node::Space.Type)
+function Tree.Print.is_infix(node::Space.Type)
     @match node begin
         Space.Product(_, _) => true
         _ => false
     end
 end
 
-function Tree.is_postfix(node::Space.Type)
+function Tree.Print.is_postfix(node::Space.Type)
     @match node begin
         Space.Subspace(_, _) => true
         Space.Pow(_, _) => true

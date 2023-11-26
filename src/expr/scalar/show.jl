@@ -1,5 +1,25 @@
-for E in [:Num, :Index, :Scalar]
-    @eval function Base.show(io::IO, node::$E.Type)
-        return Tree.inline_print(io, node)
+function Base.show(io::IO, x::Num.Type)
+    function pretty(x::Float64)
+        if isinteger(x)
+            return Int64(x)
+        else
+            return x
+        end
     end
+
+    @match x begin
+        Num.Zero => print(io, "0")
+        Num.One => print(io, "1")
+        Num.Real(x) => print(io, pretty(x))
+        Num.Imag(x) => print(io, pretty(x), "*im")
+        Num.Complex(x, y) => print(io, pretty(x), "+", pretty(y), "*im")
+    end
+end
+
+function Base.show(io::IO, node::Index.Type)
+    return Tree.Print.inline(io, node)
+end
+
+function Base.show(io::IO, node::Scalar.Type)
+    return Tree.Print.inline(io, node)
 end

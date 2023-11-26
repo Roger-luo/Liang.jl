@@ -54,15 +54,15 @@ function (p::TextPrinter)(node)
     println(xs...) = Base.println(p.io, xs...)
     printstyled(xs...; kw...) = Base.printstyled(p.io, xs...; kw...)
     function print_annotation(node, annotation)
-        return Tree.print_annotation(p.io, node, annotation; color=p.color.annotation)
+        return Print.print_annotation(p.io, node, annotation; color=p.color.annotation)
     end
 
-    node_str = sprint(Tree.print_node, node; context=IOContext(p.io))
-    node_str *= " " * sprint(Tree.print_meta, node; context=IOContext(p.io))
+    node_str = sprint(print_node, node; context=IOContext(p.io))
+    node_str *= " " * sprint(print_meta, node; context=IOContext(p.io))
     for (i, line) in enumerate(split(node_str, '\n'))
-        i ≠ 1 && print(state.prefix)
+        i ≠ 1 && print(state.prefix::String)
         print(line)
-        if !((p.state.depth == 0 || p.state.last) && is_leaf(node))
+        if !((p.state.depth == 0 || p.state.last) && Tree.is_leaf(node))
             println()
         end
     end
@@ -74,10 +74,10 @@ function (p::TextPrinter)(node)
 
     this_print_annotation = should_print_annotation(node)
 
-    children = Iterators.Stateful(Tree.children(node))
-    annotations = Iterators.Stateful(Tree.annotations(node))
+    children = Iterators.Stateful(Print.children(node))
+    annotations = Iterators.Stateful(Print.annotations(node))
     while !isempty(children)
-        child_prefix = p.state.prefix
+        child_prefix = p.state.prefix::String
         if this_print_annotation
             child = popfirst!(children)
             annotation = popfirst!(annotations)
@@ -86,7 +86,7 @@ function (p::TextPrinter)(node)
             annotation = nothing
         end
 
-        print(p.state.prefix)
+        print(p.state.prefix::String)
 
         if isempty(children)
             print(p.charset.terminator)
@@ -108,7 +108,7 @@ function (p::TextPrinter)(node)
         print(p.charset.dash, ' ')
 
         if this_print_annotation
-            key_str = sprint(Tree.print_annotation, node, annotation)
+            key_str = sprint(Print.print_annotation, node, annotation)
             print_annotation(node, annotation)
 
             child_prefix *= " "^textwidth(key_str)
@@ -117,17 +117,17 @@ function (p::TextPrinter)(node)
         p.state.depth += 1
         parent_last = p.state.last
         p.state.last = is_last_leaf_child
-        parent_prefix = p.state.prefix
-        p.state.prefix = child_prefix
+        parent_prefix = p.state.prefix::String
+        p.state.prefix = child_prefix::String
         p(child)
         p.state.depth -= 1
-        p.state.prefix = parent_prefix
+        p.state.prefix = parent_prefix::String
         p.state.last = parent_last
     end
 end
 
-function text_print(io::IO, node; kw...)
+function text(io::IO, node; kw...)
     return TextPrinter(io; kw...)(node)
 end
 
-text_print(node; kw...) = text_print(stdout, node; kw...)
+text(node; kw...) = text(stdout, node; kw...)

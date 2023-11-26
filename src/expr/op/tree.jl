@@ -1,5 +1,5 @@
-Base.show(io::IO, node::Op.Type) = Tree.inline_print(io, node)
-Base.show(io::IO, ::MIME"text/plain", node::Op.Type) = Tree.text_print(io, node)
+Base.show(io::IO, node::Op.Type) = Tree.Print.inline(io, node)
+Base.show(io::IO, ::MIME"text/plain", node::Op.Type) = Tree.Print.text(io, node)
 
 function Tree.children(node::Op.Type)
     @match node begin
@@ -16,8 +16,6 @@ function Tree.children(node::Op.Type)
         Op.Prod(_, _, term) => [term]
         Op.Exp(op) => [op]
         Op.Log(op) => [op]
-        Op.Tr(op) => [op]
-        Op.Det(op) => [op]
         Op.Inv(op) => [op]
         Op.Sqrt(op) => [op]
         Op.Transpose(op) => [op]
@@ -41,8 +39,6 @@ function Tree.n_children(node::Op.Type)
         Op.Prod(_, _, term) => 1
         Op.Exp(op) => 1
         Op.Log(op) => 1
-        Op.Tr(op) => 1
-        Op.Det(op) => 1
         Op.Inv(op) => 1
         Op.Sqrt(op) => 1
         Op.Transpose(op) => 1
@@ -66,8 +62,6 @@ function Tree.map_children(f, node::Op.Type)
         Op.Prod(region, indices, term) => Op.Prod(region, indices, f(term))
         Op.Exp(op) => Op.Exp(f(op))
         Op.Log(op) => Op.Log(f(op))
-        Op.Tr(op) => Op.Tr(f(op))
-        Op.Det(op) => Op.Det(f(op))
         Op.Inv(op) => Op.Inv(f(op))
         Op.Sqrt(op) => Op.Sqrt(f(op))
         Op.Transpose(op) => Op.Transpose(f(op))
@@ -98,8 +92,6 @@ function Tree.is_leaf(node::Op.Type)
         Op.Prod => false
         Op.Exp => false
         Op.Log => false
-        Op.Tr => false
-        Op.Det => false
         Op.Inv => false
         Op.Sqrt => false
         Op.Transpose => false
@@ -108,7 +100,7 @@ function Tree.is_leaf(node::Op.Type)
     end
 end
 
-function Tree.print_node(io::IO, node::Op.Type)
+function Tree.Print.print_node(io::IO, node::Op.Type)
     @match node begin
         Op.Zero => print(io, "O")
         Op.Wildcard => print(io, "_")
@@ -116,22 +108,20 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Annotate(op, basis) => printstyled(io, "%", basis; color=:light_black)
 
         Op.Constant(value) => print(io, value)
-        Op.Variable(; name, id) => Tree.print_variable(io, name, id)
+        Op.Variable(; name, id) => Tree.Print.print_variable(io, name, id)
 
         Op.Mul(lhs, rhs) => print(io, "*")
         Op.Kron(lhs, rhs) => print(io, "⊗")
         Op.Pow(base, exp) => begin
             print(io, "^")
-            Tree.inline_print(io, exp)
+            Tree.Print.inline(io, exp)
         end
         Op.KronPow(base, exp) => begin
             print(io, "^⊗")
-            Tree.inline_print(io, exp)
+            Tree.Print.inline(io, exp)
         end
         Op.Exp(op) => print(io, "exp")
         Op.Log(op) => print(io, "log")
-        Op.Tr(op) => print(io, "tr")
-        Op.Det(op) => print(io, "det")
         Op.Inv(op) => print(io, "inv")
         Op.Sqrt(op) => print(io, "sqrt")
 
@@ -139,7 +129,7 @@ function Tree.print_node(io::IO, node::Op.Type)
             print(io, "ad")
         else
             print(io, "ad^{")
-            Tree.inline_print(io, pow)
+            Tree.Print.inline(io, pow)
             print(io, "}")
         end
 
@@ -152,14 +142,14 @@ function Tree.print_node(io::IO, node::Op.Type)
             print(io, "ap")
         else
             print(io, "ap^{")
-            Tree.inline_print(io, pow)
+            Tree.Print.inline(io, pow)
             print(io, "}")
         end
         Op.Outer(lhs, rhs) => begin
             print(io, "|")
-            Tree.inline_print(io, lhs)
+            Tree.Print.inline(io, lhs)
             print(io, "⟩⟨")
-            Tree.inline_print(io, rhs)
+            Tree.Print.inline(io, rhs)
             print(io, "|")
         end
 
@@ -168,7 +158,7 @@ function Tree.print_node(io::IO, node::Op.Type)
         Op.Transpose(op) => print(io, "ᵀ")
         Op.Subscript(op, inds) => begin
             print(io, "[")
-            Tree.print_list(IOContext(io, :precedence => 0), inds)
+            Tree.Print.inline_list(IOContext(io, :precedence => 0), inds)
             print(io, "]")
         end
         _ => print(io, variant_name(node))
@@ -179,7 +169,7 @@ function Tree.print_node(io::IO, node::Op.Type)
     end
 end
 
-function Tree.is_infix(node::Op.Type)
+function Tree.Print.is_infix(node::Op.Type)
     @match node begin
         Op.Mul(_) => true
         Op.Kron(_) => true
@@ -187,7 +177,7 @@ function Tree.is_infix(node::Op.Type)
     end
 end
 
-function Tree.is_postfix(node::Op.Type)
+function Tree.Print.is_postfix(node::Op.Type)
     @match node begin
         Op.Pow(_) => true
         Op.KronPow(_) => true
@@ -199,7 +189,7 @@ function Tree.is_postfix(node::Op.Type)
     end
 end
 
-function Tree.use_custom_print(node::Op.Type)
+function Tree.Print.use_custom_print(node::Op.Type)
     @match variant_type(node) begin
         Op.Add => true
         Op.Sum => true
@@ -210,7 +200,7 @@ function Tree.use_custom_print(node::Op.Type)
     end
 end
 
-function Tree.custom_inline_print(io::IO, node::Op.Type)
+function Tree.Print.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
         Op.Add(terms) => print_add(io, terms)
         Op.Sum(region, indices, term) => print_reduction(io, "∑", region, indices, term)
@@ -224,11 +214,11 @@ end
 
 function print_jordan_lie(io::IO, node::Op.Type)
     isa_variant(node, Op.Comm) || isa_variant(node, Op.AComm) || error("invalid node")
-    Tree.print_node(io, node)
+    Tree.Print.print_node(io, node)
     print(io, "_{")
-    Tree.inline_print(node.base)
+    Tree.Print.inline(node.base)
     print(io, "}(")
-    Tree.inline_print(node.pow)
+    Tree.Print.inline(node.pow)
     return print(io, ")")
 end
 
@@ -236,14 +226,15 @@ function print_reduction(io::IO, op::String, region, indices, term)
     print(io, "(", op, "_{")
     print(io, indices, "∈")
     print(io, region) # TODO: switch to region's inline_print
-    # Tree.inline_print(io, region)
+    # Tree.Print.inline_print(io, region)
     print(io, "} ")
-    Tree.inline_print(io, term)
+    Tree.Print.inline(io, term)
     return print(io, ")")
 end
 
-function Tree.precedence(node::Op.Type)
+function Tree.Print.precedence(node::Op.Type)
     @match variant_type(node) begin
+        if Tree.is_leaf(node) end => 100
         Op.Add => Base.operator_precedence(:+)
         Op.Mul => Base.operator_precedence(:*)
         Op.Kron => Base.operator_precedence(:⊗)
@@ -253,33 +244,33 @@ function Tree.precedence(node::Op.Type)
     end
 end
 
-function Tree.should_print_annotation(node::Op.Type)
+function Tree.Print.should_print_annotation(node::Op.Type)
     @match variant_type(node) begin
         Op.Add => true
         _ => false
     end
 end
 
-function Tree.annotations(node::Op.Type)
+function Tree.Print.annotations(node::Op.Type)
     @match node begin
         Op.Add(terms) => collect(Scalar.Type, values(terms))
         _ => Scalar.Type[]
     end
 end
 
-function Tree.print_annotation(io::IO, coeff::Scalar.Type)
+function Tree.Print.print_annotation(io::IO, coeff::Scalar.Type)
     @match coeff begin
         Scalar.Constant(Num.One) => return nothing
         Scalar.Neg(Num.One) => print(io, "-")
         Scalar.Constant(Num.Real(-1)) => print(io, "-")
         _ => begin
-            Tree.inline_print(io, coeff)
+            Tree.Print.inline(io, coeff)
             print(io, " * ")
         end
     end
 end
 
-function Tree.print_meta(io::IO, node::Op.Type)
+function Tree.Print.print_meta(io::IO, node::Op.Type)
     @match node begin
         # TODO: switch this to region inline_print
         Op.Sum(region, indices) => begin
@@ -296,7 +287,7 @@ end
 
 function print_add(io::IO, terms::Dict{Op.Type,Scalar.Type})
     parent_pred = get(io, :precedence, 0)
-    node_pred = Tree.precedence(:+)
+    node_pred = Tree.Print.precedence(:+)
     parent_pred > node_pred && print(io, "(")
 
     for (idx, (term, coeff)) in enumerate(terms)
@@ -305,13 +296,13 @@ function print_add(io::IO, terms::Dict{Op.Type,Scalar.Type})
         # otherwise.
         # iszero(coeff) && continue
         if !isone(coeff)
-            Tree.inline_print(io, coeff)
+            Tree.Print.inline(io, coeff)
             print(io, "*")
             sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
         else
             sub_io = IOContext(io, :precedence => Base.operator_precedence(:+))
         end
-        Tree.inline_print(sub_io, term)
+        Tree.Print.inline(sub_io, term)
         if idx < length(terms)
             print(io, "+")
         end
