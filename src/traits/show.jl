@@ -1,5 +1,4 @@
 """
 placeholder trait for Base.show
 """
-module Show
-end # module
+module Show end # module

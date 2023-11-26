@@ -6,5 +6,4 @@ end
 
 BasisAnalysis() = BasisAnalysis(0, [], [])
 
-function (anlys::BasisAnalysis)(node::Op.Type)
-end
+function (anlys::BasisAnalysis)(node::Op.Type) end

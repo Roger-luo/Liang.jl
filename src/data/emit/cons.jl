@@ -113,7 +113,9 @@ function emit_positional_cons(info::EmitInfo, variant::Variant, vinfo::VariantIn
     vname = String(variant.name)
     return quote
         $Base.length(args) == $(length(vinfo)) || $Core.throw(
-            $ArgumentError("wrong number of arguments for $($(type_name)).$($vname), expect $($(length(vinfo)))")
+            $ArgumentError(
+                "wrong number of arguments for $($(type_name)).$($vname), expect $($(length(vinfo)))",
+            ),
         )
         $bits = $bits_expr
         $ptrs = $ptrs_expr
@@ -148,7 +150,9 @@ function emit_positional_kw_cons(info::EmitInfo, variant::Variant, vinfo::Varian
     vname = String(variant.name)
     return quote
         $Base.length(args) == $(arg_count) || $Core.throw(
-            $ArgumentError("wrong number of arguments for $($(type_name)).$($vname), expect $($arg_count)")
+            $ArgumentError(
+                "wrong number of arguments for $($(type_name)).$($vname), expect $($arg_count)",
+            ),
         )
         $bits = $bits_expr
         $ptrs = $ptrs_expr
@@ -163,7 +167,9 @@ function cons_default(mod::Module, default_expr)
     if Meta.isexpr(default_expr, :.)
         return Expr(:., cons_default(mod, default_expr.args[1]), default_expr.args[2])
     elseif Meta.isexpr(default_expr, :call)
-        return Expr(:call, cons_default(mod, default_expr.args[1]), default_expr.args[2:end]...)
+        return Expr(
+            :call, cons_default(mod, default_expr.args[1]), default_expr.args[2:end]...
+        )
     else
         return default_expr
     end

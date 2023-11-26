@@ -12,7 +12,7 @@ n_sites(node::Op.Type) = canonicalize(n_sites_not_canonical(node))
 function n_sites_not_canonical(node::Op.Type)
     @match node begin
         Op.Constant(op) => n_sites(op, curr)
-        Op.Variable(;name, id) => Index.NSites(;name, id)
+        Op.Variable(; name, id) => Index.NSites(; name, id)
         Op.Add(terms) => reduce(assert_n_sites_equal, n_sites.(keys(terms)))
         Op.Mul(op1, op2) => assert_n_sites_equal(n_sites(op1), n_sites(op2))
         Op.Kron(op1, op2) => n_sites(op1) + n_sites(op2)

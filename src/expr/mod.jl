@@ -29,7 +29,7 @@ $INTERFACE
 Run canonicalize on given expression. This is an API for
 defining the canonicalization transform of an expression type.
 """
-@interface (canonicalize(node::E)::E) where E = not_implemented_error()
+@interface (canonicalize(node::E)::E) where {E} = not_implemented_error()
 
 include("scalar/mod.jl")
 include("basis/mod.jl")
@@ -67,7 +67,7 @@ function def_m(defs)
             error("expect Scalar, Index or Op, got: $type")
         end
         return quote
-            $name = $mod.Variable(;name=$(QuoteNode(name)))
+            $name = $mod.Variable(; name=$(QuoteNode(name)))
         end
     end
 end

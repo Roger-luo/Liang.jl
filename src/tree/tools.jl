@@ -77,7 +77,7 @@ function print_list(io::IO, list, delim::AbstractString=", ", cutoff::Int=4)
             end
         end
         print(io, delim, "...")
-        for (i, item) in enumerate(list[end-1:end])
+        for (i, item) in enumerate(list[(end - 1):end])
             print(io, delim)
             inline_print(io, item)
         end

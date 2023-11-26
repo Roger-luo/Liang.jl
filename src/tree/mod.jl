@@ -161,7 +161,8 @@ $INTERFACE
 Print the annotation of the children of a node, default
 to [`inline_print`](@ref).
 """
-@interface print_annotation(io::IO, node, annotation; color=nothing) = print_annotation(io, annotation)
+@interface print_annotation(io::IO, node, annotation; color=nothing) =
+    print_annotation(io, annotation)
 
 @interface print_annotation(io::IO, annotation) = inline_print(io, annotation)
 

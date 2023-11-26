@@ -101,7 +101,7 @@ $SIGNATURES
 
 Assert that the index `lhs` and `rhs` are equal.
 """
-function assert_equal(lhs::Index.Type, rhs::Index.Type, msg::String = "")
+function assert_equal(lhs::Index.Type, rhs::Index.Type, msg::String="")
     lhs == rhs && return lhs # short-circuit
     return Index.AssertEqual(lhs, rhs, msg)
 end

@@ -229,7 +229,7 @@ function print_jordan_lie(io::IO, node::Op.Type)
     Tree.inline_print(node.base)
     print(io, "}(")
     Tree.inline_print(node.pow)
-    print(io, ")")
+    return print(io, ")")
 end
 
 function print_reduction(io::IO, op::String, region, indices, term)
@@ -239,7 +239,7 @@ function print_reduction(io::IO, op::String, region, indices, term)
     # Tree.inline_print(io, region)
     print(io, "} ")
     Tree.inline_print(io, term)
-    print(io, ")")
+    return print(io, ")")
 end
 
 function Tree.precedence(node::Op.Type)

@@ -3,22 +3,22 @@ $INTERFACE
 
 Interpret an expression with given variable assignments.
 """
-@interface interpret(node::E, assign::Dict{E, V}) where {E, V} = not_implemented_error()
+@interface interpret(node::E, assign::Dict{E,V}) where {E,V} = not_implemented_error()
 
 """
 $INTERFACE
 
 Partially eval an expression with given variable assignments.
 """
-@interface partial(node::E, assign::Dict{E, V}) where {E, V} = not_implemented_error()
+@interface partial(node::E, assign::Dict{E,V}) where {E,V} = not_implemented_error()
 
 struct PartialFn{E}
     expr::E
-    vars::Dict{Symbol, E}
+    vars::Dict{Symbol,E}
     hash::UInt64
 end
 
-PartialFn(expr::E) where E = PartialFn(expr, vars(expr), hash(expr))
+PartialFn(expr::E) where {E} = PartialFn(expr, vars(expr), hash(expr))
 
 function Base.show(io::IO, fn::PartialFn)
     print(io, "PartialFn: ")
@@ -31,7 +31,7 @@ function Base.show(io::IO, fn::PartialFn)
     end
     length(fn.vars) > 1 && print(io, ")")
     print(io, " -> ")
-    print(io, fn.expr)
+    return print(io, fn.expr)
 end
 
 # function (fn::PartialFn{Index.Type})(;kw...)
@@ -39,8 +39,8 @@ end
 #     return interpret(fn.expr, fn.vars, assign)::Int
 # end
 
-function (fn::PartialFn{Index.Type})(scope::Dict{Symbol, Any})
-    assign = Dict{Index.Type, Int}()
+function (fn::PartialFn{Index.Type})(scope::Dict{Symbol,Any})
+    assign = Dict{Index.Type,Int}()
     for (k, v) in fn.vars
         haskey(scope, k) || continue
         assign[v] = convert(Int, scope[k])
@@ -48,11 +48,10 @@ function (fn::PartialFn{Index.Type})(scope::Dict{Symbol, Any})
     return partial(fn.expr, fn.vars, assign)::Index.Type
 end
 
-function (fn::PartialFn{Scalar.Type})(scope::Dict{Symbol, Any})
-end
+function (fn::PartialFn{Scalar.Type})(scope::Dict{Symbol,Any}) end
 
 for (E, V) in [(Index, Int), (Scalar, Num.Type)]
-    @eval function partial(node::$E.Type, assign::Dict{$E.Type, $V})
+    @eval function partial(node::$E.Type, assign::Dict{$E.Type,$V})
         function substitute(node::$E.Type)
             if haskey(assign, node)
                 return $E.Constant(assign[node])
@@ -60,12 +59,12 @@ for (E, V) in [(Index, Int), (Scalar, Num.Type)]
                 return node
             end
         end
-        p = Chain(substitute, canonicalize) |> Pre |> Post
+        p = Post(Pre(Chain(substitute, canonicalize)))
         return p(node)
     end
 end
 
-function extern_partial(node::Scalar.Type, assign::Dict{Symbol, Any})
+function extern_partial(node::Scalar.Type, assign::Dict{Symbol,Any})
     function substitute(node::Scalar.Type)
         @match node begin
             Scalar.Subscript(ref, indices) => begin

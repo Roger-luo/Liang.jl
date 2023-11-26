@@ -101,7 +101,7 @@ function prop_adjoint(node::Op.Type)
         Op.Adjoint(Op.AComm(base, A, pow)) => Op.AComm(base', A', pow)
         Op.Adjoint(Op.Pow(base, exp)) => Op.Pow(base', exp)
         Op.Adjoint(Op.KronPow(base, exp)) => Op.KronPow(base', exp)
-        Op.Adjoint(Op.Subscript(base, idx)) => Op.Subscript(op=base', indices=idx)
+        Op.Adjoint(Op.Subscript(base, idx)) => Op.Subscript(; op=base', indices=idx)
         Op.Adjoint(Op.Sum(region, indices, term)) => Op.Sum(region, indices, term')
         Op.Adjoint(Op.Prod(region, indices, term)) => Op.Prod(region, indices, term')
         Op.Adjoint(Op.Exp(A)) => Op.Exp(A')
@@ -143,14 +143,20 @@ function break_outer(node::Op.Type)
 end
 
 function canonicalize(node::Op.Type)
-    p = Post(Pre(Fixpoint(Chain(
-        merge_nested_add,
-        remove_add_zero_coeffs,
-        merge_group_element,
-        merge_pow_mul,
-        prop_adjoint,
-        break_outer,
-        unbox_single_add,
-    ))))
+    p = Post(
+        Pre(
+            Fixpoint(
+                Chain(
+                    merge_nested_add,
+                    remove_add_zero_coeffs,
+                    merge_group_element,
+                    merge_pow_mul,
+                    prop_adjoint,
+                    break_outer,
+                    unbox_single_add,
+                ),
+            ),
+        ),
+    )
     return p(node)
 end
