@@ -7,8 +7,8 @@ include("tools/mod.jl")
 # data structures
 include("data/mod.jl")
 include("tree/mod.jl")
-include("match/mod.jl")
 include("derive/mod.jl")
+include("match/mod.jl")
 
 # generic rewrite engine
 include("rewrite/mod.jl")
