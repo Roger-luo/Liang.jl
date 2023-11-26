@@ -8,6 +8,7 @@ module Tree
 using Liang: not_implemented_error
 using Liang.Tools.Interface: @interface, INTERFACE, INTERFACE_LIST
 using Transducers: Map, tcollect
+using DocStringExtensions
 
 """
 $INTERFACE
@@ -21,7 +22,7 @@ $INTERFACE
 
 Return the number of children of the provided node.
 """
-@interface n_children(node)::Int = not_implemented_error()
+@interface n_children(node)::Int = length(children(node))
 
 """
 $INTERFACE
@@ -77,97 +78,9 @@ Check if a node is a leaf node.
 """
 @interface is_leaf(node) = isempty(children(node))
 
-"""
-$INTERFACE
-
-Check if a node is a prefix node/operator.
-"""
-@interface is_prefix(node) = false
-
-"""
-$INTERFACE
-
-Check if a node is an infix node/operator.
-"""
-@interface is_infix(node) = false
-
-"""
-$INTERFACE
-
-Check if a node is a postfix node/operator.
-"""
-@interface is_postfix(node) = false
-
-"""
-$INTERFACE
-
-Return the precedence of an infix node/operator.
-"""
-@interface precedence(node)::Int = 0
-
-"""
-$INTERFACE
-
-Print the node
-"""
-@interface print_node(io::IO, node) = not_implemented_error()
-
-"""
-$INTERFACE
-
-Check if a node use custom print. Useful for dynamic
-dispatch, e.g a variant in data type.
-"""
-@interface use_custom_print(node) = false
-
-"""
-$INTERFACE
-
-API for overloading custom tree printing behavior.
-Useful for dynamic dispatch, e.g a variant in data type.
-"""
-@interface custom_inline_print(io::IO, node) = not_implemented_error()
-
-"""
-$INTERFACE
-
-Return an iterator of the annotation of the children of a node.
-Return an empty iterator if the node has no annotation.
-"""
-@interface annotations(node) = ()
-
-"""
-$INTERFACE
-
-Should the annotation of the children of a node be printed or not.
-Return `true` if the annotation should be printed, `false` otherwise.
-Default to `false`.
-"""
-@interface should_print_annotation(node) = false
-
-"""
-$INTERFACE
-
-Print the meta info of a node, this will be printed after
-calling [`print_node`](@ref).
-"""
-@interface print_meta(io::IO, node) = nothing
-
-# TODO: remove the color kwargs?
-
-"""
-$INTERFACE
-
-Print the annotation of the children of a node, default
-to [`inline_print`](@ref).
-"""
-@interface print_annotation(io::IO, node, annotation; color=nothing) =
-    print_annotation(io, annotation)
-
-@interface print_annotation(io::IO, annotation) = inline_print(io, annotation)
 
 include("tools.jl")
-include("inline.jl")
-include("text.jl")
+include("acset.jl")
+include("print/mod.jl")
 
 end # module Tree
