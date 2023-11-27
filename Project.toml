@@ -4,7 +4,6 @@ authors = ["Roger-luo<rogerluo.rl18@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-Cthulhu = "f68482b8-f384-11e8-15f7-abe071a5a75f"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
 ExproniconLite = "55351af7-c7e9-48d6-89ff-24e801d99491"
