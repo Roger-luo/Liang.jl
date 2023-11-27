@@ -33,6 +33,7 @@ This package is inspired by the following projects:
 - Symbolics: the rewrite engine and the symbolic data structure are largely inspired by Symbolics and my conversation with Yingbo Ma.
 - OMEinsum: the tensor network contraction engine is largely inspired by OMEinsum's contraction tree.
 - MLStyle: the underlying algebra data type and pattern match support is largely inspired by MLStyle.
+- SumTypes: the memory layout is from an old version of SumTypes, might get changed to new version in the future.
 
 ## License
 
