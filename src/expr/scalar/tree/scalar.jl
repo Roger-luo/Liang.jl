@@ -1,5 +1,5 @@
 # well we don't really need printing to be type stable
-function Tree.Print.children(node::Scalar.Type)::Vector{Union{Op.Type, Scalar.Type}}
+function Tree.Print.children(node::Scalar.Type)::Vector{Union{Op.Type,Scalar.Type}}
     @match node begin
         Scalar.Tr(op) => [op]
         Scalar.Det(op) => [op]
@@ -123,7 +123,8 @@ end
 function Tree.Print.precedence(node::Scalar.Type)::Int
     @match node begin
         Scalar.Constant(x) => x < 0 ? 0 : 100
-        if Tree.is_leaf(node) end => 100
+        if Tree.is_leaf(node)
+        end => 100
         Scalar.Add(_...) => Base.operator_precedence(:+)
         Scalar.Mul(_...) => Base.operator_precedence(:*)
         Scalar.Pow(_...) => Base.operator_precedence(:^)

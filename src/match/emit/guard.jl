@@ -10,8 +10,5 @@ function replace_guard_vars(info::PatternInfo, cond)
         return cond
     end
     cond isa Expr || return cond
-    return Expr(
-        cond.head,
-        map(x -> replace_guard_vars(info, x), cond.args)...,
-    )
+    return Expr(cond.head, map(x -> replace_guard_vars(info, x), cond.args)...)
 end

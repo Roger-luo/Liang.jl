@@ -78,7 +78,6 @@ Check if a node is a leaf node.
 """
 @interface is_leaf(node) = isempty(children(node))
 
-
 include("tools.jl")
 include("acset.jl")
 include("print/mod.jl")

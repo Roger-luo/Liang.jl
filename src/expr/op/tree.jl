@@ -135,7 +135,8 @@ end
 
 function Tree.Print.precedence(node::Op.Type)
     @match variant_type(node) begin
-        if Tree.is_leaf(node) end => 100
+        if Tree.is_leaf(node)
+        end => 100
         Op.Add => Base.operator_precedence(:+)
         Op.Mul => Base.operator_precedence(:*)
         Op.Kron => Base.operator_precedence(:⊗)

@@ -186,7 +186,7 @@ end
 function sort_terms(variant_type)
     return function transform(node::Scalar.Type)
         isa_variant(node, variant_type) || return node
-        new_terms = sort(node.terms, by = term->rank(term).+rank(node.terms[term]))
+        new_terms = sort(node.terms; by=term -> rank(term) .+ rank(node.terms[term]))
         return variant_type(node.coeffs, new_terms)
     end
 end
@@ -205,12 +205,6 @@ function canonicalize(node::Scalar.Type)
         ),
     )
 
-    p = Chain(
-        p,
-        Chain(
-            Post(sort_terms(Scalar.Add)),
-            Post(sort_terms(Scalar.Mul)),
-        )
-    )
+    p = Chain(p, Chain(Post(sort_terms(Scalar.Add)), Post(sort_terms(Scalar.Mul))))
     return p(node)
 end

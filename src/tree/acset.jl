@@ -26,8 +26,8 @@ insertion order.
     the terms, but the user should be aware that the object
     has immutable semantics.
 """
-struct ACSet{K, V} <: AbstractDict{K, V}
-    terms::Dict{K, V}
+struct ACSet{K,V} <: AbstractDict{K,V}
+    terms::Dict{K,V}
     order::Vector{K}
     is_sorted::Base.RefValue{Bool}
 end
@@ -37,15 +37,15 @@ $SIGNATURES
 
 Create an empty ACSet.
 """
-ACSet{K, V}() where {K, V} = ACSet(Dict{K, V}(), Vector{K}(), Base.RefValue(false))
+ACSet{K,V}() where {K,V} = ACSet(Dict{K,V}(), Vector{K}(), Base.RefValue(false))
 
 """
 $SIGNATURES
 
 Create an ACSet from a list of pairs.
 """
-function ACSet{K, V}(pairs::Pair...) where {K, V}
-    return ACSet{K, V}(pairs)
+function ACSet{K,V}(pairs::Pair...) where {K,V}
+    return ACSet{K,V}(pairs)
 end
 
 """
@@ -53,11 +53,11 @@ $SIGNATURES
 
 Create an ACSet from an iterator of pairs.
 """
-function ACSet{K, V}(itr) where {K, V}
+function ACSet{K,V}(itr) where {K,V}
     # NOTE: guarantee similar terms are merged
     #       by using setindex instead of create
     #       directly.
-    acset = ACSet{K, V}()
+    acset = ACSet{K,V}()
     for (key, val) in itr
         acset[convert(K, key)] = convert(V, val)
     end
@@ -69,7 +69,7 @@ $SIGNATURES
 
 Create an ACSet from a dictionary.
 """
-function ACSet(terms::Dict{K, V}) where {K, V}
+function ACSet(terms::Dict{K,V}) where {K,V}
     order = collect(K, keys(terms))
     is_sorted = Base.RefValue(false)
     return ACSet(terms, order, is_sorted)
@@ -109,9 +109,9 @@ Base.hash(acset::ACSet, h::UInt) = hash(acset.terms, h)
 
 Base.IteratorSize(::Type{<:ACSet}) = Base.HasLength()
 Base.IteratorEltype(::Type{<:ACSet}) = Base.HasEltype()
-Base.eltype(::Type{ACSet{K, V}}) where {K, V} = Pair{K, V}
+Base.eltype(::Type{ACSet{K,V}}) where {K,V} = Pair{K,V}
 Base.length(acset::ACSet) = length(acset.terms)
-function Base.iterate(acset::ACSet, state = 1)
+function Base.iterate(acset::ACSet, state=1)
     if state > length(acset.order)
         return nothing
     end
@@ -123,12 +123,12 @@ function lazy_map(f, acset::ACSet)
     return Map(p -> (f(p.first) => p.second))(acset.terms)
 end
 
-function Base.map(f, acset::ACSet{K, V}) where {K, V}
-    return ACSet{K, V}(lazy_map(f, acset))
+function Base.map(f, acset::ACSet{K,V}) where {K,V}
+    return ACSet{K,V}(lazy_map(f, acset))
 end
 
-function threaded_map(f, acset::ACSet{K, V}) where {K, V}
-    return ACSet{K, V}(tcollect(lazy_map(f, acset)))
+function threaded_map(f, acset::ACSet{K,V}) where {K,V}
+    return ACSet{K,V}(tcollect(lazy_map(f, acset)))
 end
 
 function threaded_map(f, acset::Vector)

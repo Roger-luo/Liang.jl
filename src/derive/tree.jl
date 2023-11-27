@@ -43,7 +43,9 @@ function tree_derive_n_children(mod::Module, data::Module)
         dynamic_children = []
         for (idx, field_type) in enumerate(variant_fieldtypes(variant_type))
             field_type <: ACSet{data.Type} || continue
-            field_value = xcall(Reflection, :variant_getfield, :node, Val(variant_type.tag), idx),
+            field_value = xcall(
+                Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
+            ),
             push!(dynamic_children, :($Base.length($field_value)))
         end
 
@@ -84,10 +86,14 @@ function tree_derive_children(mod::Module, data::Module)
         dynamic_children = []
         for (idx, field_type) in enumerate(variant_fieldtypes(variant_type))
             if field_type <: ACSet{data.Type}
-                field_value = xcall(Reflection, :variant_getfield, :node, Val(variant_type.tag), idx)
+                field_value = xcall(
+                    Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
+                )
                 push!(dynamic_children, :($Base.keys($field_value)))
             elseif field_type <: Vector{data.Type}
-                field_value = xcall(Reflection, :variant_getfield, :node, Val(variant_type.tag), idx)
+                field_value = xcall(
+                    Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
+                )
                 push!(dynamic_children, field_value)
             else
                 continue
@@ -109,11 +115,9 @@ function tree_derive_children(mod::Module, data::Module)
                 return $Base.collect($data.Type, $chain)
             end
         else
-            error(
-                "mix of static and dynamic children is not supported yet\
-                please open an issue about your use case at\
-                https://github.com/Roger-luo/Liang.jl/issues/new"
-            )
+            error("mix of static and dynamic children is not supported yet\
+                  please open an issue about your use case at\
+                  https://github.com/Roger-luo/Liang.jl/issues/new")
         end
     end
     jl.otherwise = quote
@@ -128,7 +132,9 @@ function tree_derive_children(mod::Module, data::Module)
     end
 end
 
-function tree_map_children(async_mode::Val, mod::Module, data::Module, f::Symbol, node::Symbol)
+function tree_map_children(
+    async_mode::Val, mod::Module, data::Module, f::Symbol, node::Symbol
+)
     @gensym vtype
     jl = JLIfElse()
     for variant_type in variants(data.Type)
@@ -145,7 +151,7 @@ function tree_map_children(async_mode::Val, mod::Module, data::Module, f::Symbol
                     Reflection, :variant_getfield, node, Val(variant_type.tag), idx
                 )
                 @gensym value task
-                if field_type <: Union{data.Type, Vector{data.Type}, Tree.ACSet{data.Type}} # children, use replacement
+                if field_type <: Union{data.Type,Vector{data.Type},Tree.ACSet{data.Type}} # children, use replacement
                     is_leaf = false
                     apply_f, retreive = tree_apply_f(async_mode, field_type, f, value, task)
                     push!(
@@ -184,25 +190,25 @@ function tree_map_children(async_mode::Val, mod::Module, data::Module, f::Symbol
 end
 
 function tree_apply_f(::Val{:spawn}, ::Type, f, value, task)
-    :($Threads.@spawn $f($value)), :($Threads.fetch($task))
+    return :($Threads.@spawn $f($value)), :($Threads.fetch($task))
 end
 
 function tree_apply_f(::Val{:spawn}, ::Type{<:ACSet}, f, value, task)
-    :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
+    return :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
 end
 
 function tree_apply_f(::Val{:spawn}, ::Type{<:Vector}, f, value, task)
-    :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
+    return :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
 end
 
 function tree_apply_f(::Val, ::Type, f, value, task)
-    :($f($value)), task
+    return :($f($value)), task
 end
 
 function tree_apply_f(::Val, ::Type{<:ACSet}, f, value, task)
-    :($Base.map($f, $value)), task
+    return :($Base.map($f, $value)), task
 end
 
 function tree_apply_f(::Val, ::Type{<:Vector}, f, value, task)
-    :($Base.map($f, $value)), task
+    return :($Base.map($f, $value)), task
 end

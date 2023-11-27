@@ -33,8 +33,12 @@ struct PatternInfo
     scope::Dict{Symbol,Set{Symbol}}
 end
 
-PatternInfo(info::EmitInfo) = PatternInfo(info, gensym(:placeholder), Ref(0), Dict{Symbol,Set{Symbol}}())
-placeholder!(info::PatternInfo) = Symbol(info.placeholder, "#", info.placeholder_count[] += 1)
+function PatternInfo(info::EmitInfo)
+    return PatternInfo(info, gensym(:placeholder), Ref(0), Dict{Symbol,Set{Symbol}}())
+end
+function placeholder!(info::PatternInfo)
+    return Symbol(info.placeholder, "#", info.placeholder_count[] += 1)
+end
 
 function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)
     push!(get!(Set{Symbol}, info.scope, k), v)
