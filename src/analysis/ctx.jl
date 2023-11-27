@@ -2,7 +2,7 @@ struct Context{E}
     analysis::Dict{Symbol,CachedAnalysis{E}}
 end # Context
 
-function Context{E}(analysis::CachedAnalysis{E}...)
+function Context{E}(analysis::CachedAnalysis{E}...) where {E}
     registry = Dict{Symbol,CachedAnalysis{E}}()
     for each in analysis
         registry[nameof(each)] = each
@@ -14,7 +14,9 @@ function Base.getproperty(ctx::Context, name::Symbol)
     return getfield(ctx, :analysis)[name]
 end
 
-function Base.setproperty!(ctx::Context{E}, name::Symbol, analysis::CachedAnalysis{E})
+function Base.setproperty!(
+    ctx::Context{E}, name::Symbol, analysis::CachedAnalysis{E}
+) where {E}
     getfield(ctx, :analysis)[name] = analysis
     return ctx
 end

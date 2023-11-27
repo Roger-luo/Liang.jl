@@ -161,6 +161,7 @@ This is the basic scalar type. It supports pattern matching.
 
     # some first-class functions
     Neg(Scalar)
+    Conj(Scalar)
     Abs(Scalar)
     Exp(Scalar)
     Log(Scalar)

@@ -12,6 +12,17 @@ for op in [:+, :-, :*, :/, :\, :^]
     end
 end
 
+function Base.conj(x::Num.Type)
+    @match x begin
+        Num.Zero => Num.Zero
+        Num.One => Num.One
+        Num.Real(x) => Num.Real(x)
+        Num.Imag(x) => Num.Imag(-x)
+        Num.Complex(x, y) => Num.Complex(x, -y)
+    end
+end
+
+Base.conj(x::Scalar.Type) = Scalar.Conj(x)
 Base.:(+)(x::Scalar.Type) = x
 Base.:(-)(x::Scalar.Type) = Scalar.Neg(x)
 

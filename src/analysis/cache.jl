@@ -5,7 +5,7 @@ struct CachedAnalysis{E,V}
     deps::Set{Symbol}
 end
 
-function CachedAnalysis{E,V}(analysis, deps::Vector{Symbol}=Symbol[])
+function CachedAnalysis{E,V}(analysis, deps::Vector{Symbol}=Symbol[]) where {E,V}
     return CachedAnalysis(nameof(analysis), analysis, Dict{E,V}(), Set(deps))
 end
 
@@ -13,7 +13,7 @@ function Base.nameof(ca::CachedAnalysis)
     return ca.name
 end
 
-function (ca::CachedAnalysis{E,V})(node::E) where {E}
+function (ca::CachedAnalysis{E,V})(node::E) where {E,V}
     haskey(ca.cache, node) && return ca.cache[node]
     result = ca.analysis(node)
     ca.cache[node] = result

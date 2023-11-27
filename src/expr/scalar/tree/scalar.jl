@@ -32,6 +32,7 @@ function Tree.Print.print_node(io::IO, node::Scalar.Type)
         end
 
         Scalar.Neg(x) => print(io, "-")
+        Scalar.Conj(x) => print(io, "conj")
         Scalar.Abs(x) => print(io, "abs")
         Scalar.Exp(x) => print(io, "exp")
         Scalar.Log(x) => print(io, "log")
