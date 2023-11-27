@@ -5,7 +5,7 @@ struct CachedAnalysis{E,V}
     deps::Set{Symbol}
 end
 
-function CachedAnalysis{E,V}(analysis, deps::Vector{Symbol}=[])
+function CachedAnalysis{E,V}(analysis, deps::Vector{Symbol}=Symbol[])
     return CachedAnalysis(nameof(analysis), analysis, Dict{E,V}(), Set(deps))
 end
 
