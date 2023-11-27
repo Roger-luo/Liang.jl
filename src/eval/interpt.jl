@@ -82,7 +82,7 @@ function extern_partial(node::Scalar.Type, assign::Dict{Symbol,Any})
                     idx = map(vals) do val
                         @match val Index.Constant(idx) => idx
                     end
-                    return obj[idx...]
+                    return Scalar.Constant(obj[idx...])
                 else
                     return Scalar.Subscript(ref, vals)
                 end

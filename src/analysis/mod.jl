@@ -7,9 +7,10 @@ using Liang.Tree: children
 using Liang.Tools.Interface: @interface, INTERFACE
 using Liang: not_implemented_error
 
+include("scalar/mod.jl")
+include("op/mod.jl")
+
 include("vars.jl")
-include("n_sites.jl")
-include("basis.jl")
 include("prelude.jl")
 
 end # Analysis
