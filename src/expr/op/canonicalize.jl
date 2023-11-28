@@ -89,7 +89,7 @@ function prop_adjoint(node::Op.Type)
         )
         Op.Adjoint(Op.Mul(lhs, rhs)) => Op.Mul(lhs', rhs')
         Op.Adjoint(Op.Kron(lhs, rhs)) => Op.Kron(lhs', rhs')
-        # ad_A^n(B) = 
+        # ad_A^n(B) =
         # ad_A(B)' = ad_{A'}(B')
         # (AB - BA)' = B'A' - A'B' = -ad_{A'}(B') = ad_A(B)'
         # ad_A(ad_A(B))' = -ad_{A'}(ad_A(B)')
@@ -154,7 +154,8 @@ function canonicalize(node::Op.Type)
                     prop_adjoint,
                     break_outer,
                     unbox_single_add,
-                ),
+                );
+                max_iter=10,
             ),
         ),
     )
