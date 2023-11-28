@@ -24,6 +24,14 @@ function Base.convert(::Type{Label.Type}, x::Set{<:AbstractVector{<:Integer}})
     return Label.Set(x)
 end
 
+function Base.convert(::Type{Region.Type}, x::Geometry.Type)
+    return Region.Geometry(x)
+end
+
+function Base.convert(::Type{Region.Type}, x::Label.Type)
+    return Region.Label(x)
+end
+
 module Lattice
 
 using Liang.Expression: Scalar, Region, Label, Geometry

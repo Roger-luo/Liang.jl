@@ -7,7 +7,7 @@ module Tree
 
 using Liang: not_implemented_error
 using Liang.Tools.Interface: @interface, INTERFACE, INTERFACE_LIST
-using Transducers: Map, tcollect
+using Transducers: Map, MapSplat, foldl, tcollect
 using DocStringExtensions
 
 """

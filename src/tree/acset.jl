@@ -127,6 +127,10 @@ function Base.map(f, acset::ACSet{K,V}) where {K,V}
     return ACSet{K,V}(lazy_map(f, acset))
 end
 
+function Base.mapreduce(f, op, acset::ACSet{K,V}; kw...) where {K,V}
+    return foldl(op, MapSplat(f), acset; kw...)
+end
+
 function threaded_map(f, acset::ACSet{K,V}) where {K,V}
     return ACSet{K,V}(tcollect(lazy_map(f, acset)))
 end

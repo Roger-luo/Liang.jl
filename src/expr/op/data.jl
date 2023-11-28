@@ -94,6 +94,7 @@ TWOLEVEL_NOTE = """
     end
 
     Mul(Op, Op)
+    # TimeOrdered(Op,Symbol)
     Kron(Op, Op)
 
     struct Comm

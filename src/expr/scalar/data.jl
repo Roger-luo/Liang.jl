@@ -10,8 +10,13 @@ end
 @derive Unit[PartialEq, Hash]
 
 @data Domain begin
-    Complex
+    Natural
+    Integer
+    Rational
     Real
+    Imag
+    Complex
+    Unknown
 end
 
 @derive Domain[PartialEq, Hash]

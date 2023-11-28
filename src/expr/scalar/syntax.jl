@@ -1,3 +1,208 @@
+function domain(expr::Scalar.Type, x::Domain.Type)
+    return Scalar.Domain(expr, x)
+end
+
+function domain2int(x::Domain.Type)
+    @match x begin
+        Domain.Natural => 0
+        Domain.Integer => 1
+        Domain.Rational => 2
+        Domain.Real => 3
+        Domain.Imag => 4
+        Domain.Complex => 5
+        Domain.Unknown => 100
+    end
+end
+
+function int2domain(x::Int)
+    @match x begin
+        0 => Domain.Natural
+        1 => Domain.Integer
+        2 => Domain.Rational
+        3 => Domain.Real
+        4 => Domain.Imag
+        5 => Domain.Complex
+        100 => Domain.Unknown
+    end
+end
+
+function Base.union(lhs::Domain.Type, rhs::Domain.Type)
+    return int2domain(max(domain2int(lhs), domain2int(rhs)))
+end
+
+function Base.real(x::Domain.Type)
+    @match x begin
+        Domain.Imag => Domain.Real
+        Domain.Complex => Domain.Real
+        Domain.Unknown => Domain.Real
+        _ => x
+    end
+end
+
+for fn in [:exp, :log, :sqrt]
+    @eval function Base.$fn(x::Domain.Type)
+        @match x begin
+            Domain.Natural => Domain.Real
+            Domain.Integer => Domain.Real
+            Domain.Rational => Domain.Real
+            Domain.Real => Domain.Real
+            Domain.Imag => Domain.Complex
+            Domain.Complex => Domain.Complex
+            Domain.Unknown => Domain.Unknown
+        end
+    end
+end
+
+function Base.:(+)(lhs::Domain.Type, rhs::Domain.Type)
+    @match (lhs, rhs) begin
+        (_, Domain.Unknown) || (Domain.Unknown, _) => Domain.Unknown
+
+        (Domain.Natural, Domain.Natural) => Domain.Natural
+        (Domain.Natural, Domain.Integer) => Domain.Integer
+        (Domain.Natural, Domain.Rational) => Domain.Rational
+        (Domain.Natural, Domain.Real) => Domain.Real
+        (Domain.Natural, Domain.Imag) => Domain.Complex
+        (Domain.Natural, Domain.Complex) => Domain.Complex
+
+        (Domain.Integer, Domain.Natural) => Domain.Integer
+        (Domain.Integer, Domain.Integer) => Domain.Integer
+        (Domain.Integer, Domain.Rational) => Domain.Rational
+        (Domain.Integer, Domain.Real) => Domain.Real
+        (Domain.Integer, Domain.Imag) => Domain.Complex
+        (Domain.Integer, Domain.Complex) => Domain.Complex
+
+        (Domain.Rational, Domain.Natural) => Domain.Rational
+        (Domain.Rational, Domain.Integer) => Domain.Rational
+        (Domain.Rational, Domain.Rational) => Domain.Rational
+        (Domain.Rational, Domain.Real) => Domain.Real
+        (Domain.Rational, Domain.Imag) => Domain.Complex
+        (Domain.Rational, Domain.Complex) => Domain.Complex
+
+        (Domain.Real, Domain.Natural) => Domain.Real
+        (Domain.Real, Domain.Integer) => Domain.Real
+        (Domain.Real, Domain.Rational) => Domain.Real
+        (Domain.Real, Domain.Real) => Domain.Real
+        (Domain.Real, Domain.Imag) => Domain.Complex
+        (Domain.Real, Domain.Complex) => Domain.Complex
+
+        (Domain.Imag, _) || (_, Domain.Imag) => Domain.Complex
+        (Domain.Complex, _) || (_, Domain.Complex) => Domain.Complex
+    end
+end
+
+function Base.:(*)(lhs::Domain.Type, rhs::Domain.Type)
+    @match (lhs, rhs) begin
+        (_, Domain.Unknown) || (Domain.Unknown, _) => Domain.Unknown
+
+        (Domain.Natural, Domain.Natural) => Domain.Natural
+        (Domain.Natural, Domain.Integer) => Domain.Integer
+        (Domain.Natural, Domain.Rational) => Domain.Rational
+        (Domain.Natural, Domain.Real) => Domain.Real
+        (Domain.Natural, Domain.Imag) => Domain.Complex
+        (Domain.Natural, Domain.Complex) => Domain.Complex
+
+        (Domain.Integer, Domain.Natural) => Domain.Integer
+        (Domain.Integer, Domain.Integer) => Domain.Integer
+        (Domain.Integer, Domain.Rational) => Domain.Rational
+        (Domain.Integer, Domain.Real) => Domain.Real
+        (Domain.Integer, Domain.Imag) => Domain.Complex
+        (Domain.Integer, Domain.Complex) => Domain.Complex
+
+        (Domain.Rational, Domain.Natural) => Domain.Rational
+        (Domain.Rational, Domain.Integer) => Domain.Rational
+        (Domain.Rational, Domain.Rational) => Domain.Rational
+        (Domain.Rational, Domain.Real) => Domain.Real
+        (Domain.Rational, Domain.Imag) => Domain.Complex
+        (Domain.Rational, Domain.Complex) => Domain.Complex
+
+        (Domain.Real, Domain.Natural) => Domain.Real
+        (Domain.Real, Domain.Integer) => Domain.Real
+        (Domain.Real, Domain.Rational) => Domain.Real
+        (Domain.Real, Domain.Real) => Domain.Real
+        (Domain.Real, Domain.Imag) => Domain.Complex
+        (Domain.Real, Domain.Complex) => Domain.Complex
+
+        (Domain.Imag, _) || (_, Domain.Imag) => Domain.Complex
+        (Domain.Complex, _) || (_, Domain.Complex) => Domain.Complex
+    end
+end
+
+function Base.:(^)(base::Domain.Type, exp::Domain.Type)
+    @match (base, exp) begin
+        (_, Domain.Unknown) || (Domain.Unknown, _) => Domain.Unknown
+
+        (Domain.Natural, Domain.Natural) => Domain.Natural
+        (Domain.Natural, Domain.Integer) => Domain.Real
+        (Domain.Natural, Domain.Rational) => Domain.Real
+        (Domain.Natural, Domain.Real) => Domain.Real
+        (Domain.Natural, Domain.Imag) => Domain.Complex
+        (Domain.Natural, Domain.Complex) => Domain.Complex
+
+        (Domain.Integer, Domain.Natural) => Domain.Integer
+        (Domain.Integer, Domain.Integer) => Domain.Real
+        (Domain.Integer, Domain.Rational) => Domain.Real
+        (Domain.Integer, Domain.Real) => Domain.Real
+        (Domain.Integer, Domain.Imag) => Domain.Complex
+        (Domain.Integer, Domain.Complex) => Domain.Complex
+
+        (Domain.Rational, Domain.Natural) => Domain.Rational
+        (Domain.Rational, Domain.Integer) => Domain.Rational
+        (Domain.Rational, Domain.Rational) => Domain.Real
+        (Domain.Rational, Domain.Real) => Domain.Real
+        (Domain.Rational, Domain.Imag) => Domain.Complex
+        (Domain.Rational, Domain.Complex) => Domain.Complex
+
+        (Domain.Real, Domain.Natural) => Domain.Real
+        (Domain.Real, Domain.Integer) => Domain.Real
+        (Domain.Real, Domain.Rational) => Domain.Real
+        (Domain.Real, Domain.Real) => Domain.Real
+        (Domain.Real, Domain.Imag) => Domain.Complex
+        (Domain.Real, Domain.Complex) => Domain.Complex
+        (Domain.Real, Domain.Unknown) => Domain.Unknown
+
+        (Domain.Imag, _) || (_, Domain.Imag) => Domain.Complex
+        (Domain.Complex, _) || (_, Domain.Complex) => Domain.Complex
+    end
+end
+
+function Base.:(/)(lhs::Domain.Type, rhs::Domain.Type)
+    @match (lhs, rhs) begin
+        (_, Domain.Unknown) || (Domain.Unknown, _) => Domain.Unknown
+
+        (Domain.Natural, Domain.Natural) => Domain.Rational
+        (Domain.Natural, Domain.Integer) => Domain.Rational
+        (Domain.Natural, Domain.Rational) => Domain.Rational
+        (Domain.Natural, Domain.Real) => Domain.Real
+        (Domain.Natural, Domain.Imag) => Domain.Complex
+        (Domain.Natural, Domain.Complex) => Domain.Complex
+
+        (Domain.Integer, Domain.Natural) => Domain.Rational
+        (Domain.Integer, Domain.Integer) => Domain.Rational
+        (Domain.Integer, Domain.Rational) => Domain.Rational
+        (Domain.Integer, Domain.Real) => Domain.Real
+        (Domain.Integer, Domain.Imag) => Domain.Complex
+        (Domain.Integer, Domain.Complex) => Domain.Complex
+
+        (Domain.Rational, Domain.Natural) => Domain.Rational
+        (Domain.Rational, Domain.Integer) => Domain.Rational
+        (Domain.Rational, Domain.Rational) => Domain.Rational
+        (Domain.Rational, Domain.Real) => Domain.Real
+        (Domain.Rational, Domain.Imag) => Domain.Complex
+        (Domain.Rational, Domain.Complex) => Domain.Complex
+
+        (Domain.Real, Domain.Natural) => Domain.Real
+        (Domain.Real, Domain.Integer) => Domain.Real
+        (Domain.Real, Domain.Rational) => Domain.Real
+        (Domain.Real, Domain.Real) => Domain.Real
+        (Domain.Real, Domain.Imag) => Domain.Complex
+        (Domain.Real, Domain.Complex) => Domain.Complex
+        (Domain.Real, Domain.Unknown) => Domain.Unknown
+
+        (Domain.Imag, _) || (_, Domain.Imag) => Domain.Complex
+        (Domain.Complex, _) || (_, Domain.Complex) => Domain.Complex
+    end
+end
+
 for op in [:+, :-, :*, :/, :\, :^]
     @eval function Base.$(op)(lhs::Num.Type, rhs::Num.Type)
         return Base.$(op)(Number(lhs), Number(rhs))

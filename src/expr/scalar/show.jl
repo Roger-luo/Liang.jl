@@ -1,3 +1,15 @@
+function Base.show(io::IO, x::Domain.Type)
+    @match x begin
+        Domain.Natural => print(io, "ℕ")
+        Domain.Integer => print(io, "ℤ")
+        Domain.Rational => print(io, "ℚ")
+        Domain.Real => print(io, "ℝ")
+        Domain.Imag => print(io, "ℑ")
+        Domain.Complex => print(io, "ℂ")
+        Domain.Unknown => print(io, "⊤")
+    end
+end
+
 function Base.show(io::IO, x::Num.Type)
     function pretty(x::Float64)
         if isinteger(x)
