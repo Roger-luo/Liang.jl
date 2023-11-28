@@ -38,6 +38,7 @@ include("state/mod.jl")
 include("region/mod.jl")
 include("op/mod.jl")
 include("tensor/mod.jl")
+include("cf/mod.jl")
 
 """
     @def <name>::<type>
