@@ -1,12 +1,14 @@
 struct CachedAnalysis{E,V}
     name::Symbol
     analysis::FunctionWrapper{V,Tuple{E}}
-    cache::Dict{E,V}
+    cache::LRU{E,V}
     deps::Set{Symbol}
 end
 
-function CachedAnalysis{E,V}(analysis, deps::Vector{Symbol}=Symbol[]) where {E,V}
-    return CachedAnalysis(nameof(analysis), analysis, Dict{E,V}(), Set(deps))
+function CachedAnalysis{E,V}(
+    analysis, deps::Vector{Symbol}=Symbol[]; maxsize::Int=100
+) where {E,V}
+    return CachedAnalysis(nameof(analysis), analysis, LRU{E,V}(; maxsize), Set(deps))
 end
 
 function Base.nameof(ca::CachedAnalysis)
@@ -14,8 +16,7 @@ function Base.nameof(ca::CachedAnalysis)
 end
 
 function (ca::CachedAnalysis{E,V})(node::E) where {E,V}
-    haskey(ca.cache, node) && return ca.cache[node]
-    result = ca.analysis(node)
-    ca.cache[node] = result
-    return result::V
+    return get!(ca.cache, node) do
+        ca.analysis(node)
+    end
 end
