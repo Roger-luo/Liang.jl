@@ -1,16 +1,37 @@
-@data PrimitiveOp begin
+# NOTE: we don't intend to handle
+# large operators with OpValue, large
+# operators should be computed with:
+#
+# 1. compiled kernels
+# 2. symbolic expression
+#
+# OpValue is only for small operators, and
+# other cheap exact evaluation.
+
+@data OpValue begin
     Pauli(Vector{UInt8})
 
+    # we need a constant sparse pattern
+    # if it's non-constant, use the Op
+    # expression.
+    #
+    # weights can be Scalar.Type, but must
+    # be concrete expression (no variables)
+    # this is mainly because we want to preserve
+    # certain structure of the expression so
+    # expectation value of the operator can be expressive, e.g
+    # exp(-im*theta) as entries.
     struct Perm
         nsites::Int
-        perm::Vector{UInt8}
+        perm::Vector{Int}
         weights::Vector{Scalar.Type}
     end
 
-    Matrix(Matrix{ComplexF64})
+    Dense(Int, Matrix{Scalar.Type})
+    Sparse(Int, SparseMatrixCSC{Scalar.Type})
 end
 
-@derive PrimitiveOp[PartialEq, Hash]
+@derive OpValue[PartialEq, Hash]
 
 TWOLEVEL_NOTE = """
 !!! note
@@ -82,7 +103,7 @@ TWOLEVEL_NOTE = """
     """
     T
 
-    Constant(PrimitiveOp.Type)
+    Constant(OpValue.Type)
     struct Variable
         name::Symbol
         id::UInt64 = 0# SSA id
@@ -162,4 +183,4 @@ end
 
 @derive Op[PartialEq, Hash, Tree]
 
-Base.convert(::Type{Op.Type}, op::PrimitiveOp.Type) = Op.Constant(op)
+Base.convert(::Type{Op.Type}, op::OpValue.Type) = Op.Constant(op)
