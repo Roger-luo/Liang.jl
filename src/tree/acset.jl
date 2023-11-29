@@ -139,6 +139,10 @@ function threaded_map(f, acset::Vector)
     return tcollect(Map(f)(acset))
 end
 
+function threaded_map(f, acset::Set)
+    return tcollect(Map(f)(acset))
+end
+
 function Base.:(==)(lhs::ACSet{K,V}, rhs::ACSet{K,V}) where {K,V}
     return lhs.terms == rhs.terms
 end

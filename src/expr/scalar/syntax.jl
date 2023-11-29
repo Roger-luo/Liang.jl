@@ -309,59 +309,6 @@ Base.exp(x::Scalar.Type) = Scalar.Exp(x)
 Base.log(x::Scalar.Type) = Scalar.Log(x)
 Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
 
-# Index
-Base.abs(x::Index.Type) = Index.Abs(x)
-
-"""
-$SIGNATURES
-
-Assert that the index `lhs` and `rhs` are equal.
-"""
-function assert_equal(lhs::Index.Type, rhs::Index.Type, msg::String="")
-    lhs == rhs && return lhs # short-circuit
-    return Index.AssertEqual(lhs, rhs, msg)
-end
-
-Base.:(+)(x::Index.Type) = x
-Base.:(-)(x::Index.Type) = Index.Neg(x)
-Base.:(+)(lhs::Index.Type, rhs::Index.Type) = Index.Add(lhs, rhs)
-Base.:(+)(lhs::Index.Type, rhs::Int) = Index.Add(lhs, rhs)
-Base.:(+)(lhs::Int, rhs::Index.Type) = Index.Add(lhs, rhs)
-Base.:(-)(lhs::Index.Type, rhs::Index.Type) = Index.Sub(lhs, rhs)
-Base.:(-)(lhs::Index.Type, rhs::Int) = Index.Sub(lhs, rhs)
-Base.:(-)(lhs::Int, rhs::Index.Type) = Index.Sub(lhs, rhs)
-Base.:(*)(lhs::Index.Type, rhs::Index.Type) = Index.Mul(lhs, rhs)
-Base.:(*)(lhs::Index.Type, rhs::Int) = Index.Mul(lhs, rhs)
-Base.:(*)(lhs::Int, rhs::Index.Type) = Index.Mul(lhs, rhs)
-Base.:(/)(lhs::Index.Type, rhs::Index.Type) = Index.Div(lhs, rhs)
-Base.:(/)(lhs::Index.Type, rhs::Int) = Index.Div(lhs, rhs)
-Base.:(/)(lhs::Int, rhs::Index.Type) = Index.Div(lhs, rhs)
-Base.:(\)(lhs::Index.Type, rhs::Index.Type) = rhs / lhs
-Base.:(\)(lhs::Index.Type, rhs::Int) = rhs / lhs
-Base.:(\)(lhs::Int, rhs::Index.Type) = rhs / lhs
-Base.:(^)(lhs::Index.Type, rhs::Index.Type) = Index.Pow(lhs, rhs)
-Base.:(^)(lhs::Index.Type, rhs::Int) = Index.Pow(lhs, rhs)
-Base.:(^)(lhs::Int, rhs::Index.Type) = Index.Pow(lhs, rhs)
-Base.rem(lhs::Index.Type, rhs::Index.Type) = Index.Rem(lhs, rhs)
-Base.rem(lhs::Index.Type, rhs::Int) = Index.Rem(lhs, rhs)
-Base.rem(lhs::Int, rhs::Index.Type) = Index.Rem(lhs, rhs)
-Base.min(lhs::Index.Type, rhs::Index.Type) = Index.Min(lhs, rhs)
-Base.min(lhs::Index.Type, rhs::Int) = Index.Min(lhs, rhs)
-Base.min(lhs::Int, rhs::Index.Type) = Index.Min(lhs, rhs)
-Base.max(lhs::Index.Type, rhs::Index.Type) = Index.Max(lhs, rhs)
-Base.max(lhs::Index.Type, rhs::Int) = Index.Max(lhs, rhs)
-Base.max(lhs::Int, rhs::Index.Type) = Index.Max(lhs, rhs)
-
-function parse_var(f, s::AbstractString)
-    if (m = match(r"%([0-9]+)", s); !isnothing(m))
-        id = parse(Int64, m.captures[1])
-        id > 0 || error("invalid SSA id: $id ≤ 0")
-        return f(; name=Symbol(s), id)
-    else
-        return f(; name=Symbol(s))
-    end
-end
-
 # variable syntax
 """
     @scalar_str
@@ -430,15 +377,6 @@ with `Domain.Complex`.
 """
 macro complex_str(s::AbstractString)
     return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Complex)
-end
-
-"""
-    @index_str
-
-Create a `Index.Variable` from a string.
-"""
-macro index_str(s::AbstractString)
-    return parse_var(Index.Variable, s)
 end
 
 struct RoutineStub

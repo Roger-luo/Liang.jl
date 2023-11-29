@@ -1,10 +1,10 @@
 function remove_empty_add(node::Scalar.Type)
     isa_variant(node, Scalar.Add) || return node
-    node.coeffs == Num.Zero || return node
+    iszero(node.coeffs) || return node
     length(node.terms) == 1 || return node
 
     term, val = first(node.terms)
-    if val == Num.One
+    if isone(val)
         return term
     else # val * term
         return node

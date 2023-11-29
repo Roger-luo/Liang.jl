@@ -27,6 +27,8 @@ defining the canonicalization transform of an expression type.
 """
 @interface (canonicalize(node::E)::E) where {E} = not_implemented_error()
 
+include("var.jl")
+include("index/mod.jl")
 include("scalar/mod.jl")
 include("basis/mod.jl")
 include("state/mod.jl")

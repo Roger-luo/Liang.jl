@@ -23,24 +23,6 @@ function Base.isreal(x::Num.Type)
     end
 end
 
-function Base.iszero(x::Index.Type)
-    @match x begin
-        Index.Constant(0) => true
-        _ => false
-    end
-end
-
-function Base.isone(x::Index.Type)
-    @match x begin
-        Index.Constant(1) => true
-        _ => false
-    end
-end
-
-function Base.isreal(x::Index.Type)
-    return true
-end
-
 function Base.iszero(x::Scalar.Type)
     @match x begin
         Scalar.Constant(x) => iszero(x)

@@ -7,5 +7,6 @@ using DynamicQuantities: Quantity, SymbolicDimensions, dimension
 
 include("unit.jl")
 include("domain.jl")
+include("check.jl")
 
 end # ScalarAnalysis

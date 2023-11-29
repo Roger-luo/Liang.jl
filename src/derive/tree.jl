@@ -42,7 +42,8 @@ function tree_derive_n_children(mod::Module, data::Module)
 
         dynamic_children = []
         for (idx, field_type) in enumerate(variant_fieldtypes(variant_type))
-            field_type <: ACSet{data.Type} || continue
+            field_type <: Union{ACSet{data.Type},Vector{data.Type},Set{data.Type}} ||
+                continue
             field_value = xcall(
                 Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
             ),
@@ -91,6 +92,11 @@ function tree_derive_children(mod::Module, data::Module)
                 )
                 push!(dynamic_children, :($Base.keys($field_value)))
             elseif field_type <: Vector{data.Type}
+                field_value = xcall(
+                    Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
+                )
+                push!(dynamic_children, field_value)
+            elseif field_type <: Set{data.Type}
                 field_value = xcall(
                     Reflection, :variant_getfield, :node, Val(variant_type.tag), idx
                 )
@@ -151,7 +157,8 @@ function tree_map_children(
                     Reflection, :variant_getfield, node, Val(variant_type.tag), idx
                 )
                 @gensym value task
-                if field_type <: Union{data.Type,Vector{data.Type},Tree.ACSet{data.Type}} # children, use replacement
+                if field_type <:
+                    Union{data.Type,Vector{data.Type},Set{data.Type},Tree.ACSet{data.Type}} # children, use replacement
                     is_leaf = false
                     apply_f, retreive = tree_apply_f(async_mode, field_type, f, value, task)
                     push!(
@@ -193,11 +200,9 @@ function tree_apply_f(::Val{:spawn}, ::Type, f, value, task)
     return :($Threads.@spawn $f($value)), :($Threads.fetch($task))
 end
 
-function tree_apply_f(::Val{:spawn}, ::Type{<:ACSet}, f, value, task)
-    return :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
-end
-
-function tree_apply_f(::Val{:spawn}, ::Type{<:Vector}, f, value, task)
+function tree_apply_f(
+    ::Val{:spawn}, ::Type{T}, f, value, task
+) where {T<:Union{ACSet,Vector,Set}}
     return :($Threads.@spawn $Tree.threaded_map($f, $value)), :($Threads.fetch($task))
 end
 
@@ -205,10 +210,6 @@ function tree_apply_f(::Val, ::Type, f, value, task)
     return :($f($value)), task
 end
 
-function tree_apply_f(::Val, ::Type{<:ACSet}, f, value, task)
-    return :($Base.map($f, $value)), task
-end
-
-function tree_apply_f(::Val, ::Type{<:Vector}, f, value, task)
+function tree_apply_f(::Val, ::Type{T}, f, value, task) where {T<:Union{ACSet,Vector,Set}}
     return :($Base.map($f, $value)), task
 end

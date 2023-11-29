@@ -1,6 +1,3 @@
-Base.convert(::Type{Index.Type}, x::Int) = Index.Constant(x)
-Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(; name=x)
-
 Base.convert(::Type{Num.Type}, x::Real) =
     if iszero(x)
         Num.Zero
@@ -30,21 +27,6 @@ Base.convert(::Type{Scalar.Type}, x::Number) =
         Scalar.Euler
     else
         Scalar.Constant(convert(Num.Type, x))
-    end
-
-# backwards conversion
-Base.convert(::Type{Int}, x::Index.Type) =
-    if isa_variant(x, Index.Constant)
-        return x.:1
-    else
-        error("Expect a constant index, got $x")
-    end
-
-Base.convert(::Type{Symbol}, x::Index.Type) =
-    if isa_variant(x, Index.Variable)
-        return x.name
-    else
-        error("Expect a variable index, got $x")
     end
 
 function onlyif_constant(f, x::Scalar.Type)
