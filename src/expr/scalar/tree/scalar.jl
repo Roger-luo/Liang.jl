@@ -51,8 +51,8 @@ function Tree.Print.print_node(io::IO, node::Scalar.Type)
         Scalar.Partial(expr, var) => print(io, "∂")
         Scalar.Derivative(expr, var) => print(io, "d")
 
-        Scalar.Domain(expr, domain) => nothing # don't show in inline print
-        Scalar.Unit(expr, unit) => printstyled(io, "*", unit; color=:light_black)
+        Scalar.Domain(expr, domain) => print(io, "domain") # don't show in inline print
+        Scalar.Unit(expr, unit) => printstyled(io, "*", dimension(unit); color=:light_black)
     end
 end
 
@@ -81,12 +81,15 @@ function Tree.Print.use_custom_print(node::Scalar.Type)::Bool
         Scalar.Mul => true
         Scalar.Tr => true
         Scalar.Det => true
+        Scalar.Domain => true
         _ => false
     end
 end
 
 function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
     @match node begin
+        # skip domain annotation
+        Scalar.Domain(x) => Tree.Print.inline(io, x)
         Scalar.Tr(op) || Scalar.Det(op) => begin
             Tree.Print.print_node(io, node)
             print(io, "(")

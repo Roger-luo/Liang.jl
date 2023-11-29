@@ -1,13 +1,6 @@
-# TODO: Add some units here
-"""
-expression for Unit
-"""
-@data Unit begin
-    Some
-    None
-end
-
-@derive Unit[PartialEq, Hash]
+const UnitType = Quantity{
+    Float64,SymbolicDimensions{DynamicQuantities.DEFAULT_DIM_BASE_TYPE}
+}
 
 @data Domain begin
     Natural
@@ -232,7 +225,7 @@ This is the basic scalar type. It supports pattern matching.
     Det(Any)
 
     Domain(Scalar, Domain.Type)
-    Unit(Scalar, Dimensions{DEFAULT_DIM_BASE_TYPE})
+    Unit(Scalar, UnitType)
 end
 
 @derive Scalar[PartialEq, Hash, Tree]

@@ -373,6 +373,66 @@ macro scalar_str(s::AbstractString)
 end
 
 """
+    @int_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Integer`.
+"""
+macro int_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Integer)
+end
+
+"""
+    @nat_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Natural`.
+"""
+macro nat_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Natural)
+end
+
+"""
+    @rat_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Rational`.
+"""
+macro rat_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Rational)
+end
+
+"""
+    @real_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Real`.
+"""
+macro real_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Real)
+end
+
+"""
+    @imag_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Imag`.
+"""
+macro imag_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Imag)
+end
+
+"""
+    @complex_str
+
+Create a `Scalar.Variable` from a string annotated
+with `Domain.Complex`.
+"""
+macro complex_str(s::AbstractString)
+    return Scalar.Domain(parse_var(Scalar.Variable, s), Domain.Complex)
+end
+
+"""
     @index_str
 
 Create a `Index.Variable` from a string.
