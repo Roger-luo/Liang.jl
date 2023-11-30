@@ -1,6 +1,7 @@
 module Prelude
 
 using Liang.Syntax:
+    Syntax,
     assert_equal,
     @index_str,
     domain,
@@ -14,11 +15,13 @@ using Liang.Syntax:
     @routine_str,
     Lattice,
     @prod_str,
+    @def,
     comm,
     acomm,
     outer
 
-export assert_equal,
+export Syntax,
+    assert_equal,
     @index_str,
     domain,
     @scalar_str,
@@ -31,6 +34,7 @@ export assert_equal,
     @routine_str,
     Lattice,
     @prod_str,
+    @def,
     comm,
     acomm,
     outer

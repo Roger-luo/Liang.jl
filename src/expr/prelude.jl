@@ -1,6 +1,7 @@
 module Prelude
 
 using Liang.Expression:
+    Expression,
     Variable,
     Index,
     Domain,
@@ -13,8 +14,24 @@ using Liang.Expression:
     Label,
     State,
     OpValue,
-    Op
-export Variable,
-    Index, Domain, Num, Scalar, Space, Basis, Region, Geometry, Label, State, OpValue, Op
+    Op,
+    Tensor,
+    Device
+export Expression,
+    Variable,
+    Index,
+    Domain,
+    Num,
+    Scalar,
+    Space,
+    Basis,
+    Region,
+    Geometry,
+    Label,
+    State,
+    OpValue,
+    Op,
+    Tensor,
+    Device
 
 end # Prelude

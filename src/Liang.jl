@@ -17,7 +17,7 @@ include("rewrite/mod.jl")
 include("expr/mod.jl")
 include("canonicalize/mod.jl")
 include("syntax/mod.jl")
-# include("analysis/mod.jl")
+include("analysis/mod.jl")
 # include("eval/mod.jl")
 
 include("prelude.jl")

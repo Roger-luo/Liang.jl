@@ -1,4 +1,4 @@
-function Expression.domain(node::Num.Type)
+function Syntax.domain(node::Num.Type)
     @match node begin
         Num.Zero => Domain.Natural
         Num.One => Domain.Natural
@@ -8,10 +8,8 @@ function Expression.domain(node::Num.Type)
     end
 end
 
-function Expression.domain(node::Scalar.Type)
+function Syntax.domain(node::Scalar.Type)
     @match node begin
-        Scalar.Wildcard => Domain.Unknown
-        Scalar.Match(_) => Domain.Unknown
         Scalar.Constant(x) => domain(x)
         Scalar.Pi => Domain.Real
         Scalar.Euler => Domain.Real

@@ -21,7 +21,6 @@ using DynamicQuantities:
 using DocStringExtensions
 
 include("interface.jl")
-include("tools.jl")
 include("var.jl")
 include("index/mod.jl")
 include("scalar/mod.jl")
@@ -30,8 +29,7 @@ include("region/mod.jl")
 include("state/mod.jl")
 include("op/mod.jl")
 include("tensor/mod.jl")
-# include("routine.jl")
-# include("def.jl")
+include("routine.jl")
 include("prelude.jl")
 
 end # Expression
