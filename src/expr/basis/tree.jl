@@ -13,7 +13,13 @@ function Tree.Print.print_node(io::IO, node::Space.Type)
     @match node begin
         Space.Qubit => printstyled(io, "Qubit"; color=:light_black)
         Space.Qudit(d) => printstyled(io, "Qudit($d)"; color=:light_black)
-        Space.Spin(d) => printstyled(io, "Spin($d/2)"; color=:light_black)
+        Space.Spin(d) => begin
+            if iseven(d)
+                printstyled(io, "Spin($(d÷2))"; color=:light_black)
+            else
+                printstyled(io, "Spin($d/2)"; color=:light_black)
+            end
+        end
         Space.Product(s1, s2) => printstyled(io, "⊗"; color=:light_black)
         Space.Pow(s, n) => printstyled(io, "^", n; color=:light_black)
         Space.Subspace(s, v) => begin

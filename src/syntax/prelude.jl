@@ -20,7 +20,8 @@ using Liang.Syntax:
     acomm,
     outer,
     Qubit,
-    Qudit
+    Qudit,
+    Spin
 
 export Syntax,
     assert_equal,
@@ -41,6 +42,7 @@ export Syntax,
     acomm,
     outer,
     Qubit,
-    Qudit
+    Qudit,
+    Spin
 
 end # Prelude
