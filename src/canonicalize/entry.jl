@@ -26,7 +26,12 @@ function canonicalize(node::Scalar.Type)
         Fixpoint(Post(prop_conj)),
     )
 
-    p = Chain(p, Post(sort_terms(Scalar.Add)), Post(sort_terms(Scalar.Mul)))
+    p = Chain(
+        Fixpoint(p),
+        Post(sort_terms(Scalar.Add)),
+        Post(sort_terms(Scalar.Mul)),
+        Post(fold_const_pow),
+    )
     return p(node)
 end
 
