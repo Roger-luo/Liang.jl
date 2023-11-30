@@ -4,12 +4,10 @@ Base.show(io::IO, ::MIME"text/plain", node::Op.Type) = Tree.Print.text(io, node)
 function Tree.Print.print_node(io::IO, node::Op.Type)
     @match node begin
         Op.Zero => print(io, "O")
-        Op.Wildcard => print(io, "_")
-        Op.Match(name) => print(io, "\$", name)
         Op.Annotate(op, basis) => printstyled(io, "%", basis; color=:light_black)
 
         Op.Constant(value) => print(io, value)
-        Op.Variable(; name, id) => Tree.Print.print_variable(io, name, id)
+        Op.Variable(x) => print(io, x)
 
         Op.Mul(lhs, rhs) => print(io, "*")
         Op.Kron(lhs, rhs) => print(io, "⊗")
@@ -103,7 +101,7 @@ end
 
 function Tree.Print.custom_inline_print(io::IO, node::Op.Type)
     @match node begin
-        Op.Add(terms) => Tree.Print.print_add(io, terms)
+        Op.Add(terms) => Tree.Print.Add()(io, terms)
         Op.Sum(region, indices, term) => print_reduction(io, "∑", region, indices, term)
         Op.Prod(region, indices, term) => print_reduction(io, "∏", region, indices, term)
         Op.Comm(_) => print_jordan_lie(io, node)

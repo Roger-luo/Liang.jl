@@ -22,12 +22,5 @@ for op in (:<, :<=, :>, :>=, :isless)
         function Base.$op(lhs::Number, rhs::Num.Type)
             return $op(Number(lhs), rhs)
         end
-
-        function Base.$op(lhs::Index.Type, rhs::Index.Type)
-            @match (lhs, rhs) begin
-                (Index.Constant(x), Index.Constant(y)) => $op(x, y)
-                _ => error("Cannot compare $lhs and $rhs")
-            end
-        end
     end
 end

@@ -1,6 +1,3 @@
-Base.convert(::Type{Index.Type}, x::Int) = Index.Constant(x)
-Base.convert(::Type{Index.Type}, x::Symbol) = Index.Variable(; name=x)
-
 Base.convert(::Type{Num.Type}, x::Real) =
     if iszero(x)
         Num.Zero
@@ -30,21 +27,6 @@ Base.convert(::Type{Scalar.Type}, x::Number) =
         Scalar.Euler
     else
         Scalar.Constant(convert(Num.Type, x))
-    end
-
-# backwards conversion
-Base.convert(::Type{Int}, x::Index.Type) =
-    if isa_variant(x, Index.Constant)
-        return x.:1
-    else
-        error("Expect a constant index, got $x")
-    end
-
-Base.convert(::Type{Symbol}, x::Index.Type) =
-    if isa_variant(x, Index.Variable)
-        return x.name
-    else
-        error("Expect a variable index, got $x")
     end
 
 function onlyif_constant(f, x::Scalar.Type)
@@ -94,21 +76,16 @@ end
 
 function Base.convert(::Type{Scalar.Type}, x::Index.Type)
     @match x begin
+        Index.Inf => return Scalar.Constant(Inf)
         Index.Constant(y) => return Scalar.Constant(y)
-        Index.Variable(; name, id) => return Scalar.Variable(; name, id)
-        Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
-        Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
-        Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
+        Index.Variable(x) => return Scalar.Variable(x)
+        Index.Add(coeffs, terms) => return Scalar.Add(coeffs, terms)
+        Index.Mul(coeffs, terms) => return Scalar.Mul(coeffs, terms)
         Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
         Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
-        Index.Max(x, y) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
-        Index.Min(x, y) => return min(convert(Scalar.Type, x), convert(Scalar.Type, y))
-        Index.Neg(x) => return -convert(Scalar.Type, x)
+        Index.Max(terms) => return Scalar.Max(terms)
+        Index.Min(x, y) => return Scalar.Min(terms)
         Index.Abs(x) => return abs(convert(Scalar.Type, x))
-        Index.Wildcard => return Scalar.Wildcard
-        Index.Match(name) => return Scalar.Match(name)
-        Index.NSites(name, id) => error("cannot convert NSites to Scalar")
-        Index.AssertEqual(lhs, rhs, msg) => error("cannot convert AssertEqual to Scalar")
         _ => error("Expect a constant index, got $x")
     end
 end

@@ -21,3 +21,17 @@ pinfo.scope
 pinfo = PatternInfo(info)
 Match.decons(pinfo, info.cases[2])(:x)
 pinfo.scope
+
+using Liang.Prelude
+
+info = EmitInfo(
+    Main,
+    :x,
+    quote
+        (Index.Constant(x), y) || (y, Index.Constant(x)) => Index.Mul(x, ACSet(y => 1))
+    end,
+)
+
+pinfo = PatternInfo(info)
+Match.decons(pinfo, info.cases[1])(:x)
+pinfo.scope

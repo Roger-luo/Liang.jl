@@ -1,5 +1,5 @@
 # well we don't really need printing to be type stable
-function Tree.Print.children(node::Scalar.Type)::Vector{Union{Op.Type,Scalar.Type}}
+function Tree.Print.children(node::Scalar.Type)
     @match node begin
         Scalar.Tr(op) => [op]
         Scalar.Det(op) => [op]
@@ -17,13 +17,11 @@ end
 
 function Tree.Print.print_node(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Wildcard => print(io, "_")
-        Scalar.Match(name) => print(io, "\$", name)
         Scalar.Constant(x) => print(io, x)
         Scalar.Pi => print(io, "π")
         Scalar.Euler => print(io, "ℯ")
         Scalar.Hbar => print(io, "ℏ")
-        Scalar.Variable(name, id) => Tree.Print.print_variable(io, name, id)
+        Scalar.Variable(x) => print(io, x)
         Scalar.Subscript(ref, indices) => begin
             print(io, ref)
             print(io, "[")
@@ -39,6 +37,8 @@ function Tree.Print.print_node(io::IO, node::Scalar.Type)
         Scalar.Sqrt(x) => print(io, "sqrt")
         Scalar.Tr(x) => print(io, "tr")
         Scalar.Det(x) => print(io, "det")
+        Scalar.Max(x) => print(io, "max")
+        Scalar.Min(x) => print(io, "min")
 
         Scalar.Add(coeffs, terms) => print(io, "+")
         Scalar.Mul(coeffs, terms) => print(io, "*")
@@ -106,7 +106,7 @@ function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
                     end
                 end
             end
-            Tree.Print.print_add(io, terms)
+            Tree.Print.Add()(io, terms)
         end
         Scalar.Mul(coeffs, terms) => begin
             @match coeffs begin
@@ -119,7 +119,7 @@ function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
                     end
                 end
             end
-            Tree.Print.print_mul(io, terms)
+            Tree.Print.Mul()(io, terms)
         end
     end
 end

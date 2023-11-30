@@ -48,6 +48,8 @@ function ACSet{K,V}(pairs::Pair...) where {K,V}
     return ACSet{K,V}(pairs)
 end
 
+ACSet(pairs::Pair{K,V}...) where {K,V} = ACSet{K,V}(pairs)
+
 """
 $SIGNATURES
 
@@ -136,6 +138,10 @@ function threaded_map(f, acset::ACSet{K,V}) where {K,V}
 end
 
 function threaded_map(f, acset::Vector)
+    return tcollect(Map(f)(acset))
+end
+
+function threaded_map(f, acset::Set)
     return tcollect(Map(f)(acset))
 end
 

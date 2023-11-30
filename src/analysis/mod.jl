@@ -3,6 +3,7 @@ module Analysis
 using Liang.Data.Prelude
 using Liang.Match: @match
 using Liang.Expression.Prelude
+using Liang.Syntax.Prelude
 using Liang.Tree: children
 using Liang.Tools.Interface: @interface, INTERFACE
 using Liang: not_implemented_error

@@ -36,10 +36,6 @@ function Base.show(io::IO, x::Num.Type)
     end
 end
 
-function Base.show(io::IO, node::Index.Type)
-    return Tree.Print.inline(io, node)
-end
-
 function Base.show(io::IO, node::Scalar.Type)
     return Tree.Print.inline(io, node)
 end

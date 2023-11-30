@@ -14,104 +14,6 @@ end
 
 @derive Domain[PartialEq, Hash]
 
-# This is like MLIR IndexType
-# depends on the Platform (32-bit or 64-bit)
-"""
-    Index
-
-This is like MLIR IndexType, with basic support for arithmetic operations.
-Unlike the general scalar expression, no simplification will be run on this expression.
-It supports pattern matching.
-"""
-@data Index begin
-    Wildcard
-    Match(Symbol)
-
-    Inf
-
-    """
-    Constant index, e.g. 0, 1, 2, 3, ...
-    """
-    Constant(Int)
-
-    """
-    Variable index, e.g. i, j, k, ...
-    """
-    struct Variable
-        name::Symbol
-        id::UInt64 = 0# SSA id
-    end
-
-    """
-    Add two indices
-    """
-    Add(Index, Index)
-
-    """
-    Subtract two indices
-    """
-    Sub(Index, Index)
-
-    """
-    Multiply two indices
-    """
-    Mul(Index, Index)
-
-    """
-    Divide two indices
-    """
-    Div(Index, Index) # int division, floor
-
-    """
-    Modular division
-    """
-    Rem(Index, Index) # remainder
-
-    """
-    Power of two indices
-    """
-    Pow(Index, Index)
-
-    """
-    Maximum of two indices
-    """
-    Max(Index, Index)
-
-    """
-    Minimum of two indices
-    """
-    Min(Index, Index)
-
-    """
-    Negate an index
-    """
-    Neg(Index)
-
-    """
-    Absolute value of an index
-    """
-    Abs(Index)
-
-    """
-    require evaluation on `n_sites` of variable from other expression
-    """
-    struct NSites
-        name::Symbol
-        id::UInt64 = 0# SSA id
-    end
-
-    """
-    assert two indices are equal
-    """
-    struct AssertEqual
-        lhs::Index
-        rhs::Index
-        msg::String
-    end
-end
-
-@derive Index[PartialEq, Hash, Tree]
-
 """
     Num
 
@@ -134,8 +36,7 @@ This is the basic scalar type. It supports pattern matching.
 """
 @data Scalar begin
     # pattern semantics
-    Wildcard
-    Match(Symbol) # Match a variable
+    Variable(Variable.Type)
 
     # expression semantics
     Constant(Num.Type)
@@ -151,11 +52,6 @@ This is the basic scalar type. It supports pattern matching.
     Planck constant
     """
     Hbar # Planck constant
-
-    struct Variable
-        name::Symbol
-        id::UInt64 = 0# SSA id
-    end
 
     # some first-class functions
     Neg(Scalar)
@@ -174,6 +70,16 @@ This is the basic scalar type. It supports pattern matching.
     struct Mul
         coeffs::Num.Type
         terms::ACSet{Scalar,Num.Type}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
+    struct Max
+        terms::Set{Scalar}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
+    struct Min
+        terms::Set{Scalar}
         hash::Hash.Cache = Hash.Cache()
     end
 
