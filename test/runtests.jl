@@ -1,11 +1,11 @@
 using Test
-using Liang
+using Liang.Prelude
 
 @testset "Liang.jl" begin
     @test 1 == 1
 end # Liang.jl tests
 
-H = sum(Lattice.square(3), [index"i"] => Op.X[index"i"] * Op.X[index"i" + 1])
+H = sum(Lattice.square(index"i"), [index"i"] => Op.X[index"i"] * Op.X[index"i" + 1])
 U_t = exp(-im * scalar"t" * H)
 canonicalize(U_t)
 

@@ -136,6 +136,12 @@ TWOLEVEL_NOTE = """
 
     Adjoint(Op)
 
+    """
+    Mark the operator expression is ordered by
+    a corresponding time variable.
+    """
+    TimeOrdered(Op, Variable.Type)
+
     struct Subscript
         op::Op
         indices::Vector{Index.Type}

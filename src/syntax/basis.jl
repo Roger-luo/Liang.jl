@@ -20,3 +20,9 @@ function Base.getindex(space::Space.Type, indices)
     length(indices) <= n_levels(space) || error("index out of range")
     return Space.Subspace(space, collect(Int, indices))
 end
+
+const Qubit = Basis(Op.Z, Space.Qubit)
+
+function Qudit(d::Int)
+    return Basis(Op.Z, Space.Qudit(d))
+end

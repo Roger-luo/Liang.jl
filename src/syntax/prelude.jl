@@ -18,7 +18,9 @@ using Liang.Syntax:
     @def,
     comm,
     acomm,
-    outer
+    outer,
+    Qubit,
+    Qudit
 
 export Syntax,
     assert_equal,
@@ -37,6 +39,8 @@ export Syntax,
     @def,
     comm,
     acomm,
-    outer
+    outer,
+    Qubit,
+    Qudit
 
 end # Prelude

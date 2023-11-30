@@ -55,6 +55,7 @@ function Tree.Print.print_node(io::IO, node::Op.Type)
         # postfix op
         Op.Adjoint(op) => print(io, "†")
         Op.Transpose(op) => print(io, "ᵀ")
+        Op.TimeOrdered(op, var) => print(io, "T_{", var, "}")
         Op.Subscript(op, inds) => begin
             print(io, "[")
             Tree.Print.inline_list(IOContext(io, :precedence => 0), inds)

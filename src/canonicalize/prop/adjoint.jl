@@ -40,6 +40,7 @@ function prop_adjoint(node::Op.Type)
         Op.Adjoint(Op.Transpose(A)) => Op.Conj(A)
         Op.Adjoint(Op.Outer(lhs, rhs)) => Op.Outer(rhs, lhs)
         Op.Adjoint(Op.Annotate(A, basis)) => Op.Annotate(A', basis)
+        Op.Adjoint(Op.TimeOrdered(A, var)) => Op.TimeOrdered(A', var)
         _ => node
     end
 end
