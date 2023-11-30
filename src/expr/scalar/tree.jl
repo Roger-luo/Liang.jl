@@ -17,13 +17,11 @@ end
 
 function Tree.Print.print_node(io::IO, node::Scalar.Type)
     @match node begin
-        Scalar.Wildcard => print(io, "_")
-        Scalar.Match(name) => print(io, "\$", name)
         Scalar.Constant(x) => print(io, x)
         Scalar.Pi => print(io, "π")
         Scalar.Euler => print(io, "ℯ")
         Scalar.Hbar => print(io, "ℏ")
-        Scalar.Variable(name, id) => Tree.Print.print_variable(io, name, id)
+        Scalar.Variable(x) => print(io, x)
         Scalar.Subscript(ref, indices) => begin
             print(io, ref)
             print(io, "[")

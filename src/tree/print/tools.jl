@@ -1,8 +1,12 @@
-function print_add(io::IO, terms::AbstractDict)
-    parent_pred = get(io, :precedence, 0)
-    node_pred = Base.operator_precedence(:+)
-    parent_pred > node_pred && print(io, "(")
+Base.@kwdef struct Add
+    add::Int = Base.operator_precedence(:+)
+    mul::Int = Base.operator_precedence(:*)
+end
 
+function (p::Add)(io::IO, terms::AbstractDict)
+    parent_pred = get(io, :precedence, 0)
+    node_pred = p.add
+    parent_pred > node_pred && print(io, "(")
     for (idx, (term, coeff)) in enumerate(terms)
         # NOTE: we should just print all terms
         # cause otherwise they should be simplified
@@ -10,9 +14,9 @@ function print_add(io::IO, terms::AbstractDict)
         # iszero(coeff) && continue
         if !isone(coeff)
             print(io, coeff, "*")
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
+            sub_io = IOContext(io, :precedence => p.mul)
         else
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:+))
+            sub_io = IOContext(io, :precedence => p.add)
         end
         inline(sub_io, term)
         if idx < length(terms)
@@ -24,9 +28,14 @@ function print_add(io::IO, terms::AbstractDict)
     return nothing
 end
 
-function print_mul(io::IO, terms::AbstractDict)
+Base.@kwdef struct Mul
+    mul::Int = Base.operator_precedence(:*)
+    pow::Int = Base.operator_precedence(:^)
+end
+
+function (p::Mul)(io::IO, terms::AbstractDict)
     parent_pred = get(io, :precedence, 0)
-    node_pred = precedence(:+)
+    node_pred = p.mul
     parent_pred > node_pred && print(io, "(")
 
     for (idx, (term, coeff)) in enumerate(terms)
@@ -35,11 +44,11 @@ function print_mul(io::IO, terms::AbstractDict)
         # otherwise.
         # iszero(coeff) && continue
         if !isone(coeff)
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:^))
+            sub_io = IOContext(io, :precedence => p.pow)
             inline(sub_io, term)
             print(io, "^", coeff)
         else
-            sub_io = IOContext(io, :precedence => Base.operator_precedence(:*))
+            sub_io = IOContext(io, :precedence => p.mul)
             inline(sub_io, term)
         end
 

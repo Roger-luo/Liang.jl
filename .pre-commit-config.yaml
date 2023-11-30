@@ -3,9 +3,8 @@ repos:
     rev: v4.5.0
     hooks:
     -   id: check-yaml
-    -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/domluna/JuliaFormatter.jl
-    rev: v1.0.42
+    rev: v1.0.43
     hooks:
     -   id: julia-formatter

@@ -16,7 +16,7 @@ function decons_variable(info::PatternInfo, pat::Pattern.Type)
         #
         # placeholder! is used to control within the same pattern
         # that branches created by or are using the same placeholder
-        placeholder = placeholder!(info)
+        placeholder = placeholder!(info, pat.:1)
         info[pat.:1] = placeholder
         return quote
             $(placeholder) = $value

@@ -1,3 +1,5 @@
+# This is like MLIR IndexType
+
 @data Index begin
     Inf
     Constant(Int)

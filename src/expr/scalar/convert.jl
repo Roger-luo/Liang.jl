@@ -74,23 +74,23 @@ end
 (::Type{T})(x::Num.Type) where {T<:Number} = convert(T, x)
 (::Type{T})(x::Scalar.Type) where {T<:Number} = convert(T, x)
 
-function Base.convert(::Type{Scalar.Type}, x::Index.Type)
-    @match x begin
-        Index.Constant(y) => return Scalar.Constant(y)
-        Index.Variable(; name, id) => return Scalar.Variable(; name, id)
-        Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
-        Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
-        Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
-        Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
-        Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
-        Index.Max(x, y) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
-        Index.Min(x, y) => return min(convert(Scalar.Type, x), convert(Scalar.Type, y))
-        Index.Neg(x) => return -convert(Scalar.Type, x)
-        Index.Abs(x) => return abs(convert(Scalar.Type, x))
-        Index.Wildcard => return Scalar.Wildcard
-        Index.Match(name) => return Scalar.Match(name)
-        Index.NSites(name, id) => error("cannot convert NSites to Scalar")
-        Index.AssertEqual(lhs, rhs, msg) => error("cannot convert AssertEqual to Scalar")
-        _ => error("Expect a constant index, got $x")
-    end
-end
+# function Base.convert(::Type{Scalar.Type}, x::Index.Type)
+#     @match x begin
+#         Index.Constant(y) => return Scalar.Constant(y)
+#         Index.Variable(x) => return Scalar.Variable(x)
+#         Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
+#         Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
+#         Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
+#         Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
+#         Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
+#         Index.Max(x, y) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
+#         Index.Min(x, y) => return min(convert(Scalar.Type, x), convert(Scalar.Type, y))
+#         Index.Neg(x) => return -convert(Scalar.Type, x)
+#         Index.Abs(x) => return abs(convert(Scalar.Type, x))
+#         Index.Wildcard => return Scalar.Wildcard
+#         Index.Match(name) => return Scalar.Match(name)
+#         Index.NSites(name, id) => error("cannot convert NSites to Scalar")
+#         Index.AssertEqual(lhs, rhs, msg) => error("cannot convert AssertEqual to Scalar")
+#         _ => error("Expect a constant index, got $x")
+#     end
+# end

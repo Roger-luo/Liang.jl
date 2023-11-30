@@ -10,11 +10,11 @@ end
 Base.convert(::Type{Variable.Type}, x::Symbol) = Variable.Slot(x)
 Base.convert(::Type{Variable.Type}, x::UInt64) = Variable.SSA(x)
 
-function Base.show(io::IO, v::Variable)
+function Base.show(io::IO, v::Variable.Type)
     @match v begin
-        Wildcard => print(io, "_")
-        Match(name) => print(io, "\$", name)
-        SSA(id) => print(io, "%", id)
-        Slot(name) => print(io, name)
+        Variable.Wildcard => print(io, "_")
+        Variable.Match(name) => print(io, "\$", name)
+        Variable.SSA(id) => print(io, "%", id)
+        Variable.Slot(name) => print(io, name)
     end
 end

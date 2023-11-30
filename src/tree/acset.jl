@@ -48,6 +48,8 @@ function ACSet{K,V}(pairs::Pair...) where {K,V}
     return ACSet{K,V}(pairs)
 end
 
+ACSet(pairs::Pair{K,V}...) where {K,V} = ACSet{K,V}(pairs)
+
 """
 $SIGNATURES
 

@@ -29,15 +29,20 @@ end
 struct PatternInfo
     emit::EmitInfo
     placeholder::Symbol
-    placeholder_count::Base.RefValue{Int}
+    # each variable has a count
+    placeholder_count::Dict{Symbol,Int}
     scope::Dict{Symbol,Set{Symbol}}
 end
 
 function PatternInfo(info::EmitInfo)
-    return PatternInfo(info, gensym(:placeholder), Ref(0), Dict{Symbol,Set{Symbol}}())
+    return PatternInfo(
+        info, gensym(:placeholder), Dict{Symbol,Int}(), Dict{Symbol,Set{Symbol}}()
+    )
 end
-function placeholder!(info::PatternInfo)
-    return Symbol(info.placeholder, "#", info.placeholder_count[] += 1)
+function placeholder!(info::PatternInfo, name::Symbol)
+    count = get!(info.placeholder_count, name, 0) + 1
+    info.placeholder_count[name] = count
+    return Symbol(info.placeholder, "#", name, "#", count)
 end
 
 function Base.setindex!(info::PatternInfo, v::Symbol, k::Symbol)

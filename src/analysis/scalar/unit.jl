@@ -9,9 +9,9 @@ function unit_prop(node::Scalar.Type)
         Scalar.Neg(x) => unit_prop(x)
         Scalar.Conj(x) => unit_prop(x)
         Scalar.Abs(x) => unit_prop(x)
-        Scalar.Exp(x) => unit_prop(x)
-        Scalar.Log(x) => unit_prop(x)
-        Scalar.Sqrt(x) => unit_prop(x)
+        Scalar.Exp(x) => exp(unit_prop(x))
+        Scalar.Log(x) => log(unit_prop(x))
+        Scalar.Sqrt(x) => sqrt(unit_prop(x))
         # NOTE: we assume that the coefficients
         # have the same units as the terms
         Scalar.Add(coeffs, terms) => mapreduce(+, terms) do term, coeff

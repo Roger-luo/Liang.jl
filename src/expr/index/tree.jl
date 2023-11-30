@@ -43,7 +43,8 @@ function Tree.Print.custom_inline_print(io::IO, node::Index.Type)
                     print(io, "+")
                 end
             end
-            Tree.Print.print_add(io, terms)
+            p = Tree.Print.Add()
+            p(io, terms)
         end
         Index.Mul(coeffs, terms) => begin
             if !isone(coeffs)
@@ -52,7 +53,8 @@ function Tree.Print.custom_inline_print(io::IO, node::Index.Type)
                     print(io, "*")
                 end
             end
-            Tree.Print.print_mul(io, terms)
+            p = Tree.Print.Mul()
+            p(io, terms)
         end
         Index.Max(terms) => begin
             print(io, "max")
