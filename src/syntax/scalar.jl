@@ -308,6 +308,8 @@ Base.abs(x::Scalar.Type) = Scalar.Abs(x)
 Base.exp(x::Scalar.Type) = Scalar.Exp(x)
 Base.log(x::Scalar.Type) = Scalar.Log(x)
 Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
+Base.max(xs::Scalar.Type...) = Scalar.Max(Set(xs))
+Base.min(xs::Scalar.Type...) = Scalar.Min(Set(xs))
 
 # variable syntax
 """
@@ -429,8 +431,6 @@ for fn in [
     :log10,
     :log1p,
     :log2,
-    :max,
-    :min,
     :mod2pi,
     :modf,
     :rem2pi,

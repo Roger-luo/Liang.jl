@@ -73,6 +73,16 @@ This is the basic scalar type. It supports pattern matching.
         hash::Hash.Cache = Hash.Cache()
     end
 
+    struct Max
+        terms::Set{Scalar}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
+    struct Min
+        terms::Set{Scalar}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
     struct Pow
         base::Scalar
         exp::Scalar

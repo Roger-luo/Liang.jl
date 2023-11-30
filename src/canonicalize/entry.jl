@@ -40,5 +40,5 @@ function canonicalize(node::Op.Type)
         Fixpoint(Pre(break_outer)),
         Fixpoint(Pre(remove_empty_add)),
     )
-    return p(node)
+    return Fixpoint(p)(node)
 end

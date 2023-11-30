@@ -37,6 +37,8 @@ function Tree.Print.print_node(io::IO, node::Scalar.Type)
         Scalar.Sqrt(x) => print(io, "sqrt")
         Scalar.Tr(x) => print(io, "tr")
         Scalar.Det(x) => print(io, "det")
+        Scalar.Max(x) => print(io, "max")
+        Scalar.Min(x) => print(io, "min")
 
         Scalar.Add(coeffs, terms) => print(io, "+")
         Scalar.Mul(coeffs, terms) => print(io, "*")
