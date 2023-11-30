@@ -19,3 +19,12 @@ for (E, V) in [(Index, Int), (Scalar, Num.Type)]
         end
     end # @eval
 end # for E in [Index, Scalar]
+
+function merge_pow_mul(node::Op.Type)
+    isa_variant(node, Op.Mul) || return node
+    @match node begin
+        Op.Mul(Op.Pow(base, exp1), Op.Pow(base, exp2)) =>
+            Op.Pow(base, canonicalize(exp1 + exp2))
+        _ => node
+    end
+end

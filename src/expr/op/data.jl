@@ -39,9 +39,6 @@ TWOLEVEL_NOTE = """
 """
 
 @data Op begin
-    Wildcard
-    Match(Symbol) # Match a variable
-
     # these constants
     # are just predefined for convenience
     Zero # 0
@@ -104,10 +101,7 @@ TWOLEVEL_NOTE = """
     T
 
     Constant(OpValue.Type)
-    struct Variable
-        name::Symbol
-        id::UInt64 = 0# SSA id
-    end
+    Variable(Variable.Type)
 
     struct Add
         terms::ACSet{Op,Scalar.Type}

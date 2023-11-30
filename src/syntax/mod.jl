@@ -4,6 +4,8 @@ using DocStringExtensions
 using Liang.Match: @match
 using Liang.Tree: Tree, ACSet
 using Liang.Expression.Prelude
+using Liang.Canonicalize: canonicalize
+using LinearAlgebra: LinearAlgebra
 
 include("var.jl")
 include("basis.jl")

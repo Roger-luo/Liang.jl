@@ -11,7 +11,12 @@ using Liang.Syntax:
     @real_str,
     @imag_str,
     @complex_str,
-    @routine_str
+    @routine_str,
+    Lattice,
+    @prod_str,
+    comm,
+    acomm,
+    outer
 
 export assert_equal,
     @index_str,
@@ -23,6 +28,11 @@ export assert_equal,
     @real_str,
     @imag_str,
     @complex_str,
-    @routine_str
+    @routine_str,
+    Lattice,
+    @prod_str,
+    comm,
+    acomm,
+    outer
 
 end # Prelude

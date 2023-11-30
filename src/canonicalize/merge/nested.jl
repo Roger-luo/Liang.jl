@@ -51,3 +51,27 @@ for (E, V) in [(Scalar, Num.Type), (Index, Int64)]
         end
     end # @eval
 end # for E in [Scalar.Type, Index.Type]
+
+function merge_nested_add(node::Op.Type)
+    @match node begin
+        Op.Add(terms) => begin
+            new_terms = Dict{Op.Type,Scalar.Type}()
+            for (term, coeff) in terms
+                @match term begin
+                    Op.Add(inner_terms) => begin
+                        for (inner_term, inner_coeff) in inner_terms
+                            new_terms[inner_term] = canonicalize(
+                                get(new_terms, inner_term, Num.Zero) + coeff * inner_coeff,
+                            )
+                        end
+                    end
+                    _ => begin
+                        new_terms[term] = canonicalize(get(new_terms, term, Num.Zero) + coeff)
+                    end
+                end
+            end
+            return Op.Add(new_terms)
+        end
+        _ => return node
+    end
+end

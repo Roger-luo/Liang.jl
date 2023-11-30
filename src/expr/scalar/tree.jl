@@ -1,5 +1,5 @@
 # well we don't really need printing to be type stable
-function Tree.Print.children(node::Scalar.Type)::Vector{Union{Op.Type,Scalar.Type}}
+function Tree.Print.children(node::Scalar.Type)
     @match node begin
         Scalar.Tr(op) => [op]
         Scalar.Det(op) => [op]
@@ -104,7 +104,7 @@ function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
                     end
                 end
             end
-            Tree.Print.print_add(io, terms)
+            Tree.Print.Add()(io, terms)
         end
         Scalar.Mul(coeffs, terms) => begin
             @match coeffs begin
@@ -117,7 +117,7 @@ function Tree.Print.custom_inline_print(io::IO, node::Scalar.Type)
                     end
                 end
             end
-            Tree.Print.print_mul(io, terms)
+            Tree.Print.Mul()(io, terms)
         end
     end
 end

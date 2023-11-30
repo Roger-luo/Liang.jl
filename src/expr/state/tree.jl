@@ -3,10 +3,8 @@ Base.show(io::IO, ::MIME"text/plain", node::State.Type) = Tree.Print.text(io, no
 
 function Tree.Print.print_node(io::IO, node::State.Type)
     @match node begin
-        State.Wildcard => print(io, "_")
-        State.Match(name) => print(io, "\$", name)
-        State.Variable(; name, id) => braket(io) do
-            Tree.Print.print_variable(io, name, id)
+        State.Variable(x) => braket(io) do
+            print(io, x)
         end
         State.Zero => print(io, "0")
         State.Eigen(op::Op.Type, n) => begin
@@ -39,13 +37,12 @@ end
 
 function Tree.Print.precedence(node::State.Type)
     @match node begin
-        State.Wildcard => 100
-        State.Match(_) => 100
         State.Variable(_) => 100
         State.Zero => 100
         State.Eigen(_, _) => 100
         State.Product(_) => 100
         State.Kron(lhs, rhs) => 1
+        State.Add(_) => Base.operator_precedence(:+)
         _ => 0
     end
 end
@@ -56,7 +53,7 @@ end
 
 function Tree.Print.custom_inline_print(io::IO, node::State.Type)
     @match node begin
-        State.Add(terms) => Tree.Print.print_add(io, terms)
+        State.Add(terms) => Tree.Print.Add()(io, terms)
     end
 end
 

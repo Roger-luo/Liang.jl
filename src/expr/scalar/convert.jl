@@ -74,16 +74,17 @@ end
 (::Type{T})(x::Num.Type) where {T<:Number} = convert(T, x)
 (::Type{T})(x::Scalar.Type) where {T<:Number} = convert(T, x)
 
+# TODO: add min/max to Scalar
 # function Base.convert(::Type{Scalar.Type}, x::Index.Type)
 #     @match x begin
+#         Index.Inf => return Scalar.Constant(Inf)
 #         Index.Constant(y) => return Scalar.Constant(y)
 #         Index.Variable(x) => return Scalar.Variable(x)
-#         Index.Add(x, y) => return convert(Scalar.Type, x) + convert(Scalar.Type, y)
-#         Index.Sub(x, y) => return convert(Scalar.Type, x) - convert(Scalar.Type, y)
-#         Index.Mul(x, y) => return convert(Scalar.Type, x) * convert(Scalar.Type, y)
+#         Index.Add(coeffs, terms) => return Scalar.Add(coeffs, terms)
+#         Index.Mul(coeffs, terms) => return Scalar.Mul(coeffs, terms)
 #         Index.Div(x, y) => return convert(Scalar.Type, x) / convert(Scalar.Type, y)
 #         Index.Pow(x, y) => return convert(Scalar.Type, x)^convert(Scalar.Type, y)
-#         Index.Max(x, y) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
+#         Index.Max(terms) => return max(convert(Scalar.Type, x), convert(Scalar.Type, y))
 #         Index.Min(x, y) => return min(convert(Scalar.Type, x), convert(Scalar.Type, y))
 #         Index.Neg(x) => return -convert(Scalar.Type, x)
 #         Index.Abs(x) => return abs(convert(Scalar.Type, x))
