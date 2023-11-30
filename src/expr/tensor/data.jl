@@ -18,8 +18,9 @@ The tensor language for describing general tensor networks.
     # - adjoint
     # - mul!
     Constant(Any)
+    Variable(Variable.Type)
 
-    struct Variable
+    struct Extern
         name::Symbol
         dims::Vector{Index.Type}
         hash::Hash.Cache = Hash.Cache()
