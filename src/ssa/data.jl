@@ -39,21 +39,6 @@ end
 
 Instruction(op::OpCode, args::Vector{SSAValue.Type}) = Instruction(op, args, 0)
 
-# function goto(ssa::Integer)
-#     return Instruction(OpCode("goto", 0x01), [SSAValue.Variable(ssa)])
-# end
-
-# function gotoifnot(cond::Integer, block_id::Integer, args::NTuple{N, <:Integer}) where {N}
-#     return Instruction(
-#         OpCode("gotoifnot", 0x02),
-#         [SSAValue.Variable(cond), SSAValue.Variable(block_id), SSAValue.Variable.(args)...],
-#     )
-# end
-
-# function ret(ssa::Integer)
-#     return Instruction(OpCode("return", 0x03), [SSAValue.Variable(ssa)])
-# end
-
 struct Branch
     condition::UInt64
     block::UInt64
