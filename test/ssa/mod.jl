@@ -1,5 +1,6 @@
 using Liang.Prelude
-using Liang.SSA: OpCodeRegistry, IR, BasicBlock, Branch, Instruction, SSAValue, OpCode
+using Liang.SSA:
+    OpCodeRegistry, IR, BasicBlock, Branch, Instruction, StmtRange, SSAValue, OpCode
 
 opcodes = OpCodeRegistry()
 ir = IR(
@@ -13,8 +14,7 @@ ir = IR(
         ),
     ],
     [BasicBlock([1], StmtRange(1, 2), [Branch(0, 2, [1])])],
-    Dict(),
+    Dict(2 => "x"),
 )
 
-goto(2)
-ret(2)
+ir.slots

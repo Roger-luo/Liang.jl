@@ -88,7 +88,7 @@ struct IR
     stmts::Vector{Instruction}
     blocks::Vector{BasicBlock}
     # some SSAValue has name
-    slots::Dict{UInt64,Symbol}
+    slots::Dict{UInt64,String}
 end
 
 struct BasicBlockRef
