@@ -22,7 +22,7 @@ function EmitInfo(mod::Module, value, body, source=nothing)
             if stmt isa LineNumberNode
                 line_info = stmt
             elseif Meta.isexpr(stmt, :call) && stmt.args[1] === :(=>)
-                push!(cases, expr2pattern(stmt.args[2]))
+                push!(cases, warn_expr2pattern(mod, stmt.args[2]))
                 push!(exprs, stmt.args[3])
             else
                 throw(SyntaxError("invalid pattern table: $body"; source=line_info))
@@ -35,6 +35,13 @@ function EmitInfo(mod::Module, value, body, source=nothing)
     return EmitInfo(
         mod, value, cases, exprs, gensym("value"), gensym("final"), gensym("return"), source
     )
+end
+
+function warn_expr2pattern(mod::Module, expr)
+    if expr isa Symbol && isdefined(mod, expr)
+        @warn "you are using a variable name that is already defined in the module: $(expr)"
+    end
+    return expr2pattern(expr)
 end
 
 function split_toplevel_or(cases::Vector{Pattern.Type}, exprs::Vector{Any})
