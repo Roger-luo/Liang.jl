@@ -3,6 +3,7 @@ struct EmitInfo
     value::Any
     cases::Vector{Pattern.Type}
     exprs::Vector{Any}
+    lines::Vector{Union{LineNumberNode,Nothing}}
     value_holder::Symbol
     final_label::Symbol
     return_var::Symbol
@@ -12,36 +13,54 @@ end
 function EmitInfo(mod::Module, value, body, source=nothing)
     # single pattern
     if Meta.isexpr(body, :call) && body.args[1] === :(=>)
-        cases = [expr2pattern(body.args[2])]
+        cases = [warn_expr2pattern(mod, body.args[2], source)]
         exprs = [body.args[3]]
+        lines = [source]
     elseif Meta.isexpr(body, :block)
         line_info = source
         cases = Pattern.Type[]
-        exprs = Any[]
+        exprs, lines = Any[], Union{LineNumberNode,Nothing}[]
         for stmt in body.args
             if stmt isa LineNumberNode
                 line_info = stmt
             elseif Meta.isexpr(stmt, :call) && stmt.args[1] === :(=>)
-                push!(cases, warn_expr2pattern(mod, stmt.args[2]))
+                push!(cases, warn_expr2pattern(mod, stmt.args[2], source))
                 push!(exprs, stmt.args[3])
             else
                 throw(SyntaxError("invalid pattern table: $body"; source=line_info))
             end
+            push!(lines, line_info)
         end
     else
         throw(SyntaxError("invalid pattern table: $body"; source))
     end
 
     return EmitInfo(
-        mod, value, cases, exprs, gensym("value"), gensym("final"), gensym("return"), source
+        mod,
+        value,
+        cases,
+        exprs,
+        lines,
+        gensym("value"),
+        gensym("final"),
+        gensym("return"),
+        source,
     )
 end
 
-function warn_expr2pattern(mod::Module, expr)
+function warn_expr2pattern(mod::Module, expr, lino)
     if expr isa Symbol && isdefined(mod, expr)
-        @warn "you are using a variable name that is already defined in the module: $(expr)"
+        @warn "you are using a variable name that is already defined in the module: $(expr)" lino
     end
-    return expr2pattern(expr)
+    try
+        return expr2pattern(expr)
+    catch err
+        if err isa SyntaxError
+            rethrow(SyntaxError(err.msg; source=lino))
+        else
+            rethrow(err)
+        end
+    end
 end
 
 function split_toplevel_or(cases::Vector{Pattern.Type}, exprs::Vector{Any})
@@ -89,7 +108,7 @@ function expr2pattern(expr)
     head === :comprehension && return comprehension2pattern(expr)
     head === :generator && return generator2pattern(expr)
 
-    return error("unsupported expression: $(expr)")
+    return throw(SyntaxError("unsupported expression: $(expr)"))
 end
 
 function quote2pattern(expr)
