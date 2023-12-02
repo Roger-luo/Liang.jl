@@ -19,9 +19,39 @@ struct OpCodeRegistry
     # corresponding variant in expr
     variants::Vector{Any}
     names::Vector{String}
+    hash::Dict{UInt64,Int64} # hash(variant) => index
 end
 
-OpCodeRegistry() = OpCodeRegistry([], [], String[])
+OpCodeRegistry() = OpCodeRegistry([], [], String[], Dict{UInt64,Int64}())
+
+function Base.setindex!(reg::OpCodeRegistry, action, variant)
+    h = hash(variant)
+    if haskey(reg.hash, h)
+        idx = reg.hash[h]
+        reg.actions[idx] = action
+    else
+        push!(reg.actions, action)
+        push!(reg.variants, variant)
+        push!(reg.names, string(variant))
+        reg.hash[h] = length(reg.actions)
+    end
+    return reg
+end
+
+function Base.getindex(reg::OpCodeRegistry, opcode::UInt64)
+    return OpCode(reg.names[opcode], opcode)
+end
+
+function Base.getindex(reg::OpCodeRegistry, variant)
+    opcode = get(reg.hash, hash(variant)) do
+        error("no such opcode: $variant")
+    end
+    return OpCode(reg.names[opcode], opcode)
+end
+
+function Base.getindex(reg::OpCodeRegistry, opcode::Int64)
+    return reg.actions[UInt64(opcode)]
+end
 
 @data SSAValue begin
     Variable(UInt64)

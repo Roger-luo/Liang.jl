@@ -25,11 +25,12 @@ end
 
 function Base.show(io::IO, b::Branch)
     slots = get_slots(io)
-    is_return(b) && print(io, "return %", namify(slots, b.args[1]))
+    is_return(b) && return print(io, "return %", namify(slots, b.args[1]))
     if is_gotoifnot(b)
         print(io, "gotoifnot %", b.condition, " @", b.block, "(")
         ssa2string(io, b.args)
         print(io, ")")
+        return nothing
     end
 
     return print(io, "goto @", b.block)
