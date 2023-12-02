@@ -23,7 +23,28 @@ function Base.show(io::IO, ::MIME"text/plain", x::EmitInfo)
     return ff.print(x.return_var; color=:light_cyan)
 end
 
-function Data.show(io::IO, x::Pattern.Type)
+function Base.show(io::IO, x::PatternResult.Type)
+    f = Data.FormatPrinter(io)
+    if isa_variant(x, PatternResult.Success)
+        f.print("Success("; color=:green)
+        f.show(x.:1)
+        f.print(")")
+    elseif isa_variant(x, PatternResult.Warn)
+        f.print("Warn("; color=:yellow)
+        f.show(x.:1)
+        f.print(", "; color=:yellow)
+        f.show(x.:2)
+        f.print(")")
+    elseif isa_variant(x, PatternResult.Err)
+        f.print("Err("; color=:red)
+        f.show(x.:1)
+        f.print(")")
+    else
+        error("unknown pattern result type: ", x)
+    end
+end
+
+function Base.show(io::IO, x::Pattern.Type)
     f = Data.FormatPrinter(io)
     if isa_variant(x, Pattern.Wildcard)
         f.print("_"; color=:red)

@@ -1,7 +1,13 @@
+@data PatternResult begin
+    Success(Pattern.Type)
+    Warn(Pattern.Type, String)
+    Err(String)
+end
+using .PatternResult: Success, Warn, Err
 struct EmitInfo
     mod::Module
     value::Any
-    cases::Vector{Pattern.Type}
+    cases::Vector{PatternResult.Type}
     exprs::Vector{Any}
     lines::Vector{Union{LineNumberNode,Nothing}}
     value_holder::Symbol
@@ -13,18 +19,18 @@ end
 function EmitInfo(mod::Module, value, body, source=nothing)
     # single pattern
     if Meta.isexpr(body, :call) && body.args[1] === :(=>)
-        cases = [warn_expr2pattern(mod, body.args[2], source)]
+        cases = [wrap_expr2pattern(mod, body.args[2])]
         exprs = [body.args[3]]
         lines = [source]
     elseif Meta.isexpr(body, :block)
         line_info = source
-        cases = Pattern.Type[]
+        cases = PatternResult.Type[]
         exprs, lines = Any[], Union{LineNumberNode,Nothing}[]
         for stmt in body.args
             if stmt isa LineNumberNode
                 line_info = stmt
             elseif Meta.isexpr(stmt, :call) && stmt.args[1] === :(=>)
-                push!(cases, warn_expr2pattern(mod, stmt.args[2], source))
+                push!(cases, wrap_expr2pattern(mod, stmt.args[2]))
                 push!(exprs, stmt.args[3])
             else
                 throw(SyntaxError("invalid pattern table: $body"; source=line_info))
@@ -48,15 +54,20 @@ function EmitInfo(mod::Module, value, body, source=nothing)
     )
 end
 
-function warn_expr2pattern(mod::Module, expr, lino)
-    if expr isa Symbol && isdefined(mod, expr)
-        @warn "you are using a variable name that is already defined in the module: $(expr)" lino
-    end
+function wrap_expr2pattern(mod::Module, expr)
     try
-        return expr2pattern(expr)
+        if expr isa Symbol && isdefined(mod, expr)
+            return Warn(
+                expr2pattern(expr),
+                "you are using a variable \
+                name that is already defined \
+                in the module: $(expr)",
+            )
+        end
+        return Success(expr2pattern(expr))
     catch err
         if err isa SyntaxError
-            rethrow(SyntaxError(err.msg; source=lino))
+            return Err(err.msg)
         else
             rethrow(err)
         end
