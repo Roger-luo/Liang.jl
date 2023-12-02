@@ -1,48 +1,36 @@
 function emit(info::EmitInfo)
     matches = expr_map(info.cases, info.exprs, info.lines) do case, expr, line
         pinfo = PatternInfo(info)
-        if isa_variant(case, Success)
-            cond = decons(pinfo, case.:1)(info.value_holder)
+        if isa_variant(case, Pattern.Err)
+            Expr(:block, line, :($Base.throw($Match.SyntaxError($(case.:1)))))
+        else
+            cond = decons(pinfo, case)(info.value_holder)
             Expr(
-                :block,
-                line,
-                quote
-                    if $cond && $(check_duplicated_variables(pinfo))
+                :if,
+                :($cond && $(check_duplicated_variables(pinfo))),
+                Expr(
+                    :block,
+                    line,
+                    quote
                         $(info.return_var) = let $(bind_match_values(pinfo)...)
                             $expr
                         end
                         @goto $(info.final_label)
-                    end
-                end,
+                    end,
+                ),
             )
-        elseif isa_variant(case, Warn)
-            cond = decons(pinfo, case.:1)(info.value_holder)
-            msg = case.:2
-            Expr(
-                :block,
-                line,
-                :($Base.error($msg)),
-                quote
-                    if $cond && $(check_duplicated_variables(pinfo))
-                        $(info.return_var) = let $(bind_match_values(pinfo)...)
-                            $expr
-                        end
-                        @goto $(info.final_label)
-                    end
-                end,
-            )
-        else # Err
-            Expr(:block, line, :(throw($Match.SyntaxError($(case.:1)))))
         end
     end
 
-    quote
-        $(info.value_holder) = $(info.value)
-        $matches
-        error("matching non-exhaustic")
-        @label $(info.final_label)
-        $(info.return_var)
-    end
+    return Expr(
+        :block,
+        :($(info.value_holder) = $(info.value)),
+        matches,
+        last(info.lines),
+        :($Base.error("matching non-exhaustic")),
+        :($Base.@label $(info.final_label)),
+        info.return_var,
+    )
 end
 
 and_expr(lhs, rhs) = quote
