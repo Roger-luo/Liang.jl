@@ -37,7 +37,7 @@ end
 
 
 function emit_python_variant(variant_name, variant_type)
-    is_singleton(variant_type) && "@dataclass(frozen=True)\nclass $name($(variant_name)Expr):\npass"
+    is_singleton(variant_type) && "@dataclass(frozen=True)\nclass $name($(variant_name)Expr):\n    pass"
     
     name = variant_name(variant_type)
     field_names = variant_fieldnames(variant_type)
