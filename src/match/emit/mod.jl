@@ -1,25 +1,36 @@
 function emit(info::EmitInfo)
-    matches = expr_map(info.cases, info.exprs) do case, expr
+    matches = expr_map(info.cases, info.exprs, info.lines) do case, expr, line
         pinfo = PatternInfo(info)
-        cond = decons(pinfo, case)(info.value_holder)
-
-        quote
-            if $cond && $(check_duplicated_variables(pinfo))
-                $(info.return_var) = let $(bind_match_values(pinfo)...)
-                    $expr
-                end
-                @goto $(info.final_label)
-            end
+        if isa_variant(case, Pattern.Err)
+            Expr(:block, line, :($Base.throw($Match.SyntaxError($(case.:1)))))
+        else
+            cond = decons(pinfo, case)(info.value_holder)
+            Expr(
+                :if,
+                :($cond && $(check_duplicated_variables(pinfo))),
+                Expr(
+                    :block,
+                    line,
+                    quote
+                        $(info.return_var) = let $(bind_match_values(pinfo)...)
+                            $expr
+                        end
+                        @goto $(info.final_label)
+                    end,
+                ),
+            )
         end
     end
 
-    quote
-        $(info.value_holder) = $(info.value)
-        $matches
-        error("matching non-exhaustic")
-        @label $(info.final_label)
-        $(info.return_var)
-    end
+    return Expr(
+        :block,
+        :($(info.value_holder) = $(info.value)),
+        matches,
+        last(info.lines),
+        :($Base.error("matching non-exhaustic")),
+        :($Base.@label $(info.final_label)),
+        info.return_var,
+    )
 end
 
 and_expr(lhs, rhs) = quote
