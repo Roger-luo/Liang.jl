@@ -1,7 +1,15 @@
 module Python
 
 using Liang.Match: @match
+using Liang.Data: @data,
+    is_data_type, 
+    data_type_name, 
+    variant_fieldnames, 
+    variant_fieldtypes, 
+    variant_name
+    
 
-include("python.jl")
+include("scan.jl")
+include("emit.jl")
 
-end
+end # Python
