@@ -19,6 +19,7 @@ include("canonicalize/mod.jl")
 include("syntax/mod.jl")
 include("analysis/mod.jl")
 # include("eval/mod.jl")
+include("python/mod.jl")
 
 include("prelude.jl")
 include("precompile.jl")
