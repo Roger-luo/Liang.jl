@@ -13,7 +13,7 @@ end
 end
 
 
-function emit_data_type_module(data_type::Module)
+function emit_data_type_module(data_type)
     name = data_type_name(data_type)
 
     base_type = join([
@@ -23,7 +23,7 @@ function emit_data_type_module(data_type::Module)
     ], "\n")
 
     variant_definitions = map(variants(data_type)) do variant_type
-        emit_python_variant(info, variant_type)
+        emit_python_variant(data_type_name(data_type), variant_type)
     end
 
     class_definitinos = [
@@ -36,14 +36,23 @@ end
 
 
 
-function emit_python_variant(variant_name, variant_type)
-    is_singleton(variant_type) && "@dataclass(frozen=True)\nclass $name($(variant_name)Expr):\n    pass"
-    
+function emit_python_variant(adt_name, variant_type)
     name = variant_name(variant_type)
+
+    is_singleton(variant_type) && "@dataclass(frozen=True)\nclass $name($(adt_name)Expr):\n    pass"
+    
     field_names = variant_fieldnames(variant_type)
     field_types = variant_fieldtypes(variant_type)
     variant_field_definitions = map(field_names, field_types) do field_name, field_type
-        "    $field_name: $(python_type(field_type))"
+        python_type = emit_python_type(field_type)
+        if python_type isa PythonCodeGenError.Type
+            error(python_type.message)
+        end
+        if field_name isa Number
+            field_name = "field_$field_name"
+        end
+            
+        "    $field_name: $(python_type)"
     end
 
     lines = [
@@ -66,7 +75,7 @@ function flatten_union_types(union_type)
     [union_type.a, flatten_union_types(union_type.b)...]
 end
 
-function emit_python_type(jl_type)::Union{String, PythonTypeError}
+function emit_python_type(jl_type)::Union{String, PythonCodeGenError.Type}
     @match jl_type begin
         $Bool => "bool"
         $Nothing => "None"
@@ -91,6 +100,6 @@ function emit_python_type(jl_type)::Union{String, PythonTypeError}
             sub_types_str = join(map(emit_python_type, sub_types), ", ")
             "Union[$sub_types_str]"
         end
-        _ => PythonCodeGenError.PythonTypeError.("Unsupported type: $jl_type")
+        _ => PythonCodeGenError.PythonTypeError("Unsupported type: $jl_type")
     end
 end

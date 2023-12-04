@@ -6,7 +6,9 @@ using Liang.Data: @data,
     data_type_name, 
     variant_fieldnames, 
     variant_fieldtypes, 
-    variant_name
+    variant_name,
+    variants,
+    is_singleton
     
 
 include("scan.jl")

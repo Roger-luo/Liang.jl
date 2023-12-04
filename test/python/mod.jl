@@ -4,8 +4,8 @@ using Liang.Data: @data, is_data_type
 
 @data TestDataType begin
     A
-    B(Float32)
+    B(Float32, Int32)
 end
 
 
-is_data_type(TestDataType)
+print(emit_data_type_module(TestDataType.Type))
