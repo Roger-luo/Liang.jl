@@ -1,6 +1,6 @@
 function get_slots(io::IO)
     haskey(io, :slots) && return io[:slots]
-    return Dict{UInt64,String}()
+    return Dict{UInt64,Variable.Type}()
 end
 
 function ssa2string(io::IO, ssa::Vector{UInt64})
@@ -15,7 +15,7 @@ function ssa2string(io::IO, ssa::Vector{UInt64})
 end
 
 function namify(slots::Dict{UInt64,String}, ssa::UInt64)::String
-    haskey(slots, ssa) && return slots[ssa]
+    haskey(slots, ssa) && return string(slots[ssa])
     return string(get(slots, ssa, ssa))
 end
 
@@ -48,8 +48,7 @@ function Base.show(io::IO, x::SSAValue.Type)
 end
 
 function Base.show(io::IO, inst::Instruction)
-    print(io, inst.op, "(", join(inst.args, ", "), ")")
-    return inst.line > 0 && print(io, " #=", inst.line)
+    return print(io, inst.op, "(", join(inst.args, ", "), ")")
 end
 
 function Base.show(io::IO, bb::BasicBlockRef)
@@ -92,6 +91,22 @@ function Base.show(io::IO, ir::IR)
     for (idx, bb) in enumerate(ir)
         show(sub_io, bb)
         if idx < length(ir)
+            println(io)
+        end
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", opcode::OpCodeRegistry)
+    for (idx, variant) in enumerate(opcode.variants)
+        idx < 10 || continue
+        println(io, variant, " => ", idx)
+    end
+    length(opcode.variants) < 10 && return nothing
+    println(io, "...")
+    for (idx, variant) in enumerate(opcode.variants)
+        idx >= length(opcode.variants) - 10 || continue
+        print(io, variant, " => ", idx)
+        if idx < length(opcode.variants)
             println(io)
         end
     end

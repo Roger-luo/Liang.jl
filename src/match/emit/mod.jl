@@ -1,4 +1,6 @@
 function emit(info::EmitInfo)
+    isempty(info.cases) && return :($Base.throw($Match.SyntaxError("empty match body")))
+
     matches = expr_map(info.cases, info.exprs, info.lines) do case, expr, line
         pinfo = PatternInfo(info)
         if isa_variant(case, Pattern.Err)

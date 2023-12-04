@@ -15,25 +15,26 @@ The registry of all opcodes.
 - `names`: the name of the opcode
 """
 struct OpCodeRegistry
-    actions::Vector{Any}
     # corresponding variant in expr
     variants::Vector{Any}
     names::Vector{String}
-    hash::Dict{UInt64,Int64} # hash(variant) => index
+    opcode::Dict{Any,UInt64} # variant => index
 end
 
-OpCodeRegistry() = OpCodeRegistry([], [], String[], Dict{UInt64,Int64}())
+OpCodeRegistry() = OpCodeRegistry([], String[], Dict{UInt64,UInt64}())
+function Base.push!(reg::OpCodeRegistry, variant)
+    haskey(reg.opcode, variant) && return reg
+    push!(reg.variants, variant)
+    push!(reg.names, string(variant))
+    reg.opcode[variant] = UInt64(length(reg.variants))
+    return reg
+end
 
-function Base.setindex!(reg::OpCodeRegistry, action, variant)
-    h = hash(variant)
-    if haskey(reg.hash, h)
-        idx = reg.hash[h]
-        reg.actions[idx] = action
-    else
-        push!(reg.actions, action)
-        push!(reg.variants, variant)
-        push!(reg.names, string(variant))
-        reg.hash[h] = length(reg.actions)
+function Base.push!(reg::OpCodeRegistry, mod::Module)
+    (isdefined(mod, :Type) && is_data_type(mod.Type)) ||
+        error("expect a type defined by @data")
+    for each in variants(mod.Type)
+        push!(reg, each)
     end
     return reg
 end
@@ -43,17 +44,20 @@ function Base.getindex(reg::OpCodeRegistry, opcode::UInt64)
 end
 
 function Base.getindex(reg::OpCodeRegistry, variant)
-    opcode = get(reg.hash, hash(variant)) do
-        error("no such opcode: $variant")
+    type = is_singleton(variant) ? variant_type(variant) : variant
+    opcode = get(reg.opcode, type) do
+        error("no such opcode: $type")
     end
     return OpCode(reg.names[opcode], opcode)
 end
 
 function Base.getindex(reg::OpCodeRegistry, opcode::Int64)
-    return reg.actions[UInt64(opcode)]
+    return reg[UInt64(opcode)]
 end
 
 @data SSAValue begin
+    Wildcard
+    Match(Symbol)
     Variable(UInt64)
     # constant expression
     # not necessarily a constant value
@@ -64,10 +68,7 @@ end
 struct Instruction
     op::OpCode
     args::Vector{SSAValue.Type}
-    line::UInt64
 end
-
-Instruction(op::OpCode, args::Vector{SSAValue.Type}) = Instruction(op, args, 0)
 
 struct Branch
     condition::UInt64
@@ -99,11 +100,62 @@ struct BasicBlock
 end
 
 struct IR
-    opcode::OpCodeRegistry
     stmts::Vector{Instruction}
     blocks::Vector{BasicBlock}
+    # the registry of all opcodes
+    opcode::OpCodeRegistry
     # some SSAValue has name
-    slots::Dict{UInt64,String}
+    slots::Dict{UInt64,Variable.Type}
+end
+
+function IR(
+    opcode::OpCodeRegistry, slots::Dict{UInt64,Variable.Type}=Dict{UInt64,Variable.Type}()
+)
+    return IR(Instruction[], BasicBlock[], opcode, slots)
+end
+
+struct NewBasicBlock
+    ir::IR
+    args::Vector{UInt64}
+    stmts::Vector{Instruction}
+    branches::Vector{Branch}
+end
+
+function NewBasicBlock(ir::IR, args::Vector{UInt64}=UInt64[])
+    return NewBasicBlock(ir, args, Instruction[], Branch[])
+end
+
+function inst!(bb::NewBasicBlock, variant, args::Vector{SSAValue.Type})
+    push!(bb.stmts, Instruction(bb.ir.opcode[variant], args))
+    return bb
+end
+
+function branch!(bb::NewBasicBlock, condition::UInt64, block::UInt64, args::Vector{UInt64})
+    push!(bb.branches, Branch(condition, block, args))
+    return bb
+end
+
+function branch!(bb::NewBasicBlock, block::UInt64, args::Vector{UInt64})
+    push!(bb.branches, Branch(0, block, args))
+    return bb
+end
+
+function ret!(bb::NewBasicBlock, arg::UInt64)
+    branch!(bb, 0, [arg])
+    return bb
+end
+
+function finish!(bb::NewBasicBlock)
+    push!(
+        bb.ir.blocks,
+        BasicBlock(
+            bb.args,
+            StmtRange(length(bb.ir.stmts) + 1, length(bb.ir.stmts) + length(bb.stmts)),
+            bb.branches,
+        ),
+    )
+    append!(bb.ir.stmts, bb.stmts)
+    return bb.ir
 end
 
 struct BasicBlockRef

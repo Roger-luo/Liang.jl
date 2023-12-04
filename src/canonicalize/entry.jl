@@ -9,6 +9,9 @@ function canonicalize(node::Index.Type)
         Fixpoint(Pre(prop_const_div)),
         Fixpoint(Pre(remove_empty_add)),
         Fixpoint(Pre(remove_pow_one)),
+        Fixpoint(Pre(fold_const_pow)),
+        Fixpoint(Pre(fold_const_add)),
+        Fixpoint(Pre(fold_const_mul)),
     )
     return p(node)
 end
@@ -24,6 +27,9 @@ function canonicalize(node::Scalar.Type)
         Fixpoint(Post(prop_const_div)),
         Fixpoint(Pre(remove_empty_add)),
         Fixpoint(Post(prop_conj)),
+        Fixpoint(Pre(fold_const_pow)),
+        Fixpoint(Pre(fold_const_add)),
+        Fixpoint(Pre(fold_const_mul)),
     )
 
     p = Chain(

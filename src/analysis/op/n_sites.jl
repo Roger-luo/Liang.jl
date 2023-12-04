@@ -70,6 +70,6 @@ function n_sites(node::Op.Type)
         Op.Conj(op) => n_sites(op)
         Op.Transpose(op) => n_sites(op)
         Op.Outer(lhs, rhs) => assert_site_equal(lhs, rhs)
-        Op.Annotate(op, basis) => @match n_sites(op) begin end
+        # Op.Annotate(op, basis) => @match n_sites(op) begin end
     end
 end
