@@ -9,8 +9,8 @@ function derive_impl(::Val{:PartialEq}, mod::Module, type::Module)
 
     return quote
         Base.@constprop :aggressive function $Base.:(==)(lhs::$type.Type, rhs::$type.Type)
-            variant_tag(lhs) == variant_tag(rhs) || return false
-            vtype = $variant_type(lhs)
+            $Data.variant_tag(lhs) == $Data.variant_tag(rhs) || return false
+            vtype = $Data.variant_type(lhs)
             return $(codegen_ast(jl))
         end
     end

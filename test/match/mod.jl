@@ -3,6 +3,10 @@ using Liang.Expression: Scalar, Num
 using Liang.Traits: PartialEq
 using ExproniconLite
 
+@match Vector{Int} begin
+    Vector{elty} => elty
+end
+
 @derive Scalar[PartialEq]
 
 x = Scalar.Sum(;

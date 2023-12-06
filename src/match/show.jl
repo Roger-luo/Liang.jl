@@ -8,7 +8,12 @@ function Base.show(io::IO, ::MIME"text/plain", x::EmitInfo)
     fff = Data.indent(ff, 2)
     fff.leading()
     pattern_strs = map(fff.show_str, x.cases)
-    max_length = maximum(length, pattern_strs)
+    if isempty(pattern_strs)
+        max_length = 0
+    else
+        max_length = maximum(length, pattern_strs)
+    end
+
     for (idx, (key, val)) in enumerate(zip(pattern_strs, x.exprs))
         fff.print(" "^(max_length - length(key)))
         fff.print(key)

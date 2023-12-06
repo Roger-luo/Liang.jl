@@ -20,6 +20,8 @@ include("syntax/mod.jl")
 include("analysis/mod.jl")
 # include("eval/mod.jl")
 
+# include("ssa/mod.jl")
+
 include("prelude.jl")
 include("precompile.jl")
 

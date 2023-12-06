@@ -40,8 +40,8 @@ function derive_impl(::Val{:Hash}, mod::Module, type::Module)
     return quote
         Base.@constprop :aggressive function $Base.hash(x::$type.Type, h::UInt)
             h = hash($(hash(type)), h)
-            h = hash(variant_tag(x), h)
-            vtype = $variant_type(x)
+            h = hash($Data.variant_tag(x), h)
+            vtype = $Data.variant_type(x)
             return $(codegen_ast(jl))
         end
     end

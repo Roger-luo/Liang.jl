@@ -3,10 +3,7 @@ using Liang.Match: @match, EmitInfo
 info = EmitInfo(
     Main,
     Float64,
-    quote
-        1 => "hi"
-        Float64 => "hello"
-    end,
+    quote end,
 )
 
 blk = quote
