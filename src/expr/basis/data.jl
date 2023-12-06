@@ -49,3 +49,11 @@ end
 function Basis(op, space::Space.Type; alias::String="")
     return Basis(op, space, "")
 end
+
+function Base.:(==)(lhs::Basis, rhs::Basis)
+    return lhs.op == rhs.op && lhs.space == rhs.space
+end
+
+function Base.hash(b::Basis, h::UInt64)
+    return hash((b.op, b.space), h)
+end

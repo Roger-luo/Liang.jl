@@ -8,12 +8,12 @@ function Base.:(^)(base::Space.Type, n::Int)
 end
 
 function Base.:(*)(lhs::Basis, rhs::Basis)
-    return Basis(kron(lhs.op, rhs.op), lhs.space * rhs.space)
+    return Basis(canonicalize(kron(lhs.op, rhs.op)), lhs.space * rhs.space)
 end
 
 function Base.:(^)(base::Basis, n::Int)
     n > 0 || error("exponent must be positive")
-    return Basis(Op.KronPow(base.op, n), base.space^n)
+    return Basis(canonicalize(Op.KronPow(base.op, n)), base.space^n)
 end
 
 function Base.getindex(space::Space.Type, indices)

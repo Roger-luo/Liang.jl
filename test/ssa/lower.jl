@@ -3,6 +3,8 @@ using Liang.Prelude
 using Liang.SSA:
     OpCodeRegistry, IR, BasicBlock, Branch, Instruction, StmtRange, SSAValue, OpCode
 
+(kron(Op.I, Op.X) + kron(Op.X % Qubit, Op.Y % Qudit(3))) + Op.I
+
 opcode = OpCodeRegistry()
 push!(opcode, Space)
 push!(opcode, Basis)

@@ -71,9 +71,9 @@ struct Instruction
 end
 
 struct Branch
-    condition::UInt64
+    condition::Int64
     block::UInt64
-    args::Vector{UInt64}
+    args::Vector{Int64}
 end
 
 is_return(b::Branch) = b.block == 0 && length(b.args) == 1
@@ -94,7 +94,7 @@ function Base.iterate(r::StmtRange, st::UInt64=r.start)
 end
 
 struct BasicBlock
-    args::Vector{UInt64}
+    args::Vector{Int64}
     stmts::StmtRange
     branches::Vector{Branch}
 end

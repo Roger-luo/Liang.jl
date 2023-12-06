@@ -3,11 +3,55 @@
     CannotDetermine(Op.Type)
 end
 
+function Base.show(io::IO, err::SiteCountErr.Type)
+    @match err begin
+        SiteCountErr.NotEqual(lhs, rhs) => print(io, "SiteCountErr.NotEqual($lhs, $rhs)")
+        SiteCountErr.CannotDetermine(node) => print(io, "CannotDetermine($node)")
+    end
+end
+
 @data SiteCount begin
     Adaptive
     Fixed(Int)
     GreaterThan(Int)
     Err(SiteCountErr.Type)
+end
+
+@derive SiteCount[PartialEq, Hash]
+
+function Base.show(io::IO, t::SiteCount.Type)
+    @match t begin
+        SiteCount.Adaptive => print(io, "Adaptive")
+        SiteCount.Fixed(n) => print(io, "Fixed($n)")
+        SiteCount.GreaterThan(n) => print(io, "GreaterThan($n)")
+        SiteCount.Err(err) => print(io, "Err($err)")
+    end
+end
+
+function Base.:(*)(lhs::SiteCount.Type, rhs::SiteCount.Type)
+    @match (lhs, rhs) begin
+        (_, SiteCount.Err(_)) => rhs
+        (SiteCount.Err(_), _) => lhs
+        (SiteCount.Adaptive, _) || (_, SiteCount.Adaptive) => SiteCount.Adaptive
+
+        (SiteCount.Fixed(n), SiteCount.Fixed(m)) => SiteCount.Fixed(n * m)
+        (SiteCount.Fixed(n), SiteCount.GreaterThan(m)) => SiteCount.GreaterThan(n * m)
+        (SiteCount.GreaterThan(n), SiteCount.Fixed(m)) => SiteCount.GreaterThan(n * m)
+        (SiteCount.GreaterThan(n), SiteCount.GreaterThan(m)) => SiteCount.GreaterThan(n * m)
+    end
+end
+
+function Base.:(+)(lhs::SiteCount.Type, rhs::SiteCount.Type)
+    @match (lhs, rhs) begin
+        (_, SiteCount.Err(_)) => rhs
+        (SiteCount.Err(_), _) => lhs
+        (SiteCount.Adaptive, _) || (_, SiteCount.Adaptive) => SiteCount.Adaptive
+
+        (SiteCount.Fixed(n), SiteCount.Fixed(m)) => SiteCount.Fixed(n + m)
+        (SiteCount.Fixed(n), SiteCount.GreaterThan(m)) => SiteCount.GreaterThan(n + m)
+        (SiteCount.GreaterThan(n), SiteCount.Fixed(m)) => SiteCount.GreaterThan(n + m)
+        (SiteCount.GreaterThan(n), SiteCount.GreaterThan(m)) => SiteCount.GreaterThan(n + m)
+    end
 end
 
 function assert_site_equal(lhs::Op.Type, rhs::Op.Type)
@@ -53,7 +97,7 @@ function n_sites(node::Op.Type)
         Op.Variable(_) => SiteCount.Adaptive
         Op.Add(terms) => reduce(assert_site_equal, keys(terms))
         Op.Mul(lhs, rhs) => assert_site_equal(lhs, rhs)
-        Op.Kron(lhs, rhs) => n_sites(lhs) * n_sites(rhs)
+        Op.Kron(lhs, rhs) => n_sites(lhs) + n_sites(rhs)
         Op.Comm(base, op) || Op.AComm(base, op) => assert_site_equal(base, op)
         Op.Pow(base) => n_sites(base)
         Op.KronPow(base, Index.Constant(n)) => n_sites(base)^n
@@ -70,6 +114,15 @@ function n_sites(node::Op.Type)
         Op.Conj(op) => n_sites(op)
         Op.Transpose(op) => n_sites(op)
         Op.Outer(lhs, rhs) => assert_site_equal(lhs, rhs)
-        # Op.Annotate(op, basis) => @match n_sites(op) begin end
+        Op.Annotate(op, basis) => n_sites(basis.space)
+    end
+end
+
+function n_sites(node::Space.Type)
+    @match node begin
+        Space.Product(lhs, rhs) => n_sites(lhs) + n_sites(rhs)
+        Space.Pow(base, exp) => n_sites(base) * exp
+        Space.Subspace(space) => n_sites(space)
+        _ => SiteCount.Fixed(1)
     end
 end
