@@ -225,9 +225,8 @@ function propgate_basis_kron_pow(
                 _ => error("expect constant index, got: $exp")
             end
             base_n_sites = total_n_sites ÷ exp
-            return Op.KronPow(
-                propagate_basis(base, BasisInfo.Product(bases[1:base_n_sites])), exp
-            )
+            base_basis = BasisInfo.Product(bases[1:base_n_sites])
+            return Op.KronPow(propagate_basis(base, base_basis, base_n_sites), exp)
         end
     end
 end
@@ -247,9 +246,13 @@ function propagate_basis_kron(
                 _ => error("expect fixed site count, got: $lhs")
             end
             return Op.Kron(
-                propagate_basis(lhs, BasisInfo.Product(bases[1:lhs_n_sites])),
-                propagate_basis(rhs, BasisInfo.Product(bases[(lhs_n_sites + 1):end])),
+                propagate_basis(lhs, BasisInfo.Product(bases[1:lhs_n_sites]), lhs_n_sites),
+                propagate_basis(
+                    rhs,
+                    BasisInfo.Product(bases[(lhs_n_sites + 1):end]),
+                    total_n_sites - lhs_n_sites,
+                ),
             )
-        end
-    end
+        end # BasisInfo.Product
+    end # @match
 end
