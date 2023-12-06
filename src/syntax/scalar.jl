@@ -427,7 +427,6 @@ for fn in [
     :exp2,
     :expm1,
     :exponent,
-    :fourthroot,
     :log10,
     :log1p,
     :log2,
@@ -448,9 +447,14 @@ for fn in [
     :tan,
     :tand,
     :tanh,
-    :tanpi,
 ]
     @eval Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
 end
 
 const ħ = Scalar.Hbar
+
+@static if VERSION > v"1.10-"
+    for fn in [:fourthroot, :tanpi]
+        @eval Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
+    end
+end
