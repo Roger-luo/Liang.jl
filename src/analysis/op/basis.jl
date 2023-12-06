@@ -170,6 +170,7 @@ function propagate_basis(node::Op.Type, info::BasisInfo.Type)
         Op.Sum(_) => Op.Annotate(node, info)
         Op.Prod(_) => Op.Annotate(node, info)
         Op.Outer(lhs, rhs) => Op.Annotate(node, info)
+        Op.Annotate(_) => node
 
         # nodes that inherit basis from their parent
         _ => Tree.map_children(node) do term
@@ -208,8 +209,8 @@ function propagate_basis_kron(
                 _ => error("expect fixed site count, got: $lhs")
             end
             return Op.Kron(
-                propagate_basis(lhs, bases[1:lhs_n_sites]),
-                propagate_basis(rhs, bases[(lhs_n_sites + 1):end]),
+                propagate_basis(lhs, BasisInfo.Product(bases[1:lhs_n_sites])),
+                propagate_basis(rhs, BasisInfo.Product(bases[(lhs_n_sites + 1):end])),
             )
         end
     end
