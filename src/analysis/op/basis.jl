@@ -133,6 +133,15 @@ function basis(node::Op.Type)
     end
 end
 
+function sum_basis(node::Op.Type)
+    return error("not implemented yet")
+    # @match node Op.Sum(region, indices, term) => (region, indices, term)
+end
+
+function prod_basis(node::Op.Type)
+    return error("not implemented yet")
+end
+
 function basis(node::State.Type)
     @match node begin
         State.Zero => BasisInfo.Adaptive
