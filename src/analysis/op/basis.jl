@@ -2,7 +2,7 @@
     Adaptive
     Required
     Fixed(Basis)
-    Product(Vector{Basis})
+    Product(Vector{BasisInfo})
 
     struct Err
         msg::String
@@ -12,12 +12,28 @@ end
 
 @derive BasisInfo[PartialEq, Hash, Show]
 
+# NOTE: BasisInfo only has fixed #sites
+n_sites(b::Basis) = n_sites(b.space)
+
+function n_sites(info::BasisInfo.Type)
+    @match info begin
+        BasisInfo.Adaptive => SiteCount.Fixed(1)
+        BasisInfo.Required => SiteCount.Fixed(1)
+        BasisInfo.Fixed(basis) => n_sites(basis)
+        BasisInfo.Product(bases) => sum(n_sites, bases)
+        BasisInfo.Err(_) =>
+            SiteCount.Err(SiteCountErr.Unknown("cannot analyze basis info with error"))
+    end
+end
+
+Basis(info::BasisInfo.Type) = convert(Basis, info)
+
 function Base.convert(::Type{Basis}, info::BasisInfo.Type)
     @match info begin
         BasisInfo.Fixed(basis) => return basis
         BasisInfo.Product(xs) => begin
-            length(xs) == 1 && return xs[1]
-            return reduce(*, xs)
+            length(xs) == 1 && return Basis(xs[1])
+            return mapreduce(Basis, *, xs)
         end
         _ => error("expect fixed basis, got: $info")
     end
@@ -28,12 +44,12 @@ function union_basis(lhs::BasisInfo.Type, rhs::BasisInfo.Type)
         (BasisInfo.Err(_), _) => lhs
         (_, BasisInfo.Err(_)) => rhs
         (BasisInfo.Product(xs), BasisInfo.Product(ys)) => begin
-            length(lhs) == length(rhs) ||
+            length(xs) == length(ys) ||
                 return BasisInfo.Err("length of lhs and rhs mismatch")
 
             new_basis = BasisInfo.Type[]
-            sizehint!(new_basis, length(lhs))
-            for (idx, (x, y)) in enumerate(zip(lhs, rhs))
+            sizehint!(new_basis, length(xs))
+            for (idx, (x, y)) in enumerate(zip(xs, ys))
                 x = union_basis(x, y)
                 isa_variant(x, BasisInfo.Err) &&
                     return BasisInfo.Err("lhs[$idx] and rhs[$idx] mismatch")
@@ -153,13 +169,20 @@ function basis(node::State.Type)
     end
 end
 
+function propagate_basis(node::Op.Type, info::BasisInfo.Type)
+    @match n_sites(info) begin
+        SiteCount.Fixed(n) => propagate_basis(node, info, n)
+        _ => error("expect fixed site count, got: $info")
+    end
+end
+
 """
 $SIGNATURES
 
 Propagate basis information from the root node to the leaf nodes
 by creating `Op.Annotate` nodes on leaf nodes.
 """
-function propagate_basis(node::Op.Type, info::BasisInfo.Type)
+function propagate_basis(node::Op.Type, info::BasisInfo.Type, total_n_sites::Int)
     @match info begin
         BasisInfo.Adaptive => return node
         BasisInfo.Required => return node
@@ -170,8 +193,9 @@ function propagate_basis(node::Op.Type, info::BasisInfo.Type)
     @match node begin
         if Tree.is_leaf(node)
         end => Op.Annotate(node, info)
-        Op.Kron(lhs, rhs) => propagate_basis_kron(node, info, lhs, rhs)
-        Op.KronPow(base, exp) => propgate_basis_kron_pow(node, info, base, exp)
+        Op.Kron(lhs, rhs) => propagate_basis_kron(node, info, total_n_sites, lhs, rhs)
+        Op.KronPow(base, exp) =>
+            propgate_basis_kron_pow(node, info, total_n_sites, base, exp)
 
         # these expression are treated as leaf nodes
         # as it's not beneficial to propagate basis information
@@ -183,23 +207,24 @@ function propagate_basis(node::Op.Type, info::BasisInfo.Type)
 
         # nodes that inherit basis from their parent
         _ => Tree.map_children(node) do term
-            propagate_basis(term, info)
+            propagate_basis(term, info, total_n_sites)
         end
     end
 end
 
 function propgate_basis_kron_pow(
-    node::Op.Type, info::BasisInfo.Type, base::Op.Type, exp::Op.Type
+    node::Op.Type, info::BasisInfo.Type, total_n_sites::Int, base::Op.Type, exp::Index.Type
 )
     isa_variant(node, Op.KronPow) || error("expect Op.KronPow, got: $node")
 
     @match info begin
         BasisInfo.Fixed(basis) => return Op.Annotate(node, basis)
         BasisInfo.Product(bases) => begin
-            base_n_sites = @match n_sites(base) begin
-                SiteCount.Fixed(n) => n
-                _ => error("expect fixed site count, got: $base")
+            exp = @match exp begin
+                Index.Constant(idx) => idx
+                _ => error("expect constant index, got: $exp")
             end
+            base_n_sites = total_n_sites ÷ exp
             return Op.KronPow(
                 propagate_basis(base, BasisInfo.Product(bases[1:base_n_sites])), exp
             )
@@ -208,13 +233,17 @@ function propgate_basis_kron_pow(
 end
 
 function propagate_basis_kron(
-    node::Op.Type, info::BasisInfo.Type, lhs::Op.Type, rhs::Op.Type
+    node::Op.Type, info::BasisInfo.Type, total_n_sites::Int, lhs::Op.Type, rhs::Op.Type
 )
     @match info begin
         BasisInfo.Fixed(basis) => return Op.Annotate(node, basis)
         BasisInfo.Product(bases) => begin
             lhs_n_sites = @match n_sites(lhs) begin
                 SiteCount.Fixed(n) => n
+                SiteCount.GreaterThan(n) => @match n_sites(rhs) begin
+                    SiteCount.Fixed(m) => total_n_sites - m
+                    _ => error("expect fixed site count, got: $rhs")
+                end
                 _ => error("expect fixed site count, got: $lhs")
             end
             return Op.Kron(
