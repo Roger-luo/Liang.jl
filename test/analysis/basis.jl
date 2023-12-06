@@ -8,7 +8,5 @@ n_sites(t1)
 basis(t1)
 propagate_basis(t1, basis(t1))
 
-t2 = kron(Op.I, Op.X) + kron(Op.X % Qubit_Z, Op.Z % Spin(3))
-n_sites(t2)
-basis(t2)
+t2 = kron(Op.I, Op.X) + kron(Op.X % Qubit, Op.Z % Spin(3))
 propagate_basis(t2, basis(t2))
