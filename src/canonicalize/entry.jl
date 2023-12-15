@@ -1,43 +1,46 @@
+# NOTE: just for tuning canonicalize
+canonical_fixpoint(pass; max_iter::Int=4) = Fixpoint(pass; max_iter)
+
 function canonicalize(node)
     return node
 end
 
 function canonicalize(node::Index.Type)
     p = Chain{Index.Type}(
-        Fixpoint(Pre(remove_empty_add)),
-        Fixpoint(Pre(merge_nested_mul)),
-        Fixpoint(Pre(merge_nested_add)),
-        Fixpoint(Pre(merge_add_mul)),
-        Fixpoint(Pre(mul_to_pow)),
-        Fixpoint(Pre(merge_pow_mul)),
-        Fixpoint(Pre(prop_const_div)),
-        Fixpoint(Pre(remove_empty_add)),
-        Fixpoint(Pre(remove_pow_one)),
-        Fixpoint(Pre(fold_const_pow)),
-        Fixpoint(Pre(fold_const_add)),
-        Fixpoint(Pre(fold_const_mul)),
+        canonical_fixpoint(Pre(remove_empty_add)),
+        canonical_fixpoint(Pre(merge_nested_mul)),
+        canonical_fixpoint(Pre(merge_nested_add)),
+        canonical_fixpoint(Pre(merge_add_mul)),
+        canonical_fixpoint(Pre(mul_to_pow)),
+        canonical_fixpoint(Pre(merge_pow_mul)),
+        canonical_fixpoint(Pre(prop_const_div)),
+        canonical_fixpoint(Pre(remove_empty_add)),
+        canonical_fixpoint(Pre(remove_pow_one)),
+        canonical_fixpoint(Pre(fold_const_pow)),
+        canonical_fixpoint(Pre(fold_const_add)),
+        canonical_fixpoint(Pre(fold_const_mul)),
     )
     return p(node)
 end
 
 function canonicalize(node::Scalar.Type)
     p = Chain{Scalar.Type}(
-        Fixpoint(Post(merge_nested_add)),
-        Fixpoint(Post(merge_nested_mul)),
-        Fixpoint(Post(merge_pow_mul)),
-        Fixpoint(Post(mul_to_pow)),
-        Fixpoint(Post(remove_pow_one)),
-        Fixpoint(Post(merge_add_mul)),
-        Fixpoint(Post(prop_const_div)),
-        Fixpoint(Pre(remove_empty_add)),
-        Fixpoint(Post(prop_conj)),
-        Fixpoint(Pre(fold_const_pow)),
-        Fixpoint(Pre(fold_const_add)),
-        Fixpoint(Pre(fold_const_mul)),
+        canonical_fixpoint(Post(merge_nested_add)),
+        canonical_fixpoint(Post(merge_nested_mul)),
+        canonical_fixpoint(Post(merge_pow_mul)),
+        canonical_fixpoint(Post(mul_to_pow)),
+        canonical_fixpoint(Post(remove_pow_one)),
+        canonical_fixpoint(Post(merge_add_mul)),
+        canonical_fixpoint(Post(prop_const_div)),
+        canonical_fixpoint(Pre(remove_empty_add)),
+        canonical_fixpoint(Post(prop_conj)),
+        canonical_fixpoint(Pre(fold_const_pow)),
+        canonical_fixpoint(Pre(fold_const_add)),
+        canonical_fixpoint(Pre(fold_const_mul)),
     )
 
     p = Chain{Scalar.Type}(
-        Fixpoint(p),
+        canonical_fixpoint(p),
         Post(sort_terms(Scalar.Add)),
         Post(sort_terms(Scalar.Mul)),
         Post(fold_const_pow),
@@ -47,13 +50,13 @@ end
 
 function canonicalize(node::Op.Type)
     p = Chain{Op.Type}(
-        Fixpoint(Pre(merge_nested_add)),
-        Fixpoint(Pre(remove_add_zero_coeffs)),
-        Fixpoint(Pre(merge_group_element)),
-        Fixpoint(Pre(merge_pow_mul)),
-        Fixpoint(Pre(prop_adjoint)),
-        Fixpoint(Pre(break_outer)),
-        Fixpoint(Pre(remove_empty_add)),
+        canonical_fixpoint(Pre(merge_nested_add)),
+        canonical_fixpoint(Pre(remove_add_zero_coeffs)),
+        canonical_fixpoint(Pre(merge_group_element)),
+        canonical_fixpoint(Pre(merge_pow_mul)),
+        canonical_fixpoint(Pre(prop_adjoint)),
+        canonical_fixpoint(Pre(break_outer)),
+        canonical_fixpoint(Pre(remove_empty_add)),
     )
-    return Fixpoint(p)(node)
+    return canonical_fixpoint(p)(node)
 end

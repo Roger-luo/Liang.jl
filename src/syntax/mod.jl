@@ -26,6 +26,14 @@ macro syntax(expr)
     return esc(syntax_m(__source__, expr))
 end
 
+function forward_function_args(args)
+    isnothing(args) && return []
+    return map(args) do x
+        Meta.isexpr(x, :...) && return Expr(:..., name_only(x.args[1]))
+        return name_only(x)
+    end
+end
+
 function syntax_m(line, expr)
     !syntax_option["canonicalize"] && !syntax_option["validate"] && return expr
 
@@ -34,8 +42,8 @@ function syntax_m(line, expr)
     jl.name = gensym(string(jl.name))
 
     @gensym output_expr
-    args = isnothing(jl.args) ? [] : name_only.(jl.args)
-    kwargs = isnothing(jl.kwargs) ? [] : name_only.(jl.kwargs)
+    args = forward_function_args(jl.args)
+    kwargs = forward_function_args(jl.kwargs)
     body = Expr(:block, line, :($output_expr = $(jl.name)($(args...); $(kwargs...))))
     if syntax_option["canonicalize"]
         push!(body.args, :($output_expr = $canonicalize($output_expr)))
