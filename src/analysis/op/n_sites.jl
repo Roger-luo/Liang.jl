@@ -6,8 +6,18 @@ end
 
 function Base.show(io::IO, err::SiteCountErr.Type)
     @match err begin
-        SiteCountErr.NotEqual(lhs, rhs) => print(io, "SiteCountErr.NotEqual($lhs, $rhs)")
-        SiteCountErr.CannotDetermine(node) => print(io, "CannotDetermine($node)")
+        SiteCountErr.NotEqual(lhs, rhs) => begin
+            print(io, "SiteCountErr.NotEqual(")
+            show(io, lhs)
+            print(io, ", ")
+            show(io, rhs)
+            print(io, ")")
+        end
+        SiteCountErr.CannotDetermine(node) => begin
+            print(io, "CannotDetermine(")
+            show(io, node)
+            print(io, ")")
+        end
         SiteCountErr.Unknown(msg) => print(io, msg)
     end
 end
@@ -24,7 +34,11 @@ function Base.show(io::IO, t::SiteCount.Type)
     @match t begin
         SiteCount.Fixed(n) => print(io, "Fixed($n)")
         SiteCount.GreaterThan(n) => print(io, "GreaterThan($n)")
-        SiteCount.Err(err) => print(io, "Err($err)")
+        SiteCount.Err(err) => begin
+            print(io, "SiteCount.Err(")
+            show(io, err)
+            print(io, ")")
+        end
     end
 end
 
@@ -85,6 +99,23 @@ function assert_site_equal(lhs::Op.Type, rhs::Op.Type)
     end
 end
 
+function assert_site_equal(terms)
+    it = Iterators.Stateful(terms)
+    lhs = popfirst!(it)
+    count = n_sites(lhs)
+    while !isempty(it)
+        rhs = popfirst!(it)
+        # well let's hope CSE works here
+        count = @inline(assert_site_equal(lhs, rhs))
+
+        @match count begin
+            SiteCount.Err(_) => return count
+            _ => (lhs = rhs)
+        end
+    end
+    return count
+end
+
 function n_sites(node::Op.Type)
     @match node begin
         # they must be larger than 1 otherwise user should not write
@@ -93,7 +124,7 @@ function n_sites(node::Op.Type)
         Op.X || Op.Y || Op.Z || Op.Sx || Op.Sy || Op.Sz || Op.H || Op.T =>
             SiteCount.Fixed(1)
         Op.Constant(x) => n_sites(x)
-        Op.Add(terms) => reduce(assert_site_equal, keys(terms))
+        Op.Add(terms) => assert_site_equal(keys(terms))
         Op.Mul(lhs, rhs) => assert_site_equal(lhs, rhs)
         Op.Kron(lhs, rhs) => n_sites(lhs) + n_sites(rhs)
         Op.Comm(base, op) || Op.AComm(base, op) => assert_site_equal(base, op)

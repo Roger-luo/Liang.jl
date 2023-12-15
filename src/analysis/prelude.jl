@@ -1,6 +1,7 @@
 module Prelude
 
 using ..Analysis: vars
-export vars
+using ..Analysis.OpAnalysis: n_sites, basis
+export vars, n_sites, basis
 
 end # Prelude
