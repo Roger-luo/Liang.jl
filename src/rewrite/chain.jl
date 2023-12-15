@@ -1,17 +1,17 @@
-struct Chain{Rs<:Tuple}
-    maps::Rs
+struct Chain{E,Maps<:Tuple}
+    maps::Maps
 end
 
-Chain(maps...) = Chain(maps)
+Chain{E}(maps...) where {E} = Chain{E,typeof(maps)}(maps)
 
-function (p::Chain)(x)
+function (p::Chain{E})(x::E) where {E}
     for map in p.maps
-        y = map(x)
+        y = map(x)::Union{Nothing,E}
         if !isnothing(y)
             x = y
         end
     end
-    return x
+    return x::E
 end
 
 function Base.show(io::IO, p::Chain)

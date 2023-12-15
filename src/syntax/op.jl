@@ -1,4 +1,4 @@
-function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
     # NOTE: unlike the scalar case, we don't calculate
     # constant in case it's too slow.
     if lhs == rhs
@@ -8,139 +8,139 @@ function Base.:(+)(lhs::Op.Type, rhs::Op.Type)
     end
 end
 
-function Base.:(+)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+@syntax function Base.:(+)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
     return Op.Add(Dict(lhs => 1)) + rhs * Op.I
 end
 
-function Base.:(+)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+@syntax function Base.:(+)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
     return rhs + lhs
 end
 
-function Base.:(-)(op::Op.Type)
+@syntax function Base.:(-)(op::Op.Type)
     return Op.Add(Dict(op => -1))
 end
 
-function Base.:(-)(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.:(-)(lhs::Op.Type, rhs::Op.Type)
     lhs == rhs && return Op.Zero
     return Op.Add(Dict(lhs => 1, rhs => -1))
 end
 
-function Base.:(-)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+@syntax function Base.:(-)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
     return Op.Add(Dict(lhs => 1)) - rhs * Op.I
 end
 
-function Base.:(-)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+@syntax function Base.:(-)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
     return -rhs + lhs
 end
 
-function Base.:(*)(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.:(*)(lhs::Op.Type, rhs::Op.Type)
     return Op.Mul(lhs, rhs)
 end
 
-function Base.:(*)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
+@syntax function Base.:(*)(lhs::Op.Type, rhs::Union{Number,Scalar.Type})
     return Op.Add(Dict(lhs => rhs))
 end
 
-function Base.:(*)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
+@syntax function Base.:(*)(lhs::Union{Number,Scalar.Type}, rhs::Op.Type)
     return rhs * lhs
 end
 
-function Base.:(/)(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.:(/)(lhs::Op.Type, rhs::Op.Type)
     return lhs * Op.Inv(rhs)
 end
 
-function Base.:(\)(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.:(\)(lhs::Op.Type, rhs::Op.Type)
     return Op.Inv(lhs) * rhs
 end
 
-function Base.:(^)(lhs::Op.Type, rhs::Scalar.Type)
+@syntax function Base.:(^)(lhs::Op.Type, rhs::Scalar.Type)
     return Op.Pow(lhs, rhs)
 end
 
-function Base.:(^)(lhs::Op.Type, rhs::Number)
+@syntax function Base.:(^)(lhs::Op.Type, rhs::Number)
     return Op.Pow(lhs, Scalar.Constant(rhs))
 end
 
-function Base.kron(lhs::Op.Type, rhs::Op.Type)
+@syntax function Base.kron(lhs::Op.Type, rhs::Op.Type)
     return Op.Kron(lhs, rhs)
 end
 
-function Base.kron(x1::Op.Type, x2::Op.Type, xs::Op.Type...)
+@syntax function Base.kron(x1::Op.Type, x2::Op.Type, xs::Op.Type...)
     return reduce(kron, (x1, x2, xs...))
 end
 
-function comm(base::Op.Type, op::Op.Type)
+@syntax function comm(base::Op.Type, op::Op.Type)
     return comm(base, op, 1)
 end
 
-function comm(base::Op.Type, op::Op.Type, pow::Int)
+@syntax function comm(base::Op.Type, op::Op.Type, pow::Int)
     return comm(base, op, Index.Constant(pow))
 end
 
-function comm(base::Op.Type, op::Op.Type, pow::Index.Type)
+@syntax function comm(base::Op.Type, op::Op.Type, pow::Index.Type)
     return Op.Comm(base, op, pow)
 end
 
-function acomm(base::Op.Type, op::Op.Type)
+@syntax function acomm(base::Op.Type, op::Op.Type)
     return acomm(base, op, 1)
 end
 
-function acomm(base::Op.Type, op::Op.Type, pow::Int)
+@syntax function acomm(base::Op.Type, op::Op.Type, pow::Int)
     return acomm(base, op, Index.Constant(pow))
 end
 
-function acomm(base::Op.Type, op::Op.Type, pow::Index.Type)
+@syntax function acomm(base::Op.Type, op::Op.Type, pow::Index.Type)
     return Op.AComm(base, op, pow)
 end
 
-Base.conj(op::Op.Type) = Op.Conj(op)
-Base.adjoint(op::Op.Type) = Op.Adjoint(op)
+@syntax Base.conj(op::Op.Type) = Op.Conj(op)
+@syntax Base.adjoint(op::Op.Type) = Op.Adjoint(op)
 
-function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
+@syntax function Base.getindex(op::Op.Type, subscripts::Union{Int,Symbol,Index.Type}...)
     return Op.Subscript(; op, indices=collect(Index.Type, subscripts))
 end
 
-function Base.sum(region, term::Pair{Vector{Index.Type},Op.Type})
+@syntax function Base.sum(region, term::Pair{Vector{Index.Type},Op.Type})
     return Op.Sum(region, term.first, term.second)
 end
 
-function Base.prod(region, term::Pair{Vector{Index.Type},Op.Type})
+@syntax function Base.prod(region, term::Pair{Vector{Index.Type},Op.Type})
     return Op.Prod(region, term.first, term.second)
 end
 
-function Base.exp(op::Op.Type)
+@syntax function Base.exp(op::Op.Type)
     return Op.Exp(op)
 end
 
-function Base.log(op::Op.Type)
+@syntax function Base.log(op::Op.Type)
     return Op.Log(op)
 end
 
-function LinearAlgebra.tr(op::Op.Type)
+@syntax function LinearAlgebra.tr(op::Op.Type)
     return Scalar.Tr(canonicalize(op))
 end
 
-function LinearAlgebra.det(op::Op.Type)
+@syntax function LinearAlgebra.det(op::Op.Type)
     return Scalar.Det(canonicalize(op))
 end
 
-function Base.inv(op::Op.Type)
+@syntax function Base.inv(op::Op.Type)
     return Op.Inv(op)
 end
 
-function Base.sqrt(op::Op.Type)
+@syntax function Base.sqrt(op::Op.Type)
     return Op.Sqrt(op)
 end
 
-function Base.transpose(op::Op.Type)
+@syntax function Base.transpose(op::Op.Type)
     return Op.Transpose(op)
 end
 
-function Base.rem(op::Op.Type, basis::Basis)
+@syntax function Base.rem(op::Op.Type, basis::Basis)
     return Op.Annotate(op, basis)
 end
 
-function outer(lhs::State.Type, rhs::State.Type)
+@syntax function outer(lhs::State.Type, rhs::State.Type)
     return Op.Outer(lhs, rhs)
 end
 
@@ -154,7 +154,7 @@ function Base.show(io::IO, x::EigenDecomp)
     return print(io, ")")
 end
 
-function Base.getindex(eig::EigenDecomp, idx::Int)
+@syntax function Base.getindex(eig::EigenDecomp, idx::Int)
     return State.Eigen(eig.op, idx)
 end
 

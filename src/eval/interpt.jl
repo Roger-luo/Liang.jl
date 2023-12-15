@@ -59,7 +59,7 @@ for (E, V) in [(Index, Int), (Scalar, Num.Type)]
                 return node
             end
         end
-        p = Post(Pre(Chain(substitute, canonicalize)))
+        p = Post(Pre(Chain{$E.Type}(substitute, canonicalize)))
         return p(node)
     end
 end

@@ -1,4 +1,4 @@
-function domain(expr::Scalar.Type, x::Domain.Type)
+@syntax function domain(expr::Scalar.Type, x::Domain.Type)
     return Scalar.Domain(expr, x)
 end
 
@@ -227,17 +227,17 @@ function Base.conj(x::Num.Type)
     end
 end
 
-Base.conj(x::Scalar.Type) = Scalar.Conj(x)
-Base.:(+)(x::Scalar.Type) = x
-Base.:(-)(x::Scalar.Type) = Scalar.Neg(x)
+@syntax Base.conj(x::Scalar.Type) = Scalar.Conj(x)
+@syntax Base.:(+)(x::Scalar.Type) = x
+@syntax Base.:(-)(x::Scalar.Type) = Scalar.Neg(x)
 
 # some overloads for the syntax of scalar expressions
-Base.:(+)(lhs::Scalar.Type, rhs::Number) = lhs + Scalar.Constant(rhs)
-Base.:(+)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
-Base.:(+)(lhs::Scalar.Type, rhs::Num.Type) = lhs + Scalar.Constant(rhs)
-Base.:(+)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
+@syntax Base.:(+)(lhs::Scalar.Type, rhs::Number) = lhs + Scalar.Constant(rhs)
+@syntax Base.:(+)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
+@syntax Base.:(+)(lhs::Scalar.Type, rhs::Num.Type) = lhs + Scalar.Constant(rhs)
+@syntax Base.:(+)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) + rhs
 
-function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x + y)
         (_, Scalar.Constant(_)) => Scalar.Add(rhs, Dict(lhs => 1))
@@ -247,12 +247,12 @@ function Base.:(+)(lhs::Scalar.Type, rhs::Scalar.Type)
     end
 end
 
-Base.:(-)(lhs::Scalar.Type, rhs::Number) = lhs - Scalar.Constant(rhs)
-Base.:(-)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
-Base.:(-)(lhs::Scalar.Type, rhs::Num.Type) = lhs - Scalar.Constant(rhs)
-Base.:(-)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
+@syntax Base.:(-)(lhs::Scalar.Type, rhs::Number) = lhs - Scalar.Constant(rhs)
+@syntax Base.:(-)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
+@syntax Base.:(-)(lhs::Scalar.Type, rhs::Num.Type) = lhs - Scalar.Constant(rhs)
+@syntax Base.:(-)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) - rhs
 
-function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x - y)
         (_, Scalar.Constant(_)) => Scalar.Add(-rhs, Dict(lhs => 1))
@@ -262,12 +262,12 @@ function Base.:(-)(lhs::Scalar.Type, rhs::Scalar.Type)
     end
 end
 
-Base.:(*)(lhs::Scalar.Type, rhs::Number) = lhs * Scalar.Constant(rhs)
-Base.:(*)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
-Base.:(*)(lhs::Scalar.Type, rhs::Num.Type) = lhs * Scalar.Constant(rhs)
-Base.:(*)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
+@syntax Base.:(*)(lhs::Scalar.Type, rhs::Number) = lhs * Scalar.Constant(rhs)
+@syntax Base.:(*)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
+@syntax Base.:(*)(lhs::Scalar.Type, rhs::Num.Type) = lhs * Scalar.Constant(rhs)
+@syntax Base.:(*)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) * rhs
 
-function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
     @match (lhs, rhs) begin
         (Scalar.Constant(x), Scalar.Constant(y)) => Scalar.Constant(x * y)
         (_, Scalar.Constant(_)) => Scalar.Mul(rhs, Dict(lhs => 1))
@@ -277,39 +277,39 @@ function Base.:(*)(lhs::Scalar.Type, rhs::Scalar.Type)
     end
 end
 
-Base.:(/)(lhs::Scalar.Type, rhs::Number) = lhs / Scalar.Constant(rhs)
-Base.:(/)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
-Base.:(/)(lhs::Scalar.Type, rhs::Num.Type) = lhs / Scalar.Constant(rhs)
-Base.:(/)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
+@syntax Base.:(/)(lhs::Scalar.Type, rhs::Number) = lhs / Scalar.Constant(rhs)
+@syntax Base.:(/)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
+@syntax Base.:(/)(lhs::Scalar.Type, rhs::Num.Type) = lhs / Scalar.Constant(rhs)
+@syntax Base.:(/)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) / rhs
 
-function Base.:(/)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax function Base.:(/)(lhs::Scalar.Type, rhs::Scalar.Type)
     lhs == rhs && return Scalar.Constant(1)
     return Scalar.Div(lhs, rhs)
 end
 
-Base.:(\)(lhs::Scalar.Type, rhs::Number) = lhs \ Scalar.Constant(rhs)
-Base.:(\)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
-Base.:(\)(lhs::Scalar.Type, rhs::Num.Type) = lhs \ Scalar.Constant(rhs)
-Base.:(\)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
-function Base.:(\)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax Base.:(\)(lhs::Scalar.Type, rhs::Number) = lhs \ Scalar.Constant(rhs)
+@syntax Base.:(\)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
+@syntax Base.:(\)(lhs::Scalar.Type, rhs::Num.Type) = lhs \ Scalar.Constant(rhs)
+@syntax Base.:(\)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs) \ rhs
+@syntax function Base.:(\)(lhs::Scalar.Type, rhs::Scalar.Type)
     lhs == rhs && return Scalar.Constant(1)
     return Scalar.Div(rhs, lhs)
 end
 
-Base.:(^)(lhs::Scalar.Type, rhs::Number) = lhs^Scalar.Constant(rhs)
-Base.:(^)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
-Base.:(^)(lhs::Scalar.Type, rhs::Num.Type) = lhs^Scalar.Constant(rhs)
-Base.:(^)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
-function Base.:(^)(lhs::Scalar.Type, rhs::Scalar.Type)
+@syntax Base.:(^)(lhs::Scalar.Type, rhs::Number) = lhs^Scalar.Constant(rhs)
+@syntax Base.:(^)(lhs::Number, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
+@syntax Base.:(^)(lhs::Scalar.Type, rhs::Num.Type) = lhs^Scalar.Constant(rhs)
+@syntax Base.:(^)(lhs::Num.Type, rhs::Scalar.Type) = Scalar.Constant(lhs)^rhs
+@syntax function Base.:(^)(lhs::Scalar.Type, rhs::Scalar.Type)
     return Scalar.Pow(lhs, rhs)
 end
 
-Base.abs(x::Scalar.Type) = Scalar.Abs(x)
-Base.exp(x::Scalar.Type) = Scalar.Exp(x)
-Base.log(x::Scalar.Type) = Scalar.Log(x)
-Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
-Base.max(xs::Scalar.Type...) = Scalar.Max(Set(xs))
-Base.min(xs::Scalar.Type...) = Scalar.Min(Set(xs))
+@syntax Base.abs(x::Scalar.Type) = Scalar.Abs(x)
+@syntax Base.exp(x::Scalar.Type) = Scalar.Exp(x)
+@syntax Base.log(x::Scalar.Type) = Scalar.Log(x)
+@syntax Base.sqrt(x::Scalar.Type) = Scalar.Sqrt(x)
+@syntax Base.max(xs::Scalar.Type...) = Scalar.Max(Set(xs))
+@syntax Base.min(xs::Scalar.Type...) = Scalar.Min(Set(xs))
 
 # variable syntax
 """
@@ -448,13 +448,14 @@ for fn in [
     :tand,
     :tanh,
 ]
-    @eval Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
+    @eval @syntax Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
 end
 
 const ħ = Scalar.Hbar
 
 @static if VERSION > v"1.10-"
     for fn in [:fourthroot, :tanpi]
-        @eval Base.$fn(x::Scalar.Type) = Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
+        @eval @syntax Base.$fn(x::Scalar.Type) =
+            Scalar.JuliaCall(Base, $(QuoteNode(fn)), [x])
     end
 end

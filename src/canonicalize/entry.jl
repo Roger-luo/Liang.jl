@@ -1,5 +1,9 @@
+function canonicalize(node)
+    return node
+end
+
 function canonicalize(node::Index.Type)
-    p = Chain(
+    p = Chain{Index.Type}(
         Fixpoint(Pre(remove_empty_add)),
         Fixpoint(Pre(merge_nested_mul)),
         Fixpoint(Pre(merge_nested_add)),
@@ -17,7 +21,7 @@ function canonicalize(node::Index.Type)
 end
 
 function canonicalize(node::Scalar.Type)
-    p = Chain(
+    p = Chain{Scalar.Type}(
         Fixpoint(Post(merge_nested_add)),
         Fixpoint(Post(merge_nested_mul)),
         Fixpoint(Post(merge_pow_mul)),
@@ -32,7 +36,7 @@ function canonicalize(node::Scalar.Type)
         Fixpoint(Pre(fold_const_mul)),
     )
 
-    p = Chain(
+    p = Chain{Scalar.Type}(
         Fixpoint(p),
         Post(sort_terms(Scalar.Add)),
         Post(sort_terms(Scalar.Mul)),
@@ -42,7 +46,7 @@ function canonicalize(node::Scalar.Type)
 end
 
 function canonicalize(node::Op.Type)
-    p = Chain(
+    p = Chain{Op.Type}(
         Fixpoint(Pre(merge_nested_add)),
         Fixpoint(Pre(remove_add_zero_coeffs)),
         Fixpoint(Pre(merge_group_element)),
