@@ -2,6 +2,7 @@
 **/**/**.cov
 
 /Manifest.toml
+/LocalPreferences.toml
 /docs/build/
 /docs/Manifest.toml
 /docs/src/assets/main.css

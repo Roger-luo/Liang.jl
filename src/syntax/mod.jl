@@ -7,6 +7,11 @@ using Liang.Expression.Prelude
 using Liang.Canonicalize: canonicalize
 using LinearAlgebra: LinearAlgebra
 using ExproniconLite: expr_map, JLFunction, codegen_ast, name_only
+using Preferences: @load_preference
+
+const syntax_option = @load_preference(
+    "syntax", Dict("canonicalize" => true, "validate" => true)
+)
 
 """
     @syntax <function definition>
@@ -22,6 +27,8 @@ macro syntax(expr)
 end
 
 function syntax_m(line, expr)
+    !syntax_option["canonicalize"] && !syntax_option["validate"] && return expr
+
     jl = JLFunction(expr)
     syntax_name = jl.name
     jl.name = gensym(string(jl.name))
@@ -29,6 +36,17 @@ function syntax_m(line, expr)
     @gensym output_expr
     args = isnothing(jl.args) ? [] : name_only.(jl.args)
     kwargs = isnothing(jl.kwargs) ? [] : name_only.(jl.kwargs)
+    body = Expr(:block, line, :($output_expr = $(jl.name)($(args...); $(kwargs...))))
+    if syntax_option["canonicalize"]
+        push!(body.args, :($output_expr = $canonicalize($output_expr)))
+    end
+
+    # if syntax_option["validate"]
+    #     push!(body.args, :($output_expr = $validate($output_expr)))
+    # end
+
+    push!(body.args, :(return $output_expr))
+
     overload = JLFunction(;
         jl.head,
         name=syntax_name,
@@ -39,14 +57,7 @@ function syntax_m(line, expr)
         jl.whereparams,
         jl.line,
         jl.doc,
-        body=Expr(
-            :block,
-            line,
-            :($output_expr = $(jl.name)($(args...); $(kwargs...))),
-            :($output_expr = $canonicalize($output_expr)),
-            # :($output_expr = $validate($output_expr)),
-            :(return $output_expr),
-        ),
+        body,
     )
 
     return quote
