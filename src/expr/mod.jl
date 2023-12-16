@@ -20,6 +20,7 @@ using DynamicQuantities:
     DynamicQuantities, dimension, Quantity, SymbolicDimensions, DEFAULT_DIM_BASE_TYPE
 using DocStringExtensions
 
+include("routine.jl")
 include("interface.jl")
 include("var.jl")
 include("index/mod.jl")
@@ -29,7 +30,6 @@ include("region/mod.jl")
 include("state/mod.jl")
 include("op/mod.jl")
 include("tensor/mod.jl")
-include("routine.jl")
 include("prelude.jl")
 
 end # Expression
