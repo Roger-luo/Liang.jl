@@ -175,6 +175,12 @@ TWOLEVEL_NOTE = """
         rhs::State.Type
     end
 
+    struct RoutineCall # return must be Op
+        routine::Routine{Op.Type}
+        args::Vector{Any}
+        hash::Hash.Cache = Hash.Cache()
+    end
+
     struct Annotate
         expr::Op
         basis::Basis

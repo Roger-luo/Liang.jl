@@ -100,9 +100,9 @@ This is the basic scalar type. It supports pattern matching.
         hash::Hash.Cache = Hash.Cache()
     end
 
-    struct RoutineCall
-        name::Symbol
-        args::Vector{Scalar}
+    struct RoutineCall # return must be scalar
+        routine::Routine{Scalar.Type}
+        args::Vector{Any} # expr to substitute
         hash::Hash.Cache = Hash.Cache()
     end
 
