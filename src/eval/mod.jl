@@ -13,6 +13,5 @@ using Base.MathConstants: MathConstants
 include("data.jl")
 include("interpt.jl")
 include("scalar.jl")
-# include("interpt/mod.jl")
 
 end # Eval
