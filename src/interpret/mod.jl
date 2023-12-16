@@ -8,18 +8,29 @@ using LinearAlgebra: det
 
 struct InterpretedFn{E}
     name::Symbol
-    args::Vector{Variable.Type}
+    args::Dict{Variable.Type,E}
     body::E
 end
 
 function InterpretedFn(name, body)
-    return InterpretedFn(name, collect(Variable.Type, keys(vars(body))), body)
+    return InterpretedFn(name, vars(body), body)
 end
 
-function (fn::InterpretedFn)(args...)
+try_convert(node, val) = val
+function try_convert(node::Scalar.Type, val)
+    @match node begin
+        Scalar.Variable(x) => convert(Num.Type, val)
+        Scalar.Subscript(ref) => val
+        _ => error("invalid variable node")
+    end
+end
+
+function (fn::InterpretedFn)(; kwargs...)
     scope = Dict{Variable.Type,Any}()
-    for (arg, val) in zip(fn.args, args)
-        scope[arg] = val
+    for (name, val) in kwargs
+        x = Variable.Slot(name)
+        haskey(fn.args, x) || error("unknown variable: $x")
+        scope[x] = try_convert(fn.args[x], val)
     end
     return interpret(fn.body, scope)
 end
