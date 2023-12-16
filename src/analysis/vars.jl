@@ -10,3 +10,14 @@ function vars!(scope::Dict{Variable.Type,Index.Type}, node::Index.Type)
     end
     return scope
 end
+
+function vars!(scope::Dict{Variable.Type,Scalar.Type}, node::Scalar.Type)
+    for each in children(node)
+        @match each begin
+            Scalar.Variable(x) => (scope[x] = each)
+            Scalar.Subscript(ref) => (scope[ref] = each)
+            _ => vars!(scope, each)
+        end
+    end
+    return scope
+end

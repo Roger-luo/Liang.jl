@@ -203,30 +203,6 @@ function Base.:(/)(lhs::Domain.Type, rhs::Domain.Type)
     end
 end
 
-for op in [:+, :-, :*, :/, :\, :^]
-    @eval function Base.$(op)(lhs::Num.Type, rhs::Num.Type)
-        return Base.$(op)(Number(lhs), Number(rhs))
-    end
-
-    @eval function Base.$(op)(lhs::Num.Type, rhs::Number)
-        return Base.$(op)(Number(lhs), rhs)
-    end
-
-    @eval function Base.$(op)(lhs::Number, rhs::Num.Type)
-        return Base.$(op)(rhs, lhs)
-    end
-end
-
-function Base.conj(x::Num.Type)
-    @match x begin
-        Num.Zero => Num.Zero
-        Num.One => Num.One
-        Num.Real(x) => Num.Real(x)
-        Num.Imag(x) => Num.Imag(-x)
-        Num.Complex(x, y) => Num.Complex(x, -y)
-    end
-end
-
 @syntax Base.conj(x::Scalar.Type) = Scalar.Conj(x)
 @syntax Base.:(+)(x::Scalar.Type) = x
 @syntax Base.:(-)(x::Scalar.Type) = Scalar.Neg(x)
