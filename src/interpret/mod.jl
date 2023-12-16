@@ -4,6 +4,7 @@ using Liang.Match: @match
 using Liang.Tools.Interface: @interface, INTERFACE
 using Liang.Expression.Prelude
 using Liang.Analysis.Prelude
+using LinearAlgebra: det
 
 struct InterpretedFn{E}
     name::Symbol
@@ -23,6 +24,8 @@ function (fn::InterpretedFn)(args...)
     return interpret(fn.body, scope)
 end
 
+include("num.jl")
 include("index.jl")
+include("scalar.jl")
 
 end # module

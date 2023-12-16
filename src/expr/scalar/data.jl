@@ -111,7 +111,7 @@ This is the basic scalar type. It supports pattern matching.
     Julia indexable object.
     """
     struct Subscript
-        ref::Symbol
+        ref::Variable.Type
         indices::Vector{Index.Type}
         hash::Hash.Cache = Hash.Cache()
     end
