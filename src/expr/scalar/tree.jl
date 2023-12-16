@@ -126,7 +126,7 @@ end
 
 function Tree.Print.precedence(node::Scalar.Type)::Int
     @match node begin
-        Scalar.Constant(x) => x < 0 ? 0 : 100
+        Scalar.Constant(x) => isreal(x) && x < 0 ? 0 : 100
         if Tree.is_leaf(node)
         end => 100
         Scalar.Add(_...) => Base.operator_precedence(:+)

@@ -5,9 +5,10 @@ import Liang.Data.Prelude as DataPrelude
 import Liang.Expression.Prelude as ExpressionPrelude
 import Liang.Syntax.Prelude as SyntaxPrelude
 using Liang.Tree: Print
+using Liang.Traits.Domain: domain
 using Liang.Canonicalize: canonicalize
 
-export canonicalize, Print
+export canonicalize, Print, domain
 for mod in [:DataPrelude, :ExpressionPrelude, :SyntaxPrelude]
     for name in names(getproperty(Prelude, mod))
         name == :Prelude && continue

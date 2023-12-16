@@ -3,6 +3,7 @@ module Syntax
 using DocStringExtensions
 using Liang.Match: @match
 using Liang.Tree: Tree, ACSet
+using Liang.Traits: Traits
 using Liang.Expression.Prelude
 using Liang.Canonicalize: canonicalize
 using LinearAlgebra: LinearAlgebra

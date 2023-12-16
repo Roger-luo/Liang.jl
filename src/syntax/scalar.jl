@@ -1,4 +1,4 @@
-@syntax function domain(expr::Scalar.Type, x::Domain.Type)
+@syntax function Traits.Domain.domain(expr::Scalar.Type, x::Domain.Type)
     return Scalar.Domain(expr, x)
 end
 
@@ -200,30 +200,6 @@ function Base.:(/)(lhs::Domain.Type, rhs::Domain.Type)
 
         (Domain.Imag, _) || (_, Domain.Imag) => Domain.Complex
         (Domain.Complex, _) || (_, Domain.Complex) => Domain.Complex
-    end
-end
-
-for op in [:+, :-, :*, :/, :\, :^]
-    @eval function Base.$(op)(lhs::Num.Type, rhs::Num.Type)
-        return Base.$(op)(Number(lhs), Number(rhs))
-    end
-
-    @eval function Base.$(op)(lhs::Num.Type, rhs::Number)
-        return Base.$(op)(Number(lhs), rhs)
-    end
-
-    @eval function Base.$(op)(lhs::Number, rhs::Num.Type)
-        return Base.$(op)(rhs, lhs)
-    end
-end
-
-function Base.conj(x::Num.Type)
-    @match x begin
-        Num.Zero => Num.Zero
-        Num.One => Num.One
-        Num.Real(x) => Num.Real(x)
-        Num.Imag(x) => Num.Imag(-x)
-        Num.Complex(x, y) => Num.Complex(x, -y)
     end
 end
 

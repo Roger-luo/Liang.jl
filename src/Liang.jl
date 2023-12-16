@@ -1,8 +1,8 @@
 module Liang
 
 include("err.jl")
-include("traits/mod.jl")
 include("tools/mod.jl")
+include("traits/mod.jl")
 
 # data structures
 include("data/mod.jl")
@@ -15,6 +15,8 @@ include("rewrite/mod.jl")
 
 # quantum stuff
 include("expr/mod.jl")
+include("analysis/mod.jl")
+include("interpret/mod.jl")
 include("canonicalize/mod.jl")
 include("syntax/mod.jl")
 include("analysis/mod.jl")
