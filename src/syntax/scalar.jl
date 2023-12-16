@@ -1,4 +1,4 @@
-@syntax function domain(expr::Scalar.Type, x::Domain.Type)
+@syntax function Traits.Domain.domain(expr::Scalar.Type, x::Domain.Type)
     return Scalar.Domain(expr, x)
 end
 
