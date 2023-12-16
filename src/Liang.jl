@@ -18,7 +18,8 @@ include("expr/mod.jl")
 include("canonicalize/mod.jl")
 include("syntax/mod.jl")
 include("analysis/mod.jl")
-# include("eval/mod.jl")
+# eval
+include("eval/mod.jl")
 
 # include("ssa/mod.jl")
 
