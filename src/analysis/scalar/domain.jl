@@ -1,4 +1,4 @@
-function Syntax.domain(node::Num.Type)
+function Traits.Domain.domain(node::Num.Type)
     @match node begin
         Num.Zero => Domain.Natural
         Num.One => Domain.Natural
@@ -8,7 +8,7 @@ function Syntax.domain(node::Num.Type)
     end
 end
 
-function Syntax.domain(node::Scalar.Type)
+function Traits.Domain.domain(node::Scalar.Type)
     @match node begin
         Scalar.Constant(x) => domain(x)
         Scalar.Pi => Domain.Real

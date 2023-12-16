@@ -1,8 +1,8 @@
 module ScalarAnalysis
 
 using Liang.Match: @match
-using Liang.Syntax.Prelude
 using Liang.Expression.Prelude
+using Liang.Traits: Traits
 using DynamicQuantities: Quantity, SymbolicDimensions, dimension
 
 include("unit.jl")
