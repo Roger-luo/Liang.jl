@@ -20,6 +20,7 @@ include("interpret/mod.jl")
 include("canonicalize/mod.jl")
 include("syntax/mod.jl")
 # include("eval/mod.jl")
+include("python/mod.jl")
 
 # include("ssa/mod.jl")
 
