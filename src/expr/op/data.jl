@@ -21,14 +21,19 @@
     # certain structure of the expression so
     # expectation value of the operator can be expressive, e.g
     # exp(-im*theta) as entries.
+    Identity(Int)
     struct Perm
-        nsites::Int
-        perm::Vector{Int}
-        weights::Vector{Scalar.Type}
+        nrows::Int
+        mat::PermMatrix{Scalar.Type}
     end
-
-    Dense(Int, Matrix{Scalar.Type})
-    Sparse(Int, SparseMatrixCSC{Scalar.Type})
+    struct Dense
+        nrows::Int
+        mat::Matrix{Scalar.Type}
+    end
+    struct Sparse
+        nrows::Int
+        mat::SparseMatrixCSC{Scalar.Type}
+    end
 end
 
 @derive OpValue[PartialEq, Hash]

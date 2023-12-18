@@ -4,7 +4,9 @@ using Liang.Match: @match
 using Liang.Tools.Interface: @interface, INTERFACE
 using Liang.Expression.Prelude
 using Liang.Analysis.Prelude
-using LinearAlgebra: det
+using LinearAlgebra: LinearAlgebra, det, kron
+using LuxurySparse: PermMatrix, IMatrix
+using SparseArrays: sparse, SparseMatrixCSC, nzrange
 
 struct InterpretedFn{E}
     name::Symbol
@@ -35,8 +37,7 @@ function (fn::InterpretedFn)(; kwargs...)
     return interpret(fn.body, scope)
 end
 
-include("num.jl")
+include("scalar/mod.jl")
 include("index.jl")
-include("scalar.jl")
 
 end # module
