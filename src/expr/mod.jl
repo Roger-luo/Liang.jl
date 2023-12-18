@@ -11,7 +11,7 @@ using Liang.Derive: @derive
 using Liang.Rewrite: Fixpoint, Chain, Pre, Post
 using Liang.Traits: Hash
 using Liang.Tools.Interface
-using SparseArrays: SparseMatrixCSC
+using SparseArrays: SparseMatrixCSC, issparse, sparse, nzrange
 using LuxurySparse: kron, PermMatrix, IMatrix, SDPermMatrix
 using LinearAlgebra: LinearAlgebra, kron
 using Transducers: Map, tcollect

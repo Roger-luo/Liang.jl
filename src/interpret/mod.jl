@@ -5,8 +5,8 @@ using Liang.Tools.Interface: @interface, INTERFACE
 using Liang.Expression.Prelude
 using Liang.Analysis.Prelude
 using LinearAlgebra: LinearAlgebra, det, kron
-using LuxurySparse: PermMatrix, IMatrix
-using SparseArrays: sparse, SparseMatrixCSC, nzrange
+using SparseArrays
+using LuxurySparse
 
 struct InterpretedFn{E}
     name::Symbol

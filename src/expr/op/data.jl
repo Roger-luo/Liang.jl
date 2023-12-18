@@ -21,8 +21,7 @@
     # certain structure of the expression so
     # expectation value of the operator can be expressive, e.g
     # exp(-im*theta) as entries.
-    Identity(Int)
-    Perm(Int, SDPermMatrix)
+    Perm(Int, PermMatrix{Scalar.Type, <:Integer})
     Dense(Int, Matrix{Scalar.Type})
     Sparse(Int, SparseMatrixCSC{Scalar.Type})
 end
