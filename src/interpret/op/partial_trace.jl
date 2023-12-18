@@ -22,12 +22,12 @@ function partial_trace(A::SparseMatrixCSC{T, I}, m::I, n::I) where {T, I}
     vals = nonzeros(A)
     ncol = size(A, 2)
 
-    for J in 1:ncol
-        j, k1 = divrem(J - 1, n)
+    for col in 1:ncol
+        j, k1 = divrem(col - 1, n)
 
         for ind in nzrange(A, j)
-            I = rows[ind]
-            i, k2 = divrem(I - 1, n)
+            row = rows[ind]
+            i, k2 = divrem(row - 1, n)
             if k1 == k2 # trace along the diagonal of subspace
                 push!(nzrows, i)
                 push!(nzcols, j)
@@ -45,9 +45,9 @@ function partial_trace(A::PermMatrix{T, I}, m::I, n::I) where {T, I}
     nzcols = I[]
     nzvals = T[]
 
-    for (I, J) in enumerate(A.perm)
-        i, k1 = divrem(I - 1, n)
-        j, k2 = divrem(J - 1, n)
+    for (row, col) in enumerate(A.perm)
+        i, k1 = divrem(row - 1, n)
+        j, k2 = divrem(col - 1, n)
         if k1 == k2 # trace along the diagonal of subspace
             push!(nzrows, i)
             push!(nzcols, j)

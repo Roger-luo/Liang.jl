@@ -38,6 +38,7 @@ function (fn::InterpretedFn)(; kwargs...)
 end
 
 include("scalar/mod.jl")
+include("op/mod.jl")
 include("index.jl")
 
 end # module
