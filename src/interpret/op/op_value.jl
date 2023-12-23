@@ -27,4 +27,4 @@ for unaryop in (:det, :tr)
     end
 end
 
-partial_trace(op::OpValue.Type, m::Int, n::Int)::Op.Type = partial_trace(mat(op), m, n)
+partial_trace(op::OpValue.Type, m::Int, n::Int)::OpValue.Type = partial_trace(mat(op), m, n)
