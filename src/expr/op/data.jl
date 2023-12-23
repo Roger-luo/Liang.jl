@@ -21,12 +21,7 @@
     # certain structure of the expression so
     # expectation value of the operator can be expressive, e.g
     # exp(-im*theta) as entries.
-    struct Perm
-        nsites::Int
-        perm::Vector{Int}
-        weights::Vector{Scalar.Type}
-    end
-
+    Perm(Int, PermMatrix{Scalar.Type, <:Integer})
     Dense(Int, Matrix{Scalar.Type})
     Sparse(Int, SparseMatrixCSC{Scalar.Type})
 end
