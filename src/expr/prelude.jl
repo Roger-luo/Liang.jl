@@ -16,7 +16,8 @@ using Liang.Expression:
     OpValue,
     Op,
     Tensor,
-    Device
+    Device,
+    mat
 export Expression,
     Variable,
     Index,
@@ -32,6 +33,7 @@ export Expression,
     OpValue,
     Op,
     Tensor,
-    Device
+    Device,
+    mat
 
 end # Prelude

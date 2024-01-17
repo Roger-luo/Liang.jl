@@ -1,5 +1,21 @@
 # some basic interface
 
+function Base.zero(::Type{Num.Type})
+    Num.Zero
+end
+
+function Base.one(::Type{Num.Type})
+    Num.One
+end
+
+function Base.zero(::Type{Scalar.Type})
+    Scalar.Constant(Num.Zero)
+end
+
+function Base.one(::Type{Scalar.Type})
+    Scalar.Constant(Num.One)
+end
+
 function Base.iszero(x::Num.Type)
     @match x begin
         Num.Zero => true
