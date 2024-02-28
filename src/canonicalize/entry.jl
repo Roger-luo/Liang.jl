@@ -62,6 +62,8 @@ function canonicalize(node::Op.Type)
         canonical_fixpoint(Pre(fold_identity)),
         canonical_fixpoint(Pre(mul_to_pow)),
         canonical_fixpoint(Pre(merge_mul_add)),
+        canonical_fixpoint(Pre(fold_zero)),
+        canonical_fixpoint(Pre(merge_subscript)),
     )
     return canonical_fixpoint(p)(node)
 end
