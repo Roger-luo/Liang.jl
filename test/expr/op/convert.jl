@@ -9,12 +9,10 @@ using Test
 
     m = mat(op_value)
 
-
     op = convert(OpValue.Type, m)
 
     @test variant_name(op) == :Identity
     @test m isa IMatrix
-
 
     op_value = OpValue.Pauli(UInt8[0x00, 0x01])
 
@@ -26,9 +24,4 @@ using Test
     @test m isa PermMatrix
     @test m.perm == [2, 1, 4, 3]
     @test m.vals == Num.Type[1, 1, 1, 1]
-
 end
-
-
-
-

@@ -1,3 +1,6 @@
+Base.zero(::Type{Index.Type}) = Index.Constant(0)
+Base.one(::Type{Index.Type}) = Index.Constant(1)
+
 function Base.iszero(x::Index.Type)
     @match x begin
         Index.Constant(0) => true

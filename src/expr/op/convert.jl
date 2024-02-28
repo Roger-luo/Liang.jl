@@ -1,14 +1,14 @@
 
-Base.convert(::Type{OpValue.Type}, mat::AbstractMatrix) = 
+function Base.convert(::Type{OpValue.Type}, mat::AbstractMatrix)
     if mat isa PermMatrix
         new_mat = PermMatrix(mat.perm, convert.(Scalar.Type, mat.vals))
-        OpValue.Perm(size(mat,1), new_mat)
+        OpValue.Perm(size(mat, 1), new_mat)
     elseif issparse(mat)
-        OpValue.Sparse(size(mat,1), mat)
+        OpValue.Sparse(size(mat, 1), mat)
     else
-        OpValue.Dense(size(mat,1), mat)
+        OpValue.Dense(size(mat, 1), mat)
     end
-
+end
 
 function mat(op_value::OpValue.Type)
     pauli(a::UInt8) = @match a begin

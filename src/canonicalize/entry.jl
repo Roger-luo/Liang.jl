@@ -10,6 +10,7 @@ function canonicalize(node::Index.Type)
         canonical_fixpoint(Pre(remove_empty_add)),
         canonical_fixpoint(Pre(merge_nested_mul)),
         canonical_fixpoint(Pre(merge_nested_add)),
+        canonical_fixpoint(Pre(merge_mul_single_add)),
         canonical_fixpoint(Pre(merge_add_mul)),
         canonical_fixpoint(Pre(mul_to_pow)),
         canonical_fixpoint(Pre(merge_pow_mul)),
@@ -27,6 +28,7 @@ function canonicalize(node::Scalar.Type)
     p = Chain{Scalar.Type}(
         canonical_fixpoint(Post(merge_nested_add)),
         canonical_fixpoint(Post(merge_nested_mul)),
+        canonical_fixpoint(Pre(merge_mul_single_add)),
         canonical_fixpoint(Post(merge_pow_mul)),
         canonical_fixpoint(Post(mul_to_pow)),
         canonical_fixpoint(Post(remove_pow_one)),
@@ -57,6 +59,9 @@ function canonicalize(node::Op.Type)
         canonical_fixpoint(Pre(prop_adjoint)),
         canonical_fixpoint(Pre(break_outer)),
         canonical_fixpoint(Pre(remove_empty_add)),
+        canonical_fixpoint(Pre(fold_identity)),
+        canonical_fixpoint(Pre(mul_to_pow)),
+        canonical_fixpoint(Pre(merge_mul_add)),
     )
     return canonical_fixpoint(p)(node)
 end

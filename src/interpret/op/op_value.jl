@@ -1,7 +1,4 @@
 
-
-
-
 for op in (:+, :-, :*)
     @eval function LinearAlgebra.$op(lhs::OpValue.Type, rhs::OpValue.Type)::OpValue.Type
         return LinearAlgebra.$op(mat(lhs), mat(rhs))
@@ -19,7 +16,6 @@ end
 function LinearAlgebra.kron(lhs::OpValue.Type, rhs::OpValue.Type)::OpValue.Type
     return kron(mat(lhs), mat(rhs))
 end
-    
 
 for unaryop in (:det, :tr)
     @eval function LinearAlgebra.$unaryop(op::OpValue.Type)::Scalar.Type

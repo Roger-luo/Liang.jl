@@ -9,7 +9,7 @@ function Tree.Print.print_node(io::IO, node::Op.Type)
         Op.Constant(value) => print(io, value)
         Op.Variable(x) => print(io, x)
 
-        Op.Mul(lhs, rhs) => print(io, "*")
+        Op.Mul(lhs, rhs) => print(io, "⋅")
         Op.Kron(lhs, rhs) => print(io, "⊗")
         Op.Pow(base, exp) => begin
             print(io, "^")

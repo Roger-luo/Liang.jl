@@ -1,6 +1,5 @@
 
-
-function partial_trace(A::Matrix{T}, m::I, n::I) where {T, I<:Integer}
+function partial_trace(A::Matrix{T}, m::I, n::I) where {T,I<:Integer}
     result = zeros(T, m, m)
     for i in 1:m, j in 1:m, k in 1:n
         row = (i - 1) * n + k
@@ -9,11 +8,9 @@ function partial_trace(A::Matrix{T}, m::I, n::I) where {T, I<:Integer}
     end
 
     return result
-
 end
 
-function partial_trace(A::SparseMatrixCSC{T, I}, m::I, n::I) where {T, I}
-
+function partial_trace(A::SparseMatrixCSC{T,I}, m::I, n::I) where {T,I}
     nzrows = I[]
     nzcols = I[]
     nzvals = T[]
@@ -38,9 +35,7 @@ function partial_trace(A::SparseMatrixCSC{T, I}, m::I, n::I) where {T, I}
     return sparse(nzrows, nzcols, nzvals, m, m)
 end
 
-
-function partial_trace(A::PermMatrix{T, I}, m::I, n::I) where {T, I}
-
+function partial_trace(A::PermMatrix{T,I}, m::I, n::I) where {T,I}
     nzrows = I[]
     nzcols = I[]
     nzvals = T[]
@@ -57,5 +52,3 @@ function partial_trace(A::PermMatrix{T, I}, m::I, n::I) where {T, I}
 
     return sparse(nzrows, nzcols, nzvals, m, m)
 end
-
-

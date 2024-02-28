@@ -17,3 +17,12 @@ for (E, One) in [(Index, 1), (Scalar, Num.One)]
         end
     end # @eval
 end # for E in [Index, Scalar]
+
+function mul_to_pow(node::Op.Type)
+    @match node begin
+        Op.Mul(A, A) => Op.Pow(A, 2)
+        Op.Mul(A, Op.Pow(A, p)) => Op.Pow(A, p + 1)
+        Op.Mul(Op.Pow(A, p), A) => Op.Pow(A, p + 1)
+        _ => node
+    end
+end

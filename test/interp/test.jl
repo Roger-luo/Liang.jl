@@ -5,7 +5,6 @@ using Liang.Canonicalize: canonicalize
 using Liang.Interpret: InterpretedFn
 using Liang.Analysis.OpAnalysis: basis, n_sites, propagate_basis
 
-
 Qubit_Z = Basis(Op.Z, Space.Qubit)
 Qubit_X = Basis(Op.X, Space.Qubit)
 
@@ -17,8 +16,6 @@ propagate_basis(t1, basis(t1))
 t2 = kron(Op.I, Op.X) + kron(Op.X % Qubit, Op.Z % Spin(3))
 propagate_basis(t2, basis(t2))
 
-
-
 interpreter = InterpretedFn(:test, expr)
 
-interpreter(;a=1, b=2)
+interpreter(; a=1, b=2)
